@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Run the migrations. 
      */
     public function up(): void
     {
         Schema::create('post_jobs', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('uuid')->primary()->first();
             $table->foreignId('post_id')->constrained()->onDelete('cascade');
             // Add property-specific details here
             $table->timestamps();

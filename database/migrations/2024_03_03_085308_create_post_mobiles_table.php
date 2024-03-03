@@ -12,9 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('post_mobiles', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('uuid')->primary()->first();
             $table->foreignId('post_id')->constrained()->onDelete('cascade');
-            // Add mobile-specific details here
+            $table->string('brand')->nullable();
+            $table->year('year')->nullable();
+            $table->string('title')->nullable();
+            $table->text('description')->nullable();
+            $table->decimal('amount', 10, 2)->nullable();
             $table->timestamps();
         });
     }

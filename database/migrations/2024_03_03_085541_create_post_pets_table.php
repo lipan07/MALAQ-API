@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('post_pets', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('uuid')->primary()->first();
             $table->foreignId('post_id')->constrained()->onDelete('cascade');
             // Add property-specific details here
             $table->timestamps();

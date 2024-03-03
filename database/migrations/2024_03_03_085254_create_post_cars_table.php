@@ -12,9 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('post_cars', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('uuid')->primary()->first();
             $table->foreignId('post_id')->constrained()->onDelete('cascade');
-            // Add car-specific details here
+            $table->string('brand')->nullable();
+            $table->year('year')->nullable();
+            $table->string('fuel')->nullable();
+            $table->string('transmission')->nullable();
+            $table->integer('km_driven')->nullable();
+            $table->integer('no_of_owner')->nullable();
+            $table->string('title')->nullable();
+            $table->text('description')->nullable();
+            $table->decimal('amount', 10, 2)->nullable();
             $table->timestamps();
         });
     }
