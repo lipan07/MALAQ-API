@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('post_fashions', function (Blueprint $table) {
-            $table->uuid('uuid')->primary()->first();
-            $table->foreignId('post_id')->constrained()->onDelete('cascade');
+            $table->uuid('uuid')->primary();
+            $table->uuid('post_uuid')->nullable();
+            $table->foreign('post_uuid')->references('uuid')->on('posts')->onDelete('cascade');
             // Add property-specific details here
             $table->timestamps();
         });

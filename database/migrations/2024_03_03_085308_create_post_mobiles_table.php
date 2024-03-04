@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('post_mobiles', function (Blueprint $table) {
-            $table->uuid('uuid')->primary()->first();
-            $table->foreignId('post_id')->constrained()->onDelete('cascade');
+            $table->uuid('uuid')->primary();
+            $table->uuid('post_uuid')->nullable();
+            $table->foreign('post_uuid')->references('uuid')->on('posts')->onDelete('cascade');
             $table->string('brand')->nullable();
             $table->year('year')->nullable();
             $table->string('title')->nullable();
