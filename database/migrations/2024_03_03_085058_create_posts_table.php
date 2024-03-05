@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\PostStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,6 +19,8 @@ return new class extends Migration
             $table->foreign('user_uuid')->references('uuid')->on('users')->onDelete('cascade');
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
+            $table->text('type', 5);
+            $table->enum('status', array_column(PostStatus::cases(), 'value'))->default(PostStatus::Pending->value);
             $table->timestamp('post_time');
             $table->timestamps();
         });
