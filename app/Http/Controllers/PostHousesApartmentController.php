@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StorePostPropertyRequest;
-use App\Http\Requests\UpdatePostPropertyRequest;
-use App\Models\PostProperty;
+use App\Http\Requests\StorePostHousesApartmentRequest;
+use App\Http\Requests\UpdatePostHousesApartmentRequest;
+use App\Models\PostHousesApartment;
 
-class PostPropertyController extends Controller
+class PostHousesApartmentController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +27,7 @@ class PostPropertyController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePostPropertyRequest $request)
+    public function store(StorePostHousesApartmentRequest $request)
     {
         //
     }
@@ -35,7 +35,7 @@ class PostPropertyController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(PostProperty $postProperty)
+    public function show(PostHousesApartment $postHousesApartment)
     {
         //
     }
@@ -43,7 +43,7 @@ class PostPropertyController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(PostProperty $postProperty)
+    public function edit(PostHousesApartment $postHousesApartment)
     {
         //
     }
@@ -51,7 +51,7 @@ class PostPropertyController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePostPropertyRequest $request, PostProperty $postProperty)
+    public function update(UpdatePostHousesApartmentRequest $request, PostHousesApartment $postHousesApartment)
     {
         //
     }
@@ -59,7 +59,7 @@ class PostPropertyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PostProperty $postProperty)
+    public function destroy(PostHousesApartment $postHousesApartment)
     {
         //
     }
