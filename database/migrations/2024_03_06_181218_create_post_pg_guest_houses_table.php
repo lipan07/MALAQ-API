@@ -11,23 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('post_houses_apartments', function (Blueprint $table) {
+        Schema::create('post_pg_guest_houses', function (Blueprint $table) {
             $table->uuid('uuid')->primary();
             $table->uuid('post_uuid')->nullable();
             $table->foreign('post_uuid')->references('uuid')->on('posts')->onDelete('cascade');
             $table->string('type')->nullable();
-            $table->integer('bedrooms')->nullable();
             $table->string('furnishing')->nullable();
-            $table->string('construction_status')->nullable();
             $table->string('listed_by')->nullable();
-            $table->integer('super_builtup_area')->nullable();
             $table->integer('carpet_area')->nullable();
-            $table->decimal('monthly_maintenance', 10, 2)->nullable();
-            $table->integer('total_floors')->nullable();
-            $table->integer('floor_no')->nullable();
-            $table->integer('car_parking')->nullable();
-            $table->string('facing')->nullable();
-            $table->string('project_name')->nullable();
+            $table->boolean('is_meal_included')->nullable();
             $table->string('title')->nullable();
             $table->text('description')->nullable();
             $table->decimal('amount', 10, 2)->nullable();
@@ -40,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('post_houses_apartments');
+        Schema::dropIfExists('post_pg_guest_houses');
     }
 };
