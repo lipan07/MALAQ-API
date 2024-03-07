@@ -19,7 +19,7 @@ class CategorySeeder extends Seeder
                 ['name' => 'Houses & Apartments'],
                 ['name' => 'Land & Plots'],
                 ['name' => 'PG & Guest Houses'],
-                ['name' => 'Shop & Offices'],
+                ['name' => 'Shop & Offices']
             ]],
             ['name' => 'Mobiles'],
             ['name' => 'Job', 'children' => [
@@ -38,6 +38,63 @@ class CategorySeeder extends Seeder
                 ['name' => 'Accountant'],
                 ['name' => 'Designer'],
                 ['name' => 'Other Jobs']
+            ]],
+            ['name' => 'Bikes', 'children' => [
+                ['name' => 'Motorecycles'],
+                ['name' => 'Scooters'],
+                ['name' => 'Bycycles'],
+                ['name' => 'Accessories'],
+            ]],
+            ['name' => 'Electronics & Appliances', 'children' => [
+                ['name' => 'Computers & Laptops'],
+                ['name' => 'TVs, Video & Audio'],
+                ['name' => 'ACs'],
+                ['name' => 'Fridges'],
+                ['name' => 'Washing Machines'],
+                ['name' => 'Cameras & Lenses'],
+                ['name' => 'Harddisks. Printers & Monitors'],
+                ['name' => 'Kitchen & Other Appliances'],
+                ['name' => 'Accessories']
+            ]],
+            ['name' => 'Commercial Vehicle & Spare Parts', 'children' => [
+                ['name' => 'Commercial & Heavy Vehicles'],
+                ['name' => 'Spare Parts']
+            ]],
+            ['name' => 'Furniture', 'children' => [
+                ['name' => 'Sofa & Dining'],
+                ['name' => 'Beds & Wardrobes'],
+                ['name' => 'Home Decor and Garden'],
+                ['name' => 'Kids Furniture'],
+                ['name' => 'Other Household Items']
+            ]],
+            ['name' => 'Fashion', 'children' => [
+                ['name' => 'Men'],
+                ['name' => 'Women'],
+                ['name' => 'Kids']
+            ]],
+            ['name' => 'Books, Sports & Hobbies', 'children' => [
+                ['name' => 'Books'],
+                ['name' => 'Gym & Fitness'],
+                ['name' => 'Musical Instruments'],
+                ['name' => 'Sports Equipment'],
+                ['name' => 'Other Hobbies']
+            ]],
+            ['name' => 'Pets', 'children' => [
+                ['name' => 'Dogs'],
+                ['name' => 'Fish & Aquarium'],
+                ['name' => 'Pets Food & Accessories'],
+                ['name' => 'Other Pets']
+            ]],
+            ['name' => 'Services', 'children' => [
+                ['name' => 'Education & Classes'],
+                ['name' => 'Tours & Travels'],
+                ['name' => 'Electronics Repair and Services'],
+                ['name' => 'Health & Beauty'],
+                ['name' => 'Home Renovation and Repair'],
+                ['name' => 'Cleaning & Pest Control'],
+                ['name' => 'Legal & Documentation Services'],
+                ['name' => 'Packers and Movers'],
+                ['name' => 'Other Services']
             ]],
         ];
 
