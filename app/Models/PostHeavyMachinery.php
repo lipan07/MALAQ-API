@@ -2,10 +2,15 @@
 
 namespace App\Models;
 
+use App\Enums\Condition;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class LandPlot extends Model
+class PostHeavyMachinery extends Model
 {
     use HasFactory;
+
+    protected $casts = [
+        'condition' => Condition::class,
+    ];
 }

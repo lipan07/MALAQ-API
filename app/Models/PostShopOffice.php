@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ShopOffice extends Model
+class PostShopOffice extends Model
 {
     use HasFactory;
 }

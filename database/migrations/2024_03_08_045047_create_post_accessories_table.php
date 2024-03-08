@@ -11,17 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('land_plots', function (Blueprint $table) {
+        Schema::create('post_accessories', function (Blueprint $table) {
             $table->uuid('uuid')->primary();
             $table->uuid('post_uuid')->nullable();
             $table->foreign('post_uuid')->references('uuid')->on('posts')->onDelete('cascade');
-            $table->string('type')->nullable();
-            $table->string('listed_by')->nullable();
-            $table->integer('carpet_area')->nullable();
-            $table->integer('length')->nullable();
-            $table->integer('breadth')->nullable();
-            $table->integer('facing')->nullable();
-            $table->string('project_name')->nullable();
             $table->string('title')->nullable();
             $table->text('description')->nullable();
             $table->decimal('amount', 10, 2)->nullable();
@@ -34,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('land_plots');
+        Schema::dropIfExists('post_accessories');
     }
 };

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreShopOfficeRequest;
-use App\Http\Requests\UpdateShopOfficeRequest;
-use App\Models\ShopOffice;
+use App\Http\Requests\StorePostLandPlotRequest;
+use App\Http\Requests\UpdatePostLandPlotRequest;
+use App\Models\PostLandPlot;
 
-class ShopOfficeController extends Controller
+class PostLandPlotController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +27,7 @@ class ShopOfficeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreShopOfficeRequest $request)
+    public function store(StorePostLandPlotRequest $request)
     {
         //
     }
@@ -35,7 +35,7 @@ class ShopOfficeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShopOffice $shopOffice)
+    public function show(PostLandPlot $postLandPlot)
     {
         //
     }
@@ -43,7 +43,7 @@ class ShopOfficeController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ShopOffice $shopOffice)
+    public function edit(PostLandPlot $postLandPlot)
     {
         //
     }
@@ -51,7 +51,7 @@ class ShopOfficeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateShopOfficeRequest $request, ShopOffice $shopOffice)
+    public function update(UpdatePostLandPlotRequest $request, PostLandPlot $postLandPlot)
     {
         //
     }
@@ -59,7 +59,7 @@ class ShopOfficeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ShopOffice $shopOffice)
+    public function destroy(PostLandPlot $postLandPlot)
     {
         //
     }

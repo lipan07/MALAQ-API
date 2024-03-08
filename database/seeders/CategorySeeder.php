@@ -60,6 +60,10 @@ class CategorySeeder extends Seeder
                 ['name' => 'Commercial & Heavy Vehicles'],
                 ['name' => 'Spare Parts']
             ]],
+            ['name' => 'Commercial Machinery & Spare Parts', 'children' => [
+                ['name' => 'Commercial & Heavy Machinery'],
+                ['name' => 'Spare Parts']
+            ]],
             ['name' => 'Furniture', 'children' => [
                 ['name' => 'Sofa & Dining'],
                 ['name' => 'Beds & Wardrobes'],

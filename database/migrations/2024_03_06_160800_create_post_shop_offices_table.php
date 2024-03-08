@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('shop_offices', function (Blueprint $table) {
+        Schema::create('post_shop_offices', function (Blueprint $table) {
             $table->uuid('uuid')->primary();
             $table->uuid('post_uuid')->nullable();
             $table->foreign('post_uuid')->references('uuid')->on('posts')->onDelete('cascade');
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('shop_offices');
+        Schema::dropIfExists('post_shop_offices');
     }
 };
