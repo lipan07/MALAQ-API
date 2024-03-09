@@ -15,7 +15,12 @@ return new class extends Migration
             $table->uuid('uuid')->primary();
             $table->uuid('post_uuid')->nullable();
             $table->foreign('post_uuid')->references('uuid')->on('posts')->onDelete('cascade');
-            // Add property-specific details here
+            $table->string('brand', 20)->nullable();
+            $table->string('year', 10)->nullable();
+            $table->string('km_driven')->nullable();
+            $table->string('title')->nullable();
+            $table->text('description')->nullable();
+            $table->decimal('amount', 10, 2)->nullable();
             $table->timestamps();
         });
     }

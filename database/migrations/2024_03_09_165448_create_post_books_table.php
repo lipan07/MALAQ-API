@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('post_furniture', function (Blueprint $table) {
+        Schema::create('post_books', function (Blueprint $table) {
             $table->uuid('uuid')->primary();
             $table->uuid('post_uuid')->nullable();
             $table->foreign('post_uuid')->references('uuid')->on('posts')->onDelete('cascade');
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('post_furniture');
+        Schema::dropIfExists('post_books');
     }
 };

@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-use App\Enums\MotorcycleBrand;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PostBike extends Model
+class PostSportHobby extends Model
 {
     use HasFactory;
 }
