@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('post_commercial_vehicle_spares', function (Blueprint $table) {
+        Schema::create('post_services', function (Blueprint $table) {
             $table->uuid('uuid')->primary();
             $table->uuid('post_uuid')->nullable();
             $table->foreign('post_uuid')->references('uuid')->on('posts')->onDelete('cascade');
-            // Add property-specific details here
+            $table->string('title')->nullable();
+            $table->text('description')->nullable();
+            $table->decimal('amount', 10, 2)->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('post_commercial_vehicle_spares');
+        Schema::dropIfExists('post_services');
     }
 };
