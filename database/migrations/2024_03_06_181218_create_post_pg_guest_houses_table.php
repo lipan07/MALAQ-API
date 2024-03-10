@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('post_pg_guest_houses', function (Blueprint $table) {
-            $table->uuid('uuid')->primary();
-            $table->uuid('post_uuid')->nullable();
-            $table->foreign('post_uuid')->references('uuid')->on('posts')->onDelete('cascade');
+            $table->uuid('id')->primary();
+            $table->uuid('post_id')->nullable();
+            $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
             $table->string('type')->nullable();
             $table->string('furnishing')->nullable();
             $table->string('listed_by')->nullable();

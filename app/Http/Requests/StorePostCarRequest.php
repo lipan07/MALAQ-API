@@ -2,7 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\CarBrand;
+use App\Enums\CategoryGuardName;
+use App\Enums\PostType;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePostCarRequest extends FormRequest
 {
@@ -11,7 +15,7 @@ class StorePostCarRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +26,20 @@ class StorePostCarRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
+            'address' => 'required|string|max:250',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+            'type' => ['required', 'string', Rule::in(PostType::allTypes())],
+            'brand' => ['required', 'string', Rule::in(CarBrand::allTypes())],
+            'year' => 'required|digits:4',
+            'fuel' => 'required|string',
+            'transmission' => 'required|string',
+            'km_driven' => 'required|integer',
+            'no_of_owner' => 'required|integer',
+            'title' => 'required|string',
+            'description' => 'required|string',
+            'amount' => 'required|numeric',
         ];
     }
 }

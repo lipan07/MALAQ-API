@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Category extends Model
 {
     use HasFactory;
+
+    public static function getIdByGuardName($guardName)
+    {
+        $category = self::where('guard_name', $guardName)->first();
+        return $category ? $category->id : null;
+    }
 }

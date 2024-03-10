@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('post_jobs', function (Blueprint $table) {
-            $table->uuid('uuid')->primary();
-            $table->uuid('post_uuid')->nullable();
-            $table->foreign('post_uuid')->references('uuid')->on('posts')->onDelete('cascade');
+            $table->uuid('id')->primary();
+            $table->uuid('post_id')->nullable();
+            $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
             $table->string('salary_period', 20);
             $table->string('position_type', 20);
             $table->decimal('salary_from', 10, 2);

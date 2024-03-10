@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('images', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('url');
-            $table->morphs('imageable');
-            $table->timestamps();
+        Schema::table('personal_access_tokens', function (Blueprint $table) {
+            $table->string('tokenable_id')->change();
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('images');
+        Schema::table('personal_access_tokens', function (Blueprint $table) {
+            $table->unsignedBigInteger('tokenable_id')->change();
+        });
     }
 };

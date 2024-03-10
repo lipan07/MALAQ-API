@@ -2,13 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CategoryGuardName;
+use App\Enums\PostStatus;
+use App\Enums\PostType;
+use App\Http\Requests\StorePostCarRequest;
+use App\Http\Requests\StorePostFashionRequest;
+use App\Http\Requests\StorePostMobileRequest;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Models\Category;
 use App\Models\Post;
 use App\Models\PostCar;
+use App\Models\PostFashion;
 use App\Models\PostMobile;
 use App\Models\PostProperty;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class PostController extends Controller
 {
@@ -33,25 +43,47 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate the request data
+        $rules = $this->getValidationRules($request->guard_name);
 
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
         // Create the post
         $post = Post::create([
-            'category_id' => $request->category_id,
+            'category_id' => Category::getIdByGuardName($request->guard_name),
             'user_id' => auth()->id(),
             'post_time' => now(),
+            'address' => $request->address,
+            'latitude' => $request->lattitude,
+            'longitude' => $request->longitude,
+            'type' => $request->type,
+            'status' => PostStatus::Pending,
         ]);
 
         // Store details based on category
-        switch ($request->category_id) {
-            case 1: // Assuming 1 is the category ID for cars
+        switch ($request->guard_name) {
+            case 'cars': // Assuming 1 is the category ID for cars
                 PostCar::create([
                     'post_id' => $post->id,
-                    // Add car-specific details
+                    'brand' => $request->brand,
+                    'year' => $request->year,
+                    'fuel' => $request->fuel,
+                    'transmission' => $request->transmission,
+                    'km_driven' => $request->km_driven,
+                    'no_of_owner' => $request->no_of_owner,
+                    'title' => $request->title,
+                    'description' => $request->description,
+                    'amount' => $request->amount,
+                    // Other car-specific fields...
                 ]);
                 break;
             case 2: // Assuming 2 is the category ID for properties
-                PostProperty::create([
+                PostFashion::create([
                     'post_id' => $post->id,
                     // Add property-specific details
                 ]);
@@ -65,6 +97,23 @@ class PostController extends Controller
         }
 
         return response()->json(['message' => 'Post created successfully'], 201);
+    }
+
+    protected function getValidationRules($guardName)
+    {
+        switch ($guardName) {
+            case CategoryGuardName::Cars->value:
+                return (new StorePostCarRequest())->rules();
+            case CategoryGuardName::Fashion->value:
+                return (new StorePostFashionRequest())->rules();
+            case CategoryGuardName::Mobiles->value:
+                return (new StorePostMobileRequest())->rules();
+            default:
+                return [
+                    'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
+                    'type' => ['required', 'string', Rule::in(PostType::allTypes())],
+                ];
+        }
     }
 
     /**
