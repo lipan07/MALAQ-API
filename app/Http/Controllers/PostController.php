@@ -7,6 +7,8 @@ use App\Enums\PostStatus;
 use App\Enums\PostType;
 use App\Http\Requests\StorePostCarRequest;
 use App\Http\Requests\StorePostFashionRequest;
+use App\Http\Requests\StorePostHousesApartmentRequest;
+use App\Http\Requests\StorePostLandPlotRequest;
 use App\Http\Requests\StorePostMobileRequest;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
@@ -14,6 +16,8 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\PostCar;
 use App\Models\PostFashion;
+use App\Models\PostHousesApartment;
+use App\Models\PostLandPlot;
 use App\Models\PostMobile;
 use App\Models\PostProperty;
 use Illuminate\Http\Request;
@@ -61,13 +65,13 @@ class PostController extends Controller
             'address' => $request->address,
             'latitude' => $request->lattitude,
             'longitude' => $request->longitude,
-            'type' => $request->type,
+            'type' => $request->post_type,
             'status' => PostStatus::Pending,
         ]);
 
         // Store details based on category
         switch ($request->guard_name) {
-            case 'cars': // Assuming 1 is the category ID for cars
+            case CategoryGuardName::Cars->value: // Assuming 1 is the category ID for cars
                 PostCar::create([
                     'post_id' => $post->id,
                     'brand' => $request->brand,
@@ -82,16 +86,39 @@ class PostController extends Controller
                     // Other car-specific fields...
                 ]);
                 break;
-            case 2: // Assuming 2 is the category ID for properties
-                PostFashion::create([
-                    'post_id' => $post->id,
-                    // Add property-specific details
+            case CategoryGuardName::HousesApartments->value: // Assuming 2 is the category ID for properties
+                PostHousesApartment::create([
+                    'post_id' => $request->post_id,
+                    'type' => $request->type,
+                    'bedrooms' => $request->bedrooms,
+                    'furnishing' => $request->furnishing,
+                    'construction_status' => $request->construction_status,
+                    'listed_by' => $request->listed_by,
+                    'super_builtup_area' => $request->super_builtup_area,
+                    'carpet_area' => $request->carpet_area,
+                    'monthly_maintenance' => $request->monthly_maintenance,
+                    'total_floors' => $request->total_floors,
+                    'floor_no' => $request->floor_no,
+                    'car_parking' => $request->car_parking,
+                    'facing' => $request->facing,
+                    'project_name' => $request->project_name,
+                    'title' => $request->title,
+                    'description' => $request->description,
+                    'amount' => $request->amount,
                 ]);
                 break;
-            case 3: // Assuming 3 is the category ID for mobiles
-                PostMobile::create([
-                    'post_id' => $post->id,
-                    // Add mobile-specific details
+            case CategoryGuardName::LandPlots->value: // Assuming 3 is the category ID for mobiles
+                PostLandPlot::create([
+                    'post_id' => $request->post_id,
+                    'listed_by' => $request->listed_by,
+                    'carpet_area' => $request->carpet_area,
+                    'length' => $request->length,
+                    'breadth' => $request->breadth,
+                    'facing' => $request->facing,
+                    'project_name' => $request->project_name,
+                    'title' => $request->title,
+                    'description' => $request->description,
+                    'amount' => $request->amount,
                 ]);
                 break;
         }
@@ -104,6 +131,10 @@ class PostController extends Controller
         switch ($guardName) {
             case CategoryGuardName::Cars->value:
                 return (new StorePostCarRequest())->rules();
+            case CategoryGuardName::HousesApartments->value:
+                return (new StorePostHousesApartmentRequest())->rules();
+            case CategoryGuardName::LandPlots->value:
+                return (new StorePostLandPlotRequest())->rules();
             case CategoryGuardName::Fashion->value:
                 return (new StorePostFashionRequest())->rules();
             case CategoryGuardName::Mobiles->value:
@@ -111,7 +142,7 @@ class PostController extends Controller
             default:
                 return [
                     'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
-                    'type' => ['required', 'string', Rule::in(PostType::allTypes())],
+                    'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
                 ];
         }
     }

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('post_pg_guest_houses', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('post_id')->nullable();
+            $table->uuid('post_id');
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
             $table->string('type')->nullable();
             $table->string('furnishing')->nullable();

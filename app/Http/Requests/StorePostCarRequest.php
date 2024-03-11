@@ -27,10 +27,10 @@ class StorePostCarRequest extends FormRequest
     {
         return [
             'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
+            'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
             'address' => 'required|string|max:250',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
-            'type' => ['required', 'string', Rule::in(PostType::allTypes())],
             'brand' => ['required', 'string', Rule::in(CarBrand::allTypes())],
             'year' => 'required|digits:4',
             'fuel' => 'required|string',

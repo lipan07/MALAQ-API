@@ -25,6 +25,6 @@ enum PropertyListedBy: string
      */
     public static function allTypes(): array
     {
-        return [self::Builder, self::Dealer, self::Owner];
+        return array_map(fn ($case) => $case->value, self::cases());
     }
 }

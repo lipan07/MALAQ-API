@@ -2,7 +2,12 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\CategoryGuardName;
+use App\Enums\PostType;
+use App\Enums\PropertyFacing;
+use App\Enums\PropertyListedBy;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePostLandPlotRequest extends FormRequest
 {
@@ -11,7 +16,7 @@ class StorePostLandPlotRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +27,18 @@ class StorePostLandPlotRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
+            'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
+            'post_id' => 'required|uuid|exists:posts,id',
+            'listed_by' => ['required', 'string', Rule::in(PropertyListedBy::allTypes())],
+            'carpet_area' => 'required|integer',
+            'length' => 'nullable|integer',
+            'breadth' => 'nullable|integer',
+            'facing' => ['required', 'string', Rule::in(PropertyFacing::allTypes())],
+            'project_name' => 'nullable|string|max:255',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'amount' => 'required|numeric',
         ];
     }
 }

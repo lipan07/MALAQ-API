@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::create('post_cars', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('post_id')->nullable();
+            $table->uuid('post_id');
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
-            $table->string('brand')->nullable();
+            $table->string('brand');
             $table->year('year')->nullable();
-            $table->string('fuel')->nullable();
-            $table->string('transmission')->nullable();
-            $table->integer('km_driven')->nullable();
+            $table->string('fuel');
+            $table->string('transmission');
+            $table->integer('km_driven');
             $table->integer('no_of_owner')->nullable();
-            $table->string('title')->nullable();
+            $table->string('title');
             $table->text('description')->nullable();
-            $table->decimal('amount', 10, 2)->nullable();
+            $table->decimal('amount', 10, 2);
             $table->timestamps();
         });
     }

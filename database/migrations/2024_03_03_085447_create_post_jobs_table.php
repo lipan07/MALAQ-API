@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('post_jobs', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('post_id')->nullable();
+            $table->uuid('post_id');
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
             $table->string('salary_period', 20);
             $table->string('position_type', 20);

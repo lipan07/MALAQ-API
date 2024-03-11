@@ -26,6 +26,6 @@ enum PropertyType: string
      */
     public static function allTypes(): array
     {
-        return [self::Apartments, self::BuilderFloors, self::HousesVillas, self::FarmHouses];
+        return array_map(fn ($case) => $case->value, self::cases());
     }
 }

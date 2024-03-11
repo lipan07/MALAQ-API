@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('post_bikes', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('post_id')->nullable();
+            $table->uuid('post_id');
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
             $table->string('brand', 20)->nullable();
             $table->string('year', 10)->nullable();

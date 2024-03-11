@@ -13,18 +13,17 @@ return new class extends Migration
     {
         Schema::create('post_land_plots', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('post_id')->nullable();
+            $table->uuid('post_id');
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
-            $table->string('type')->nullable();
             $table->string('listed_by')->nullable();
-            $table->integer('carpet_area')->nullable();
+            $table->integer('carpet_area');
             $table->integer('length')->nullable();
             $table->integer('breadth')->nullable();
-            $table->integer('facing')->nullable();
+            $table->integer('facing');
             $table->string('project_name')->nullable();
-            $table->string('title')->nullable();
-            $table->text('description')->nullable();
-            $table->decimal('amount', 10, 2)->nullable();
+            $table->string('title');
+            $table->text('description');
+            $table->decimal('amount', 10, 2);
             $table->timestamps();
         });
     }
