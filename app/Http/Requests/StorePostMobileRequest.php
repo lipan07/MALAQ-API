@@ -27,7 +27,7 @@ class StorePostMobileRequest extends FormRequest
         return [
             'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
             'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
-            'post_id' => 'required|uuid|exists:posts,id',
+            // 'post_id' => 'required|uuid|exists:posts,id',
             'brand' => 'nullable|string|max:255',
             'year' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
             'title' => 'nullable|string|max:255',

@@ -4,8 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class PostLandPlot extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
+
+    protected $fillable = [
+        'post_id',
+        'listed_by',
+        'carpet_area',
+        'length',
+        'breadth',
+        'facing',
+        'project_name',
+        'title',
+        'description',
+        'amount',
+    ];
 }

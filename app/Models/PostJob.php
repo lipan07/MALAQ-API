@@ -6,15 +6,11 @@ use App\Enums\PositionType;
 use App\Enums\SalaryPeriod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class PostJob extends Model
 {
-    use HasFactory;
-
-    protected $casts = [
-        'salary_period' => SalaryPeriod::class,
-        'position_type' => PositionType::class,
-    ];
+    use HasFactory, HasUuids;
 
     protected $fillable = [
         'salary_period',
@@ -23,5 +19,10 @@ class PostJob extends Model
         'salary_to',
         'title',
         'description',
+    ];
+
+    protected $casts = [
+        'salary_period' => SalaryPeriod::class,
+        'position_type' => PositionType::class,
     ];
 }

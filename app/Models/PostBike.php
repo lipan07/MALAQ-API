@@ -5,8 +5,19 @@ namespace App\Models;
 use App\Enums\MotorcycleBrand;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class PostBike extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
+
+    protected $fillable = [
+        'post_id',
+        'brand',
+        'year',
+        'km_driven',
+        'title',
+        'description',
+        'amount',
+    ];
 }

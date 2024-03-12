@@ -36,7 +36,7 @@ class StorePostCarRequest extends FormRequest
             'fuel' => 'required|string',
             'transmission' => 'required|string',
             'km_driven' => 'required|integer',
-            'no_of_owner' => 'required|integer',
+            'no_of_owner' => 'required|string',
             'title' => 'required|string',
             'description' => 'required|string',
             'amount' => 'required|numeric',
