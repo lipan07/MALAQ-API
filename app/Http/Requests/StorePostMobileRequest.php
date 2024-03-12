@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\CategoryGuardName;
+use App\Enums\PostType;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePostMobileRequest extends FormRequest
 {
@@ -11,7 +14,7 @@ class StorePostMobileRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +25,14 @@ class StorePostMobileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
+            'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
+            'post_id' => 'required|uuid|exists:posts,id',
+            'brand' => 'nullable|string|max:255',
+            'year' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'amount' => 'nullable|numeric',
         ];
     }
 }

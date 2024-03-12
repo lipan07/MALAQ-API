@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\CategoryGuardName;
+use App\Enums\PostType;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePostBikeRequest extends FormRequest
 {
@@ -11,7 +14,7 @@ class StorePostBikeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +25,15 @@ class StorePostBikeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
+            'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
+            'post_id' => 'required|uuid|exists:posts,id',
+            'brand' => 'nullable|string|max:20',
+            'year' => 'nullable|string|max:10',
+            'km_driven' => 'nullable|string',
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'amount' => 'nullable|numeric',
         ];
     }
 }

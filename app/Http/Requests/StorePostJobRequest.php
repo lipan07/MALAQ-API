@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\CategoryGuardName;
+use App\Enums\PostType;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePostJobRequest extends FormRequest
 {
@@ -11,7 +14,7 @@ class StorePostJobRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +25,15 @@ class StorePostJobRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
+            'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
+            'post_id' => 'required|uuid|exists:posts,id',
+            'salary_period' => 'required|string|max:20',
+            'position_type' => 'required|string|max:20',
+            'salary_from' => 'required|numeric',
+            'salary_to' => 'nullable|numeric',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
         ];
     }
 }

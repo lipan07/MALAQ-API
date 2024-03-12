@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\CategoryGuardName;
+use App\Enums\PostType;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePostHeavyMachineryRequest extends FormRequest
 {
@@ -11,7 +14,7 @@ class StorePostHeavyMachineryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +25,19 @@ class StorePostHeavyMachineryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
+            'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
+            'post_id' => 'required|uuid|exists:posts,id',
+            'title' => 'required|string|max:255',
+            'brand' => 'required|string|max:255',
+            'model' => 'required|string|max:255',
+            'year' => 'required|digits:4',
+            'condition' => 'required|string|max:255',
+            'hours_used' => 'required|integer',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric',
+            'contact_name' => 'required|string|max:255',
+            'contact_phone' => 'required|string|max:255',
         ];
     }
 }

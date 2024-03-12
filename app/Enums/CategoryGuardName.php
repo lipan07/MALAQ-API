@@ -78,6 +78,7 @@ enum CategoryGuardName: string
     case LegalDocumentationSevices = 'legal_documentation_sevices';
     case PackersMovers = 'packers_movers';
     case OtherServices = 'other_services';
+    case Others = 'others';
 
     /**
      * Returns all types as an array.
