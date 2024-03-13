@@ -59,7 +59,23 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
+        $posts = Post::with('category')->get();
+
+        foreach ($posts as $post) {
+            $categoryGuardName = Category::getGuardNameById($post->category_id);
+            switch ($categoryGuardName) {
+                case 'mobiles':
+                    $post->load('mobile');
+                    break;
+
+                case 'cars':
+                    $post->load('car');
+                    break;
+
+                    // Add more cases for other categories if needed
+            }
+        }
+        return $posts;
     }
 
     /**

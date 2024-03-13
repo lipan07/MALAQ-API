@@ -27,7 +27,7 @@ class StorePostHeavyMachineryRequest extends FormRequest
         return [
             'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
             'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
-            'post_id' => 'required|uuid|exists:posts,id',
+
             'title' => 'required|string|max:255',
             'brand' => 'required|string|max:255',
             'model' => 'required|string|max:255',

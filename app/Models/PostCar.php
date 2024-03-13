@@ -19,7 +19,7 @@ class PostCar extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'post_id',
+        // 'post_id',
         'brand',
         'year',
         'fuel',
@@ -36,4 +36,5 @@ class PostCar extends Model
         'transmission' => CarTransmission::class,
         'no_of_owner' => CarNoOfOwner::class,
     ];
+    protected $hidden = ['post_id'];
 }

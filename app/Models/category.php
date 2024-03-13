@@ -14,4 +14,10 @@ class Category extends Model
         $category = self::where('guard_name', $guardName)->first();
         return $category ? $category->id : null;
     }
+
+    public static function getGuardNameById($id)
+    {
+        $category = self::where('id', $id)->first();
+        return $category ? $category->guard_name : null;
+    }
 }

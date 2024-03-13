@@ -29,7 +29,7 @@ class StorePostLandPlotRequest extends FormRequest
         return [
             'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
             'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
-            'post_id' => 'required|uuid|exists:posts,id',
+
             'listed_by' => ['required', 'string', Rule::in(PropertyListedBy::allTypes())],
             'carpet_area' => 'required|integer',
             'length' => 'nullable|integer',

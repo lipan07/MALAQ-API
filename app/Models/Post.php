@@ -6,7 +6,6 @@ use App\Enums\PostStatus;
 use App\Enums\PostType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Post extends Model
@@ -38,8 +37,23 @@ class Post extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
     public function images()
     {
         return $this->morphMany(Image::class, 'imageable');
+    }
+
+    public function mobile()
+    {
+        return $this->hasOne(PostMobile::class, 'post_id');
+    }
+
+    public function car()
+    {
+        return $this->hasOne(PostCar::class, 'post_id');
     }
 }

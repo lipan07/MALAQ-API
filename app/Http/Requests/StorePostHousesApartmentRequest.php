@@ -33,7 +33,7 @@ class StorePostHousesApartmentRequest extends FormRequest
         return [
             'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
             'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
-            'post_id' => 'required|uuid|exists:posts,id',
+
             'type' => ['required', 'string', Rule::in(PropertyType::allTypes())],
             'bedrooms' => 'integer',
             'furnishing' => ['required', 'string', Rule::in(PropertyFurnishing::allTypes())],
