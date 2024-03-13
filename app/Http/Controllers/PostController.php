@@ -51,6 +51,7 @@ use App\Models\PostSportHobby;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -59,7 +60,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::with('category')->get();
+        $posts = Post::with('category')->orderBy('created_at', 'DESC')->cursorPaginate(15);
 
         foreach ($posts as $post) {
             $categoryGuardName = Category::getGuardNameById($post->category_id);
@@ -67,10 +68,38 @@ class PostController extends Controller
                 case 'mobiles':
                     $post->load('mobile');
                     break;
-
                 case 'cars':
                     $post->load('car');
                     break;
+                case 'houses_apartments':
+                    $post->load('housesApartment');
+                    break;
+
+                    // Add more cases for other categories if needed
+            }
+        }
+        return $posts;
+    }
+
+
+    public function myPost()
+    {
+        $user = auth()->user();
+        $posts = Post::with('category')->where(['user_id' => $user->id])->orderBy('created_at', 'DESC')->cursorPaginate(15);
+
+        foreach ($posts as $post) {
+            $categoryGuardName = Category::getGuardNameById($post->category_id);
+            switch ($categoryGuardName) {
+                case 'mobiles':
+                    $post->load('mobile');
+                    break;
+                case 'cars':
+                    $post->load('car');
+                    break;
+                case 'houses_apartments':
+                    $post->load('housesApartment');
+                    break;
+
 
                     // Add more cases for other categories if needed
             }

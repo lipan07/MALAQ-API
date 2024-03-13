@@ -24,9 +24,9 @@ return new class extends Migration
             $table->integer('carpet_area')->nullable();
             $table->decimal('monthly_maintenance', 10, 2)->nullable();
             $table->integer('total_floors')->nullable();
-            $table->integer('floor_no');
-            $table->integer('car_parking');
-            $table->string('facing');
+            $table->integer('floor_no')->nullable();
+            $table->integer('car_parking')->nullable();
+            $table->string('facing')->nullable();
             $table->string('project_name')->nullable();
             $table->string('title');
             $table->text('description');

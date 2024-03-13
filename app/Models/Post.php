@@ -56,4 +56,9 @@ class Post extends Model
     {
         return $this->hasOne(PostCar::class, 'post_id');
     }
+
+    public function housesApartment()
+    {
+        return $this->hasOne(PostHousesApartment::class, 'post_id');
+    }
 }

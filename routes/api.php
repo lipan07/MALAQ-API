@@ -25,5 +25,6 @@ Route::post('login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [UserController::class, 'index']);
     Route::resource('posts', PostController::class);
+    Route::get('/my-post', [PostController::class, 'myPost']);
     Route::get('/send-sms', [SmsController::class, 'sendMessage']);
 });
