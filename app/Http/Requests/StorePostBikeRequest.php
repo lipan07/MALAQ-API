@@ -27,7 +27,6 @@ class StorePostBikeRequest extends FormRequest
         return [
             'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
             'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
-
             'brand' => 'nullable|string|max:20',
             'year' => 'nullable|string|max:10',
             'km_driven' => 'nullable|string',

@@ -27,7 +27,6 @@ class StorePgGuestHouseRequest extends FormRequest
         return [
             'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
             'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
-
             'type' => 'nullable|string|max:255',
             'furnishing' => 'nullable|string|max:255',
             'listed_by' => 'nullable|string|max:255',

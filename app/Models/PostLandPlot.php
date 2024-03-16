@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\PropertyFacing;
+use App\Enums\PropertyListedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -21,5 +23,10 @@ class PostLandPlot extends Model
         'title',
         'description',
         'amount',
+    ];
+
+    protected $casts = [
+        'listed_by' => PropertyListedBy::class,
+        'facing' => PropertyFacing::class
     ];
 }

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('carpet_area');
             $table->integer('length')->nullable();
             $table->integer('breadth')->nullable();
-            $table->integer('facing');
+            $table->string('facing')->nullable();
             $table->string('project_name')->nullable();
             $table->string('title');
             $table->text('description');

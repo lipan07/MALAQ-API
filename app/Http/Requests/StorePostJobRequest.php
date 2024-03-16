@@ -27,7 +27,6 @@ class StorePostJobRequest extends FormRequest
         return [
             'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
             'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
-
             'salary_period' => 'required|string|max:20',
             'position_type' => 'required|string|max:20',
             'salary_from' => 'required|numeric',

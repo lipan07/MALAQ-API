@@ -27,7 +27,6 @@ class StoreShopOfficeRequest extends FormRequest
         return [
             'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
             'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
-
             'furnishing' => 'nullable|string|max:255',
             'listed_by' => 'nullable|string|max:255',
             'super_builtup_area' => 'nullable|integer',

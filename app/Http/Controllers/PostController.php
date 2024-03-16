@@ -74,6 +74,54 @@ class PostController extends Controller
                 case 'houses_apartments':
                     $post->load('housesApartment');
                     break;
+                case 'land_plots':
+                    $post->load('landPlots');
+                    break;
+                case 'fashion':
+                    $post->load('fashion');
+                    break;
+                case 'bikes':
+                    $post->load('bikes');
+                    break;
+                case 'job':
+                    $post->load('jobs');
+                    break;
+                case 'pets':
+                    $post->load('pets');
+                    break;
+                case 'furniture':
+                    $post->load('furnitures');
+                    break;
+                case 'electronics_appliances':
+                    $post->load('electronicsAppliances');
+                    break;
+                case 'others':
+                    $post->load('others');
+                    break;
+                case 'shop_offices':
+                    $post->load('shopOffices');
+                    break;
+                case 'pg_guest_houses':
+                    $post->load('pgGuestHouses');
+                    break;
+                case 'accessories':
+                    $post->load('accessories');
+                    break;
+                case 'commercial_heavy_vehicles':
+                    $post->load('commercialHeavyVehicles');
+                    break;
+                case 'commercial_heavy_machinery':
+                    $post->load('commercialHeavyMachinery');
+                    break;
+                case 'books':
+                    $post->load('books');
+                    break;
+                case 'sports_instrument':
+                    $post->load('sportsInstruments');
+                    break;
+                case 'services':
+                    $post->load('services');
+                    break;
 
                     // Add more cases for other categories if needed
             }
@@ -98,6 +146,54 @@ class PostController extends Controller
                     break;
                 case 'houses_apartments':
                     $post->load('housesApartment');
+                    break;
+                case 'land_plots':
+                    $post->load('landPlots');
+                    break;
+                case 'fashion':
+                    $post->load('fashion');
+                    break;
+                case 'bikes':
+                    $post->load('bikes');
+                    break;
+                case 'job':
+                    $post->load('jobs');
+                    break;
+                case 'pets':
+                    $post->load('pets');
+                    break;
+                case 'furniture':
+                    $post->load('furnitures');
+                    break;
+                case 'electronics_appliances':
+                    $post->load('electronicsAppliances');
+                    break;
+                case 'others':
+                    $post->load('others');
+                    break;
+                case 'shop_offices':
+                    $post->load('shopOffices');
+                    break;
+                case 'pg_guest_houses':
+                    $post->load('pgGuestHouses');
+                    break;
+                case 'accessories':
+                    $post->load('accessories');
+                    break;
+                case 'commercial_heavy_vehicles':
+                    $post->load('commercialHeavyVehicles');
+                    break;
+                case 'commercial_heavy_machinery':
+                    $post->load('commercialHeavyMachinery');
+                    break;
+                case 'books':
+                    $post->load('books');
+                    break;
+                case 'sports_instrument':
+                    $post->load('sportsInstruments');
+                    break;
+                case 'services':
+                    $post->load('services');
                     break;
 
 
@@ -141,6 +237,7 @@ class PostController extends Controller
             'type' => $request->post_type,
             'status' => PostStatus::Pending,
         ]);
+
         $modelMapping = [
             CategoryGuardName::Cars->value => PostCar::class,
             CategoryGuardName::HousesApartments->value => PostHousesApartment::class,

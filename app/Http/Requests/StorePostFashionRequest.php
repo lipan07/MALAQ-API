@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\CategoryGuardName;
+use App\Enums\Gender;
 use App\Enums\PostType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -26,8 +27,7 @@ class StorePostFashionRequest extends FormRequest
     {
         return [
             'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
-            'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
-
+            'gender' => ['required', 'string', Rule::in(Gender::allTypes())],
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'amount' => 'nullable|numeric',

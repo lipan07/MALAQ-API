@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('post_id');
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
-            $table->string('type');
+            $table->string('property_type');
             $table->integer('bedrooms');
             $table->string('furnishing');
             $table->string('construction_status');

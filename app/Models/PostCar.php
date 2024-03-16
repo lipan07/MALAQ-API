@@ -19,7 +19,7 @@ class PostCar extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        // 'post_id',
+        'post_id',
         'brand',
         'year',
         'fuel',

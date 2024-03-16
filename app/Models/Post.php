@@ -24,7 +24,6 @@ class Post extends Model
         'longitude',
         'status',
         'type',
-        'post_type'
     ];
 
     protected $casts = [
@@ -60,5 +59,85 @@ class Post extends Model
     public function housesApartment()
     {
         return $this->hasOne(PostHousesApartment::class, 'post_id');
+    }
+
+    public function landPlots()
+    {
+        return $this->hasOne(PostLandPlot::class, 'post_id');
+    }
+
+    public function fashion()
+    {
+        return $this->hasOne(PostFashion::class, 'post_id');
+    }
+
+    public function bikes()
+    {
+        return $this->hasOne(PostBike::class, 'post_id');
+    }
+
+    public function jobs()
+    {
+        return $this->hasOne(PostJob::class, 'post_id');
+    }
+
+    public function pets()
+    {
+        return $this->hasOne(PostPet::class, 'post_id');
+    }
+
+    public function furnitures()
+    {
+        return $this->hasOne(PostFurniture::class, 'post_id');
+    }
+
+    public function electronicsAppliances()
+    {
+        return $this->hasOne(PostElectronicsAppliance::class, 'post_id');
+    }
+
+    public function others()
+    {
+        return $this->hasOne(PostOther::class, 'post_id');
+    }
+
+    public function shopOffices()
+    {
+        return $this->hasOne(PostShopOffice::class, 'post_id');
+    }
+
+    public function pgGuestHouses()
+    {
+        return $this->hasOne(PostPgGuestHouse::class, 'post_id');
+    }
+
+    public function accessories()
+    {
+        return $this->hasOne(PostAccessories::class, 'post_id');
+    }
+
+    public function commercialHeavyVehicles()
+    {
+        return $this->hasOne(PostHeavyVehicle::class, 'post_id');
+    }
+
+    public function commercialHeavyMachinery()
+    {
+        return $this->hasOne(PostHeavyMachinery::class, 'post_id');
+    }
+
+    public function books()
+    {
+        return $this->hasOne(PostBook::class, 'post_id');
+    }
+
+    public function sportsInstruments()
+    {
+        return $this->hasOne(PostSportHobby::class, 'post_id');
+    }
+
+    public function services()
+    {
+        return $this->hasOne(PostService::class, 'post_id');
     }
 }
