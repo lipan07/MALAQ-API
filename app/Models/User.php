@@ -23,6 +23,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'address',
+        'latitude',
+        'longitude',
+        'about_me',
     ];
 
     /**

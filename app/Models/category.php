@@ -20,4 +20,9 @@ class Category extends Model
         $category = self::where('id', $id)->first();
         return $category ? $category->guard_name : null;
     }
+
+    public function children()
+    {
+        return $this->hasMany(Category::class, 'parent_id');
+    }
 }

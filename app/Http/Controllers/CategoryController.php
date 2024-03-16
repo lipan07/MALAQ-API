@@ -13,7 +13,14 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        $categories = Category::whereNull('parent_id')
+            ->with('children')
+            ->get();
+
+        return response()->json([
+            'message' => 'Categories fetched successfully',
+            'categories' => $categories,
+        ]);
     }
 
     /**
