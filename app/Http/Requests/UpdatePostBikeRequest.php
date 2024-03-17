@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\VehicleBrand;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdatePostBikeRequest extends FormRequest
 {
@@ -11,7 +13,7 @@ class UpdatePostBikeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +24,12 @@ class UpdatePostBikeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'brand' => ['sometimes', 'required', 'string', Rule::in(VehicleBrand::allTypes())],
+            'year' => 'sometimes|nullable|string|max:10',
+            'km_driven' => 'sometimes|nullable|string',
+            'title' => 'sometimes|nullable|string|max:255',
+            'description' => 'sometimes|nullable|string',
+            'amount' => 'sometimes|nullable|numeric',
         ];
     }
 }

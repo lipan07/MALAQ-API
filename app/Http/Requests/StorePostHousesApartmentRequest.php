@@ -32,7 +32,7 @@ class StorePostHousesApartmentRequest extends FormRequest
     {
         return [
             'property_type' => ['required', 'string', Rule::in(PropertyType::allTypes())],
-            'bedrooms' => 'integer',
+            'bedrooms' => 'nullable|integer',
             'furnishing' => ['required', 'string', Rule::in(PropertyFurnishing::allTypes())],
             'construction_status' => ['required', 'string', Rule::in(PropertyConstructionStatus::allTypes())],
             'listed_by' => ['required', 'string', Rule::in(PropertyListedBy::allTypes())],
@@ -45,8 +45,8 @@ class StorePostHousesApartmentRequest extends FormRequest
             'facing' => ['required', 'string', Rule::in(PropertyFacing::allTypes())],
             'project_name' => 'nullable|string|max:255',
             'title' => 'required|string|max:255',
-            'description' => 'string',
-            'amount' => 'numeric',
+            'description' => 'nullable|string',
+            'amount' => 'required|numeric',
         ];
     }
 }

@@ -11,7 +11,7 @@ class UpdatePostAccessoriesRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,9 @@ class UpdatePostAccessoriesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title' => 'sometimes|nullable|string|max:255',
+            'description' => 'sometimes|nullable|string',
+            'amount' => 'sometimes|nullable|numeric',
         ];
     }
 }

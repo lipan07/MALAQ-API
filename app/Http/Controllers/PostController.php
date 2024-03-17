@@ -25,7 +25,26 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\StorePostServiceRequest;
 use App\Http\Requests\StorePostSportHobbyRequest;
 use App\Http\Requests\StoreShopOfficeRequest;
+use App\Http\Requests\UpdatePgGuestHouseRequest;
+use App\Http\Requests\UpdatePostAccessoriesRequest;
+use App\Http\Requests\UpdatePostBikeRequest;
+use App\Http\Requests\UpdatePostBookRequest;
+use App\Http\Requests\UpdatePostCarRequest;
+use App\Http\Requests\UpdatePostElectronicsApplianceRequest;
+use App\Http\Requests\UpdatePostFashionRequest;
+use App\Http\Requests\UpdatePostFurnitureRequest;
+use App\Http\Requests\UpdatePostHeavyMachineryRequest;
+use App\Http\Requests\UpdatePostHeavyVehicleRequest;
+use App\Http\Requests\UpdatePostHousesApartmentRequest;
+use App\Http\Requests\UpdatePostJobRequest;
+use App\Http\Requests\UpdatePostLandPlotRequest;
+use App\Http\Requests\UpdatePostMobileRequest;
+use App\Http\Requests\UpdatePostOtherRequest;
+use App\Http\Requests\UpdatePostPetRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Http\Requests\UpdatePostServiceRequest;
+use App\Http\Requests\UpdatePostSportHobbyRequest;
+use App\Http\Requests\UpdateShopOfficeRequest;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\PostAccessories;
@@ -214,9 +233,9 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePostRequest $request)
     {
-        $rules = $this->getValidationRules($request->guard_name);
+        $rules = $this->getValidationRulesForStore($request->guard_name);
 
         $validator = Validator::make($request->all(), $rules);
 
@@ -269,7 +288,7 @@ class PostController extends Controller
         return response()->json(['message' => 'Post created successfully'], 201);
     }
 
-    protected function getValidationRules($guardName)
+    protected function getValidationRulesForStore($guardName)
     {
         switch ($guardName) {
             case CategoryGuardName::Cars->value:
@@ -342,6 +361,54 @@ class PostController extends Controller
         //
     }
 
+    protected function getValidationRulesForUpdate($guardName)
+    {
+        switch ($guardName) {
+            case CategoryGuardName::Cars->value:
+                return (new UpdatePostCarRequest())->rules();
+            case CategoryGuardName::HousesApartments->value:
+                return (new UpdatePostHousesApartmentRequest())->rules();
+            case CategoryGuardName::LandPlots->value:
+                return (new UpdatePostLandPlotRequest())->rules();
+            case CategoryGuardName::Fashion->value:
+                return (new UpdatePostFashionRequest())->rules();
+            case CategoryGuardName::Mobiles->value:
+                return (new UpdatePostMobileRequest())->rules();
+            case CategoryGuardName::Bikes->value:
+                return (new UpdatePostBikeRequest())->rules();
+            case CategoryGuardName::Job->value:
+                return (new UpdatePostJobRequest())->rules();
+            case CategoryGuardName::Pets->value:
+                return (new UpdatePostPetRequest())->rules();
+            case CategoryGuardName::Furniture->value:
+                return (new UpdatePostFurnitureRequest())->rules();
+            case CategoryGuardName::ElectronicsAppliances->value:
+                return (new UpdatePostElectronicsApplianceRequest())->rules();
+            case CategoryGuardName::Others->value:
+                return (new UpdatePostOtherRequest())->rules();
+            case CategoryGuardName::ShopOffices->value:
+                return (new UpdateShopOfficeRequest())->rules();
+            case CategoryGuardName::PgGuestHouses->value:
+                return (new UpdatePgGuestHouseRequest())->rules();
+            case CategoryGuardName::Accessories->value:
+                return (new UpdatePostAccessoriesRequest())->rules();
+            case CategoryGuardName::CommercialHeavyVehicles->value:
+                return (new UpdatePostHeavyVehicleRequest())->rules();
+            case CategoryGuardName::CommercialHeavyMachinery->value:
+                return (new UpdatePostHeavyMachineryRequest())->rules();
+            case CategoryGuardName::Books->value:
+                return (new UpdatePostBookRequest())->rules();
+            case CategoryGuardName::SportsInstrument->value:
+                return (new UpdatePostSportHobbyRequest())->rules();
+            case CategoryGuardName::Services->value:
+                return (new UpdatePostServiceRequest())->rules();
+            default:
+                return [
+                    'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
+                    'type' => ['required', 'string', Rule::in(PostType::allTypes())],
+                ];
+        }
+    }
     /**
      * Remove the specified resource from storage.
      */

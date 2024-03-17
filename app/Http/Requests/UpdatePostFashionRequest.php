@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\Gender;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdatePostFashionRequest extends FormRequest
 {
@@ -11,7 +13,7 @@ class UpdatePostFashionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +24,10 @@ class UpdatePostFashionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'gender' => ['required', 'string', Rule::in(Gender::allTypes())],
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'amount' => 'nullable|numeric',
         ];
     }
 }
