@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Enums\CategoryGuardName;
+use App\Enums\Condition;
+use App\Enums\HeavyMachineryBrand;
 use App\Enums\PostType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -25,13 +27,11 @@ class StorePostHeavyMachineryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
-            'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
             'title' => 'required|string|max:255',
-            'brand' => 'required|string|max:255',
+            'brand' => ['required', 'string', Rule::in(HeavyMachineryBrand::allTypes())],
             'model' => 'required|string|max:255',
             'year' => 'required|digits:4',
-            'condition' => 'required|string|max:255',
+            'condition' => ['required', 'string', Rule::in(Condition::allTypes())],
             'hours_used' => 'required|integer',
             'description' => 'nullable|string',
             'price' => 'required|numeric',

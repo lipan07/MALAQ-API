@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use App\Enums\CategoryGuardName;
 use App\Enums\PostType;
+use App\Enums\PropertyFurnishing;
+use App\Enums\PropertyListedBy;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -25,10 +27,8 @@ class StoreShopOfficeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
-            'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
-            'furnishing' => 'nullable|string|max:255',
-            'listed_by' => 'nullable|string|max:255',
+            'furnishing' => ['required', 'string', Rule::in(PropertyFurnishing::allTypes())],
+            'listed_by' => ['required', 'string', Rule::in(PropertyListedBy::allTypes())],
             'super_builtup_area' => 'nullable|integer',
             'carpet_area' => 'nullable|integer',
             'monthly_maintenance' => 'nullable|numeric',

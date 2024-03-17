@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Gender;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -16,5 +17,9 @@ class PostFashion extends Model
         'title',
         'description',
         'amount',
+    ];
+
+    protected $casts = [
+        'gender' => Gender::class
     ];
 }

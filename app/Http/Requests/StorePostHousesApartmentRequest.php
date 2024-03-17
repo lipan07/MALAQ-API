@@ -31,8 +31,6 @@ class StorePostHousesApartmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
-            'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
             'property_type' => ['required', 'string', Rule::in(PropertyType::allTypes())],
             'bedrooms' => 'integer',
             'furnishing' => ['required', 'string', Rule::in(PropertyFurnishing::allTypes())],

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PgGuestHousesType;
 use App\Enums\PropertyFurnishing;
 use App\Enums\PropertyListedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +15,7 @@ class PostPgGuestHouse extends Model
 
     protected $fillable = [
         'post_id',
-        'type',
+        'pg_type',
         'furnishing',
         'listed_by',
         'carpet_area',
@@ -25,6 +26,7 @@ class PostPgGuestHouse extends Model
     ];
 
     protected $casts = [
+        'pg_type' => PgGuestHousesType::class,
         'furnishing' => PropertyFurnishing::class,
         'listed_by' => PropertyListedBy::class,
         'is_meal_included' => 'boolean'

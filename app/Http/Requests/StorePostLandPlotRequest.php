@@ -27,7 +27,6 @@ class StorePostLandPlotRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
             'listed_by' => ['required', 'string', Rule::in(PropertyListedBy::allTypes())],
             'carpet_area' => 'required|integer',
             'length' => 'nullable|integer',

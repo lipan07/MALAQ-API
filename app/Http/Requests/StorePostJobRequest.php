@@ -3,7 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Enums\CategoryGuardName;
+use App\Enums\PositionType;
 use App\Enums\PostType;
+use App\Enums\SalaryPeriod;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -25,10 +27,8 @@ class StorePostJobRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
-            'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
-            'salary_period' => 'required|string|max:20',
-            'position_type' => 'required|string|max:20',
+            'salary_period' => ['required', 'string', Rule::in(SalaryPeriod::allTypes())],
+            'position_type' => ['required', 'string', Rule::in(PositionType::allTypes())],
             'salary_from' => 'required|numeric',
             'salary_to' => 'nullable|numeric',
             'title' => 'required|string|max:255',

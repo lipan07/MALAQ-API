@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\CategoryGuardName;
+use App\Enums\MobileBrand;
 use App\Enums\PostType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -25,9 +26,8 @@ class StorePostMobileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
             'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
-            'brand' => 'nullable|string|max:255',
+            'brand' => ['required', 'string', Rule::in(MobileBrand::allTypes())],
             'year' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',

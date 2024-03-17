@@ -234,7 +234,7 @@ class PostController extends Controller
             'address' => $request->address,
             'latitude' => $request->lattitude,
             'longitude' => $request->longitude,
-            'type' => $request->post_type,
+            'type' => $request->type,
             'status' => PostStatus::Pending,
         ]);
 
@@ -313,7 +313,7 @@ class PostController extends Controller
             default:
                 return [
                     'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
-                    'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
+                    'type' => ['required', 'string', Rule::in(PostType::allTypes())],
                 ];
         }
     }

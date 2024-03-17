@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('post_id');
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
-            $table->string('type')->nullable();
+            $table->string('pg_type')->nullable();
             $table->string('furnishing')->nullable();
             $table->string('listed_by')->nullable();
             $table->integer('carpet_area')->nullable();

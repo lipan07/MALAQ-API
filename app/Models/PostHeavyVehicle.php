@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\CarFuelType;
+use App\Enums\CommercialVehicleBrand;
 use App\Enums\Condition;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -28,6 +29,7 @@ class PostHeavyVehicle extends Model
     ];
 
     protected $casts = [
+        'brand' => CommercialVehicleBrand::class,
         'condition' => Condition::class,
         'fuel_type' => CarFuelType::class,
     ];

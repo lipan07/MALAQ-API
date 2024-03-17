@@ -26,7 +26,6 @@ class StorePostFashionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
             'gender' => ['required', 'string', Rule::in(Gender::allTypes())],
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',

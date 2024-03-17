@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Condition;
+use App\Enums\HeavyMachineryBrand;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -26,6 +27,7 @@ class PostHeavyMachinery extends Model
     ];
 
     protected $casts = [
+        'brand' => HeavyMachineryBrand::class,
         'condition' => Condition::class,
     ];
 }
