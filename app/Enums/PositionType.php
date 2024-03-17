@@ -26,6 +26,6 @@ enum PositionType: string
      */
     public static function allTypes(): array
     {
-        return [self::Contract, self::FullTime, self::PartTime, self::Temporary];
+        return array_map(fn ($case) => $case->value, self::cases());
     }
 }

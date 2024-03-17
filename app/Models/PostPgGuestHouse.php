@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\PropertyFurnishing;
+use App\Enums\PropertyListedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -20,5 +22,11 @@ class PostPgGuestHouse extends Model
         'title',
         'description',
         'amount',
+    ];
+
+    protected $casts = [
+        'furnishing' => PropertyFurnishing::class,
+        'listed_by' => PropertyListedBy::class,
+        'is_meal_included' => 'boolean'
     ];
 }

@@ -26,6 +26,6 @@ enum SalaryPeriod: string
      */
     public static function allTypes(): array
     {
-        return [self::Hourly, self::Weekly, self::Monthly, self::Yearly];
+        return array_map(fn ($case) => $case->value, self::cases());
     }
 }

@@ -25,6 +25,6 @@ enum PropertyFurnishing: string
      */
     public static function allTypes(): array
     {
-        return [self::Furnished, self::SemiFurnished, self::Unfurnished];
+        return array_map(fn ($case) => $case->value, self::cases());
     }
 }

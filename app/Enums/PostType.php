@@ -24,6 +24,6 @@ enum PostType: string
      */
     public static function allTypes(): array
     {
-        return [self::Rent, self::Sell];
+        return array_map(fn ($case) => $case->value, self::cases());
     }
 }

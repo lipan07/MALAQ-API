@@ -11,7 +11,7 @@ class PostMobile extends Model
     use HasFactory, HasUuids;
 
     protected $fillable = [
-        // 'post_id',
+        'post_id',
         'brand',
         'year',
         'title',

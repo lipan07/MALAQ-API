@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\MotorcycleBrand;
+use App\Enums\VehicleBrand;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -19,5 +19,9 @@ class PostBike extends Model
         'title',
         'description',
         'amount',
+    ];
+
+    protected $casts = [
+        'brand' => VehicleBrand::class,
     ];
 }

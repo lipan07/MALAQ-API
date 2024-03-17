@@ -26,6 +26,6 @@ enum Condition: string
      */
     public static function allTypes(): array
     {
-        return [self::New, self::LikeNew, self::Fair, self::NeedsRepair];
+        return array_map(fn ($case) => $case->value, self::cases());
     }
 }

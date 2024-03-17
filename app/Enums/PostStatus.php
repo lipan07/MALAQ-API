@@ -27,6 +27,6 @@ enum PostStatus: string
      */
     public static function allStatus(): array
     {
-        return [self::Active, self::Inactive];
+        return array_map(fn ($case) => $case->value, self::cases());
     }
 }

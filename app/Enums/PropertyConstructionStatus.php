@@ -25,6 +25,6 @@ enum PropertyConstructionStatus: string
      */
     public static function allTypes(): array
     {
-        return [self::NewLaunch, self::ReadyToMove, self::UnderConstruction];
+        return array_map(fn ($case) => $case->value, self::cases());
     }
 }

@@ -30,6 +30,6 @@ enum PropertyFacing: string
      */
     public static function allTypes(): array
     {
-        return [self::North, self::East, self::South, self::West, self::NorthEast, self::NorthWest, self::SouthEast, self::SouthWest];
+        return array_map(fn ($case) => $case->value, self::cases());
     }
 }

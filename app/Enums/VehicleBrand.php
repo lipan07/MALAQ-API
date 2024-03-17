@@ -2,8 +2,12 @@
 
 namespace App\Enums;
 
-enum MotorcycleBrand: string
+enum VehicleBrand: string
 {
+        //Bycycle
+    case Hercules = 'Hercules';
+    case Hero = 'Hero';
+        //Motorcycle
     case HarleyDavidson = 'Harley-Davidson';
     case Yezdi = 'Yezdi';
     case BMW = 'BMW';
@@ -12,12 +16,10 @@ enum MotorcycleBrand: string
     case Ducati = 'Ducati';
     case Jawa = 'Jawa';
     case Benelli = 'Benelli';
-    case Aprilia = 'Aprilia';
     case AvanturaaChoppers = 'Avanturaa Choppers';
     case BSA = 'BSA';
     case CFMoto = 'CFMoto';
     case ClevelandCycleWerks = 'Cleveland CycleWerks';
-    case Eider = 'Eider';
     case EmfluxMotors = 'Emflux Motors';
     case Escorts = 'Escorts';
     case Evolet = 'Evolet';
@@ -44,12 +46,10 @@ enum MotorcycleBrand: string
     case Tork = 'Tork';
     case Triumph = 'Triumph';
     case UM = 'UM';
-    case Vespa = 'Vespa';
     case Victory = 'Victory';
     case Vida = 'Vida';
     case Zontes = 'Zontes';
     case Bajaj = 'Bajaj';
-    case Hero = 'Hero';
     case HeroHonda = 'Hero Honda';
     case Honda = 'Honda';
     case KTM = 'KTM';
@@ -57,6 +57,31 @@ enum MotorcycleBrand: string
     case Suzuki = 'Suzuki';
     case TVS = 'TVS';
     case Yamaha = 'Yamaha';
+        //Scooter
+    case Vespa = 'Vespa';
+    case Ampere = 'Ampere';
+    case Ather = 'Ather';
+    case Chetak = 'Chetak';
+    case BGauss = 'BGauss';
+    case Kymco22 = '22Kymco';
+    case Aprilia = 'Aprilia';
+    case AvanMotors = 'Avan Motors';
+    case Benling = 'Benling';
+    case Bounce = 'Bounce';
+    case EeVe = 'EeVe';
+    case Eider = 'Eider';
+    case Gemopai = 'Gemopai';
+    case iVOOMi = 'iVOOMi';
+    case JoyEBike = 'Joy e-bike';
+    case Kinetic = 'Kinetic';
+    case Lambretta = 'Lambretta';
+    case Okaya = 'Okaya';
+    case Piaggio = 'Piaggio';
+    case SimpleEnergy = 'Simple Energy';
+    case TechoElectra = 'Techo Electra';
+    case TwentyTwoMotors = 'Twenty Two Motors';
+    case Yo = 'Yo';
+        //Other
     case OtherBrands = 'Other Brands';
 
     /**
