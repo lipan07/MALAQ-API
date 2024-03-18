@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SmsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -38,6 +39,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chats/{post_id}', [ChatController::class, 'show']);
     //Sms
     Route::get('/send-sms', [SmsController::class, 'sendMessage']);
+    //Report
+    Route::post('/reports', [ReportController::class, 'store']);
     //Logout
     Route::post('logout', [AuthController::class, 'logout']);
 });
