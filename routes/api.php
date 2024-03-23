@@ -44,3 +44,9 @@ Route::middleware('auth:sanctum')->group(function () {
     //Logout
     Route::post('logout', [AuthController::class, 'logout']);
 });
+
+
+
+Route::get('test', function () {
+    return 'Hello World!!';
+});
