@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Twilio\Rest\Client;
 
 class SmsController extends Controller
@@ -11,10 +12,9 @@ class SmsController extends Controller
     public function sendMessage(Request $request)
     {
         try {
-            \Log::info($request->all());
-            $account_sid = getenv("TWILIO_SID");
-            $auth_token = getenv("TWILIO_AUTH_TOKEN");
-            $twilio_number = getenv("TWILIO_NUMBER");
+            $account_sid = Config::get("credentials.twilio.sid");
+            $auth_token = Config::get("credentials.twilio.auth_token");
+            $twilio_number = Config::get("credentials.twilio.number");
             $client = new Client($account_sid, $auth_token);
             $client->messages->create(
                 '+91' . $request->phoneNumber,
