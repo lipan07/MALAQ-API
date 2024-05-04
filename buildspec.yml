@@ -15,6 +15,7 @@ phases:
     commands:
       - composer install
       - npm install
+      - chmod -R 775 storage/logs
 artifacts:
   files:
     - '**/*'
