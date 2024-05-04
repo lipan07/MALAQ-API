@@ -5,7 +5,7 @@ return [
         'host' => env('SMTP_HOST'),
         'port' => env('SMTP_PORT'),
         'username' => env('SMTP_USERNAME'),
-        'password' => env('SMTP_PASSWORD'),
+        'password' => env('SMTP_PASSWORD')
     ],
     'twilio' => [
         'sid' => env('TWILIO_SID'),
