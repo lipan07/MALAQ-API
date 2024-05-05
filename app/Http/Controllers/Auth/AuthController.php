@@ -15,8 +15,8 @@ class AuthController extends Controller
     public function register(StoreUserRequest $request)
     {
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'name' => 'A',
+            'phone_no' => $request->phone_no,
             'password' => Hash::make($request->password),
         ]);
 
@@ -25,16 +25,12 @@ class AuthController extends Controller
 
     public function login(LoginUserRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        $user = User::where('email', $request->email)->first();
+        $user = User::where(['phone_no' => $request->phoneNumber])->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'The provided credentials are incorrect.'], 401);
         }
+        $user->update(['password' => '']);
 
         return response()->json(['token' => $user->createToken('API Token')->plainTextToken]);
     }

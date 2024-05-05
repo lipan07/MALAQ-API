@@ -14,7 +14,8 @@ phases:
   pre_build:
     commands:
       - composer install
-      - npm install
+      # - npm install
+      - php artisan migrate
       - chmod -R 775 storage/logs
 artifacts:
   files:

@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+//Sms
+Route::post('/send-sms', [SmsController::class, 'sendMessage']);
 
 Route::middleware('auth:sanctum')->group(function () {
     //User
@@ -37,14 +39,11 @@ Route::middleware('auth:sanctum')->group(function () {
     //Chat
     Route::post('/chats', [ChatController::class, 'store']);
     Route::get('/chats/{post_id}', [ChatController::class, 'show']);
-    //Sms
-    Route::get('/send-sms', [SmsController::class, 'sendMessage']);
     //Report
     Route::post('/reports', [ReportController::class, 'store']);
     //Logout
     Route::post('logout', [AuthController::class, 'logout']);
 });
-
 
 
 Route::get('test', function () {
