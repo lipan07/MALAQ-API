@@ -13,9 +13,9 @@ phases:
       - php composer-setup.php --install-dir=/usr/local/bin --filename=composer
   pre_build:
     commands:
-      - composer install
-      - npm install
-      - chmod -R 775 storage/logs
+      - sudo composer install
+      - sudo npm install
+      - sudo chmod -R 775 storage/logs
 artifacts:
   files:
     - '**/*'
