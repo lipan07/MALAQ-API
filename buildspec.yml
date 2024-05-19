@@ -15,6 +15,7 @@ phases:
     commands:
       - sudo composer install
       - sudo npm install
+      - sudo php artisan migrate:fresh --seed
       - sudo chmod -R 775 storage/logs
 artifacts:
   files:
