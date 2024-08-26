@@ -20,6 +20,7 @@ class Post extends Model
         'category_id',
         'user_id',
         'address',
+        'post_time',
         'latitude',
         'longitude',
         'status',
