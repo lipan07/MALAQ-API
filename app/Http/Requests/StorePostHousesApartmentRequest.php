@@ -32,7 +32,7 @@ class StorePostHousesApartmentRequest extends FormRequest
     {
         return [
             'property_type' => ['required', 'string', Rule::in(PropertyType::allTypes())],
-            'bedrooms' => 'nullable|integer',
+            'bedrooms' => 'required|integer',
             'furnishing' => ['required', 'string', Rule::in(PropertyFurnishing::allTypes())],
             'construction_status' => ['required', 'string', Rule::in(PropertyConstructionStatus::allTypes())],
             'listed_by' => ['required', 'string', Rule::in(PropertyListedBy::allTypes())],
