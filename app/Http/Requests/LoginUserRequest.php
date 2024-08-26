@@ -25,7 +25,7 @@ class LoginUserRequest extends FormRequest
     {
         return [
             'phoneNumber' => 'required|max:15',
-            'password' => 'required|string|min:4|max:6',
+            'password' => 'required|string|min:4|max:20',
         ];
     }
 
