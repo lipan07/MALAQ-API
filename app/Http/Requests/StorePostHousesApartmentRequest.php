@@ -47,6 +47,7 @@ class StorePostHousesApartmentRequest extends FormRequest
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'amount' => 'required|numeric',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 }

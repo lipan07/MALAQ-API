@@ -30,6 +30,7 @@ class StorePostRequest extends FormRequest
             'address' => 'required|string|max:250',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 }

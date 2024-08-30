@@ -44,6 +44,7 @@ class UpdatePostHousesApartmentRequest extends FormRequest
             'title' => 'sometimes|required|string|max:255',
             'description' => 'sometimes|nullable|string',
             'amount' => 'sometimes|required|numeric',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 }
