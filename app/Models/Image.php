@@ -11,11 +11,9 @@ class Image extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    use HasFactory;
+
+    protected $fillable = ['url', 'imageable_id', 'imageable_type'];
 
     public function imageable(): MorphTo
     {

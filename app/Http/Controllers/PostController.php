@@ -45,6 +45,7 @@ use App\Http\Requests\UpdatePostRequest;
 use App\Http\Requests\UpdatePostServiceRequest;
 use App\Http\Requests\UpdatePostSportHobbyRequest;
 use App\Http\Requests\UpdateShopOfficeRequest;
+use App\Http\Resources\PostResource;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\PostAccessories;
@@ -71,6 +72,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -79,7 +81,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::with('category')->orderBy('created_at', 'DESC')->cursorPaginate(15);
+        $posts = Post::with('category', 'images')->orderBy('created_at', 'DESC')->cursorPaginate(15);
 
         foreach ($posts as $post) {
             $categoryGuardName = Category::getGuardNameById($post->category_id);
@@ -145,7 +147,7 @@ class PostController extends Controller
                     // Add more cases for other categories if needed
             }
         }
-        return $posts;
+        return PostResource::collection($posts);
     }
 
 
@@ -256,6 +258,18 @@ class PostController extends Controller
             'type' => $request->post_type,
             'status' => PostStatus::Pending,
         ]);
+
+        // Handle the images
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $imageFile) {
+                // Store the image
+                $path = $imageFile->store($request->guard_name . '/images', 'public');
+                // Save image record in the database
+                $post->images()->create([
+                    'url' => config('app.url') . Storage::url($path)
+                ]);
+            }
+        }
 
         $modelMapping = [
             CategoryGuardName::Cars->value => PostCar::class,
