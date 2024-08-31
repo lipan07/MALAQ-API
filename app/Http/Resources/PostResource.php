@@ -28,7 +28,25 @@ class PostResource extends JsonResource
             'updated_at' => $this->updated_at,
             'category' => $this->category,
             'images' => $this->images->pluck('url'), // Get only the URL of each image
-            'houses_apartment' => $this->housesApartment,
+            'post_details' => $this->mobile ??
+                $this->car ??
+                $this->housesApartment ??
+                $this->landPlots ??
+                $this->fashion ??
+                $this->bikes ??
+                $this->jobs ??
+                $this->pets ??
+                $this->furnitures ??
+                $this->electronicsAppliances ??
+                $this->others ??
+                $this->shopOffices ??
+                $this->pgGuestHouses ??
+                $this->accessories ??
+                $this->commercialHeavyVehicles ??
+                $this->commercialHeavyMachinery ??
+                $this->books ??
+                $this->sportsInstruments ??
+                $this->services ?? []
         ];
     }
 }

@@ -221,7 +221,15 @@ class PostController extends Controller
                     // Add more cases for other categories if needed
             }
         }
-        return $posts;
+        $postRestructureService = new PostRestructureService();
+
+        // Restructure each post in the paginated result
+        $restructuredPosts = $posts->through(function ($post) use ($postRestructureService) {
+            return $postRestructureService->restructurePost([$post])[0];
+        });
+
+        // Return the restructured paginated result
+        return PostResource::collection($restructuredPosts);
     }
 
     /**
