@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LoginController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SmsController;
 /*
@@ -16,4 +17,5 @@ use App\Http\Controllers\SmsController;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/login', [LoginController::class, 'index'])->name('login');
 // Route::get('/send-sms',[SmsController::class,'sendMessage']);
