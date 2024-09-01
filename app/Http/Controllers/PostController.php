@@ -81,7 +81,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::with('category', 'images')->orderBy('created_at', 'DESC')->simplePaginate(2);
+        $posts = Post::with('category', 'images')->orderBy('created_at', 'DESC')->simplePaginate(4);
 
         foreach ($posts as $post) {
             $categoryGuardName = Category::getGuardNameById($post->category_id);
