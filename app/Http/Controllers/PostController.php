@@ -81,7 +81,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::with('category', 'images')->orderBy('created_at', 'DESC')->cursorPaginate(15);
+        $posts = Post::with('category', 'images')->orderBy('created_at', 'DESC')->cursorPaginate(2);
 
         foreach ($posts as $post) {
             $categoryGuardName = Category::getGuardNameById($post->category_id);
@@ -147,6 +147,7 @@ class PostController extends Controller
                     // Add more cases for other categories if needed
             }
         }
+
         return PostResource::collection($posts);
     }
 
