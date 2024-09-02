@@ -81,7 +81,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::with('category', 'images')->orderBy('created_at', 'DESC')->simplePaginate(4);
+        $posts = Post::with('category', 'images')->orderBy('created_at', 'DESC')->simplePaginate(15);
 
         foreach ($posts as $post) {
             $categoryGuardName = Category::getGuardNameById($post->category_id);
@@ -155,7 +155,7 @@ class PostController extends Controller
     public function myPost()
     {
         $user = auth()->user();
-        $posts = Post::with('category')->where(['user_id' => $user->id])->orderBy('created_at', 'DESC')->cursorPaginate(15);
+        $posts = Post::with('category', 'images')->where(['user_id' => $user->id])->orderBy('created_at', 'DESC')->cursorPaginate(15);
 
         foreach ($posts as $post) {
             $categoryGuardName = Category::getGuardNameById($post->category_id);
@@ -218,19 +218,12 @@ class PostController extends Controller
                     $post->load('services');
                     break;
 
-
                     // Add more cases for other categories if needed
             }
         }
-        $postRestructureService = new PostRestructureService();
-
-        // Restructure each post in the paginated result
-        $restructuredPosts = $posts->through(function ($post) use ($postRestructureService) {
-            return $postRestructureService->restructurePost([$post])[0];
-        });
-
         // Return the restructured paginated result
-        return PostResource::collection($restructuredPosts);
+
+        return PostResource::collection($posts);
     }
 
     /**
