@@ -155,7 +155,7 @@ class PostController extends Controller
     public function myPost()
     {
         $user = auth()->user();
-        $posts = Post::with('category', 'images')->where(['user_id' => $user->id])->orderBy('created_at', 'DESC')->cursorPaginate(15);
+        $posts = Post::with('category', 'images')->where(['user_id' => $user->id])->orderBy('created_at', 'DESC')->simplePaginate(15);
 
         foreach ($posts as $post) {
             $categoryGuardName = Category::getGuardNameById($post->category_id);
