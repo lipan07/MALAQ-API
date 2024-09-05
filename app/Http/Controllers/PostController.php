@@ -79,9 +79,13 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $posts = Post::with('category', 'images')->orderBy('created_at', 'DESC')->simplePaginate(15);
+        $posts = Post::with('category', 'images');
+        if ($request->category) {
+            $posts->where('category_id', $request->category);
+        }
+        $posts = $posts->orderBy('created_at', 'DESC')->simplePaginate(15);
 
         foreach ($posts as $post) {
             $categoryGuardName = Category::getGuardNameById($post->category_id);
