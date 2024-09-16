@@ -29,4 +29,24 @@ class PostLandPlot extends Model
         'listed_by' => PropertyListedBy::class,
         'facing' => PropertyFacing::class
     ];
+
+    public static function restructureStoreData($data)
+    {
+        $restructuredData = [
+            'post_id' => $data['post_id'] ?? null,
+            'listed_by' => $data['listedBy'] ?? null,
+            'carpet_area' => $data['carpetArea'] ?? null,
+            'facing' => $data['facing'] ?? null,
+            'length' => $data['length'] ?? null,
+            'breadth' => $data['breadth'] ?? null,
+            'project_name' => $data['projectName'] ?? null,
+            'amount' => $data['amount'] ?? null,
+            'title' => $data['adTitle'] ?? null,
+            'description' => $data['description'] ?? null,
+            // Add other fields you need to restructure or process
+        ];
+
+        // Save the restructured data
+        return self::create($restructuredData);
+    }
 }
