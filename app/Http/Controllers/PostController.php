@@ -303,7 +303,7 @@ class PostController extends Controller
 
         if ($modelClass) {
             $request->merge(['post_id' => $post->id]);
-            $modelClass::create(array_merge($request->all()));
+            $modelClass::restructureStoreData(array_merge($request->all()));
         }
         return response()->json(['message' => 'Post created successfully'], 201);
     }
@@ -352,7 +352,7 @@ class PostController extends Controller
             default:
                 return [
                     'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
-                    'type' => ['required', 'string', Rule::in(PostType::allTypes())],
+                    'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
                 ];
         }
     }

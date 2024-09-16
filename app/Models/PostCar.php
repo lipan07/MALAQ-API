@@ -37,4 +37,25 @@ class PostCar extends Model
         'no_of_owner' => CarNoOfOwner::class,
     ];
     protected $hidden = ['post_id'];
+
+    public static function restructureStoreData($data)
+    {
+        $restructuredData = [
+            'post_id' => $data['post_id'] ?? null,
+            'brand' => $data['brand'] ?? null,
+            'year' => $data['year'] ?? null,
+            'color' => $data['color'] ?? null,
+            'amount' => $data['amount'] ?? null,
+            'fuel' => $data['fuelType'] ?? null,
+            'transmission' => $data['transmission'] ?? null,
+            'km_driven' => $data['kmDriven'] ?? null,
+            'title' => $data['adTitle'] ?? null,
+            'description' => $data['description'] ?? null,
+            'no_of_owner' => $data['owners'] ?? null,
+            // Add other fields you need to restructure or process
+        ];
+
+        // Save the restructured data
+        return self::create($restructuredData);
+    }
 }
