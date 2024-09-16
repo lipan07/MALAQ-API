@@ -13,6 +13,7 @@ class PostJob extends Model
     use HasFactory, HasUuids;
 
     protected $fillable = [
+        'post_id',
         'salary_period',
         'position_type',
         'salary_from',
