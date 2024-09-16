@@ -6,7 +6,7 @@ enum PropertyType: string
 {
     case Apartments = 'Apartments';
     case BuilderFloors = 'Builder Floors';
-    case HousesVillas = 'Houses and Villas';
+    case HousesVillas = 'Houses & Villas';
     case FarmHouses = 'Farm Houses';
 
     /**
@@ -26,6 +26,6 @@ enum PropertyType: string
      */
     public static function allTypes(): array
     {
-        return array_map(fn ($case) => $case->value, self::cases());
+        return array_map(fn($case) => $case->value, self::cases());
     }
 }

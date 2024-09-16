@@ -43,4 +43,32 @@ class PostHousesApartment extends Model
         'property_type' => PropertyType::class,
         'facing' => PropertyFacing::class
     ];
+
+    public static function restructureStoreData($data)
+    {
+        $restructuredData = [
+            'post_id' => $data['post_id'] ?? null,
+            'property_type' => $data['propertyType'] ?? null,
+            'bedrooms' => $data['bedroom'] ?? null,
+            'bathrooms' => $data['bathroom'] ?? null,
+            'furnishing' => $data['furnishing'] ?? null,
+            'construction_status' => $data['constructionStatus'] ?? null,
+            'listed_by' => $data['listedBy'] ?? null,
+            'super_builtup_area' => $data['superBuiltupArea'] ?? null,
+            'carpet_area' => $data['carpetArea'] ?? null,
+            'monthly_maintenance' => $data['maintenance'] ?? null,
+            'total_floors' => $data['totalFloors'] ?? null,
+            'floor_no' => $data['floorNo'] ?? null,
+            'car_parking' => $data['carParking'] ?? null,
+            'facing' => $data['facing'] ?? null,
+            'project_name' => $data['projectName'] ?? null,
+            'amount' => $data['amount'] ?? null,
+            'title' => $data['adTitle'] ?? null,
+            'description' => $data['description'] ?? null,
+            // Add other fields you need to restructure or process
+        ];
+
+        // Save the restructured data
+        return self::create($restructuredData);
+    }
 }
