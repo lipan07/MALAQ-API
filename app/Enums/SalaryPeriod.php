@@ -4,10 +4,11 @@ namespace App\Enums;
 
 enum SalaryPeriod: string
 {
-    case Hourly = 'hourly';
-    case Weekly = 'weekly';
-    case Monthly = 'monthly';
-    case Yearly = 'yearly';
+    case Hourly = 'Hourly';
+    case Daily = 'Daily';
+    case Weekly = 'Weekly';
+    case Monthly = 'Monthly';
+    case Yearly = 'Yearly';
 
     /**
      * Returns the default type.
@@ -26,6 +27,6 @@ enum SalaryPeriod: string
      */
     public static function allTypes(): array
     {
-        return array_map(fn ($case) => $case->value, self::cases());
+        return array_map(fn($case) => $case->value, self::cases());
     }
 }
