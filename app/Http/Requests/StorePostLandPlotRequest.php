@@ -27,12 +27,12 @@ class StorePostLandPlotRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'listed_by' => ['required', 'string', Rule::in(PropertyListedBy::allTypes())],
-            'carpet_area' => 'required|integer',
+            'listedBy' => ['required', 'string', Rule::in(PropertyListedBy::allTypes())],
+            'plotArea' => 'required|integer',
             'length' => 'nullable|integer',
             'breadth' => 'nullable|integer',
             'facing' => ['required', 'string', Rule::in(PropertyFacing::allTypes())],
-            'project_name' => 'nullable|string|max:255',
+            'projectName' => 'nullable|string|max:255',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'amount' => 'required|numeric',
