@@ -25,4 +25,21 @@ class PostJob extends Model
         'salary_period' => SalaryPeriod::class,
         'position_type' => PositionType::class,
     ];
+
+    public static function restructureStoreData($data)
+    {
+        $restructuredData = [
+            'post_id' => $data['post_id'] ?? null,
+            'salary_period' => $data['salaryPeriod'] ?? null,
+            'position_type' => $data['positionType'] ?? null,
+            'salary_from' => $data['salaryFrom'] ?? null,
+            'salary_to' => $data['salaryTo'] ?? null,
+            'title' => $data['adTitle'] ?? null,
+            'description' => $data['description'] ?? null,
+            // Add other fields you need to restructure or process
+        ];
+
+        // Save the restructured data
+        return self::create($restructuredData);
+    }
 }

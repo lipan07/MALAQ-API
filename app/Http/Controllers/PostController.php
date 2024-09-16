@@ -283,7 +283,6 @@ class PostController extends Controller
             CategoryGuardName::LandPlots->value => PostLandPlot::class,
             CategoryGuardName::Mobiles->value => PostMobile::class,
             CategoryGuardName::Bikes->value => PostBike::class,
-            CategoryGuardName::Job->value => PostJob::class,
             CategoryGuardName::Pets->value => PostPet::class,
             CategoryGuardName::Furniture->value => PostFurniture::class,
             CategoryGuardName::Fashion->value => PostFashion::class,
@@ -327,6 +326,22 @@ class PostController extends Controller
             CategoryGuardName::OtherServices->value => PostOther::class,
             CategoryGuardName::Others->value => PostOther::class,
             CategoryGuardName::MachinerySpareParts->value => PostOther::class,
+            //Job Post
+            CategoryGuardName::DataEntryBackOffice->value => PostJob::class,
+            CategoryGuardName::SalesMarketing->value => PostJob::class,
+            CategoryGuardName::BpoTelecaller->value => PostJob::class,
+            CategoryGuardName::Driver->value => PostJob::class,
+            CategoryGuardName::OfficeAssistant->value => PostJob::class,
+            CategoryGuardName::DeliveryCollection->value => PostJob::class,
+            CategoryGuardName::Teacher->value => PostJob::class,
+            CategoryGuardName::Cook->value => PostJob::class,
+            CategoryGuardName::ReceptionistFrontOffice->value => PostJob::class,
+            CategoryGuardName::OperatorTechnician->value => PostJob::class,
+            CategoryGuardName::EngineerDeveloper->value => PostJob::class,
+            CategoryGuardName::HotelTravelExecutive->value => PostJob::class,
+            CategoryGuardName::Accountant->value => PostJob::class,
+            CategoryGuardName::Designer->value => PostJob::class,
+            CategoryGuardName::OtherJobs->value => PostJob::class,
         ];
 
         $modelClass = $modelMapping[$request->guard_name] ?? null;
@@ -347,38 +362,70 @@ class PostController extends Controller
                 return (new StorePostHousesApartmentRequest())->rules();
             case CategoryGuardName::LandPlots->value:
                 return (new StorePostLandPlotRequest())->rules();
-            case CategoryGuardName::Fashion->value:
-                return (new StorePostFashionRequest())->rules();
             case CategoryGuardName::Mobiles->value:
                 return (new StorePostMobileRequest())->rules();
             case CategoryGuardName::Bikes->value:
                 return (new StorePostBikeRequest())->rules();
-            case CategoryGuardName::Job->value:
-                return (new StorePostJobRequest())->rules();
-            case CategoryGuardName::Pets->value:
-                return (new StorePostPetRequest())->rules();
-            case CategoryGuardName::Furniture->value:
-                return (new StorePostFurnitureRequest())->rules();
-            case CategoryGuardName::ElectronicsAppliances->value:
-                return (new StorePostElectronicsApplianceRequest())->rules();
+                //Start:: Others Post
+            case CategoryGuardName::Accessories->value:
+            case CategoryGuardName::ComputersLaptops->value:
+            case CategoryGuardName::TvsVideoAudio->value:
+            case CategoryGuardName::Acs->value:
+            case CategoryGuardName::Fridges->value:
+            case CategoryGuardName::WashingMachines->value:
+            case CategoryGuardName::CamerasLenses->value:
+            case CategoryGuardName::HarddisksPrintersMonitors->value:
+            case CategoryGuardName::KitchenOtherAppliances->value:
+            case CategoryGuardName::SofaDining->value:
+            case CategoryGuardName::BedsWardrobes->value:
+            case CategoryGuardName::HomeDecorGarden->value:
+            case CategoryGuardName::KidsFurniture->value:
+            case CategoryGuardName::OtherHouseholdItems->value:
+            case CategoryGuardName::MensFashion->value:
+            case CategoryGuardName::WomensFashion->value:
+            case CategoryGuardName::KidsFashion->value:
+            case CategoryGuardName::Books->value:
+            case CategoryGuardName::GymFitness->value:
+            case CategoryGuardName::MusicalInstruments->value:
+            case CategoryGuardName::SportsInstrument->value:
+            case CategoryGuardName::OtherHobbies->value:
+            case CategoryGuardName::Dogs->value:
+            case CategoryGuardName::FishAquarium->value:
+            case CategoryGuardName::PetsFoodAccessories->value:
+            case CategoryGuardName::OtherPets->value:
+            case CategoryGuardName::PackersMovers->value:
+            case CategoryGuardName::OtherServices->value:
             case CategoryGuardName::Others->value:
+            case CategoryGuardName::MachinerySpareParts->value:
                 return (new StorePostOtherRequest())->rules();
+                //End:: Others Post
+                //Start:: Job Post
+            case CategoryGuardName::DataEntryBackOffice->value:
+            case CategoryGuardName::SalesMarketing->value:
+            case CategoryGuardName::BpoTelecaller->value:
+            case CategoryGuardName::Driver->value:
+            case CategoryGuardName::OfficeAssistant->value:
+            case CategoryGuardName::DeliveryCollection->value:
+            case CategoryGuardName::Teacher->value:
+            case CategoryGuardName::Cook->value:
+            case CategoryGuardName::ReceptionistFrontOffice->value:
+            case CategoryGuardName::OperatorTechnician->value:
+            case CategoryGuardName::EngineerDeveloper->value:
+            case CategoryGuardName::HotelTravelExecutive->value:
+            case CategoryGuardName::Accountant->value:
+            case CategoryGuardName::Designer->value:
+            case CategoryGuardName::OtherJobs->value:
+                return (new StorePostJobRequest())->rules();
+                //End:: Job Post
+
             case CategoryGuardName::ShopOffices->value:
                 return (new StoreShopOfficeRequest())->rules();
             case CategoryGuardName::PgGuestHouses->value:
                 return (new StorePgGuestHouseRequest())->rules();
-            case CategoryGuardName::Accessories->value:
-                return (new StorePostAccessoriesRequest())->rules();
             case CategoryGuardName::CommercialHeavyVehicles->value:
                 return (new StorePostHeavyVehicleRequest())->rules();
             case CategoryGuardName::CommercialHeavyMachinery->value:
                 return (new StorePostHeavyMachineryRequest())->rules();
-            case CategoryGuardName::Books->value:
-                return (new StorePostBookRequest())->rules();
-            case CategoryGuardName::SportsInstrument->value:
-                return (new StorePostSportHobbyRequest())->rules();
-            case CategoryGuardName::Services->value:
-                return (new StorePostServiceRequest())->rules();
             default:
                 return [
                     'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
