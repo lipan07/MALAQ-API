@@ -29,16 +29,13 @@ class StorePostCarRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'address' => 'required|string|max:250',
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
             'brand' => ['required', 'string', Rule::in(CarBrand::allTypes())],
             'year' => 'required|digits:4',
-            'fuel' => ['required', 'string', Rule::in(CarFuelType::allTypes())],
+            'fuelType' => ['required', 'string', Rule::in(CarFuelType::allTypes())],
             'transmission' => ['required', 'string', Rule::in(CarTransmission::allTypes())],
-            'km_driven' => 'required|integer',
-            'no_of_owner' => ['required', 'string', Rule::in(CarNoOfOwner::allTypes())],
-            'title' => 'required|string',
+            'kmDriven' => 'required|integer',
+            'owners' => ['required', 'string', Rule::in(CarNoOfOwner::allTypes())],
+            'adTitle' => 'required|string',
             'description' => 'required|string',
             'amount' => 'required|numeric',
         ];
