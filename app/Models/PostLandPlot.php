@@ -35,7 +35,7 @@ class PostLandPlot extends Model
         $restructuredData = [
             'post_id' => $data['post_id'] ?? null,
             'listed_by' => $data['listedBy'] ?? null,
-            'carpet_area' => $data['carpetArea'] ?? null,
+            'carpet_area' => $data['plotArea'] ?? null,
             'facing' => $data['facing'] ?? null,
             'length' => $data['length'] ?? null,
             'breadth' => $data['breadth'] ?? null,
