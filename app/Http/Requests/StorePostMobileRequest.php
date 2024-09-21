@@ -28,7 +28,7 @@ class StorePostMobileRequest extends FormRequest
         return [
             'brand' => ['required', 'string', Rule::in(MobileBrand::allTypes())],
             'year' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
-            'title' => 'nullable|string|max:255',
+            'adTitle' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'amount' => 'nullable|numeric',
         ];

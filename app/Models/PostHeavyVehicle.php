@@ -22,6 +22,8 @@ class PostHeavyVehicle extends Model
         'condition',
         'km_driven',
         'fuel_type',
+        'owner',
+        'listed_by',
         'price',
         'description',
         'contact_name',
@@ -33,4 +35,28 @@ class PostHeavyVehicle extends Model
         'condition' => Condition::class,
         'fuel_type' => CarFuelType::class,
     ];
+
+    public static function restructureStoreData($data)
+    {
+        $restructuredData = [
+            'post_id' => $data['post_id'] ?? null,
+            'brand' => $data['brand'] ?? null,
+            'model' => $data['model'] ?? null,
+            'year' => $data['year'] ?? null,
+            'condition' => $data['condition'] ?? null,
+            // 'km_driven' => $data['kmDriven'] ?? null,
+            'fuel_type' => $data['fuelType'] ?? null,
+            'owner' => $data['owners'] ?? null,
+            'listed_by' => $data['listedBy'] ?? null,
+            'amount' => $data['amount'] ?? null,
+            'title' => $data['adTitle'] ?? null,
+            'description' => $data['description'] ?? null,
+            'contact_name' => $data['contact_name'] ?? null,
+            'contact_phone' => $data['contact_phone'] ?? null,
+            // Add other fields you need to restructure or process
+        ];
+
+        // Save the restructured data
+        return self::create($restructuredData);
+    }
 }
