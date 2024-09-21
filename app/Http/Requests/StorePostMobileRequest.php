@@ -26,7 +26,6 @@ class StorePostMobileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
             'brand' => ['required', 'string', Rule::in(MobileBrand::allTypes())],
             'year' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
             'title' => 'nullable|string|max:255',

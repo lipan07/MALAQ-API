@@ -29,4 +29,20 @@ class PostMobile extends Model
     {
         return $this->belongsTo(Post::class, 'post_id');
     }
+
+    public static function restructureStoreData($data)
+    {
+        $restructuredData = [
+            'post_id' => $data['post_id'] ?? null,
+            'brand' => $data['brand'] ?? null,
+            'year' => $data['year'] ?? null,
+            'amount' => $data['amount'] ?? null,
+            'title' => $data['adTitle'] ?? null,
+            'description' => $data['description'] ?? null,
+            // Add other fields you need to restructure or process
+        ];
+
+        // Save the restructured data
+        return self::create($restructuredData);
+    }
 }
