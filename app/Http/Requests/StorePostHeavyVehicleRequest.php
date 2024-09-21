@@ -28,7 +28,7 @@ class StorePostHeavyVehicleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|max:255',
+            'adTitle' => 'required|string|max:255',
             'brand' => ['required', 'string', Rule::in(CommercialVehicleBrand::allTypes())],
             'model' => 'required|string|max:255',
             'year' => 'required|digits:4',

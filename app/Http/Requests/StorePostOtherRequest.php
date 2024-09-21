@@ -25,7 +25,7 @@ class StorePostOtherRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|max:255',
+            'adTitle' => 'required|string|max:255',
             'description' => 'required|string',
             'amount' => 'required|numeric',
         ];
