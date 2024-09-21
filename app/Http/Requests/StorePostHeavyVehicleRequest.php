@@ -30,10 +30,8 @@ class StorePostHeavyVehicleRequest extends FormRequest
         return [
             'adTitle' => 'required|string|max:255',
             'brand' => ['required', 'string', Rule::in(CommercialVehicleBrand::allTypes())],
-            'model' => 'required|string|max:255',
             'year' => 'required|digits:4',
             'condition' => ['required', 'string', Rule::in(Condition::allTypes())],
-            // 'kmDriven' => 'required|integer',
             'owners' => 'required|integer',
             'listedBy' => 'required|string',
             'fuelType' => ['required', 'string', Rule::in(CarFuelType::allTypes())],

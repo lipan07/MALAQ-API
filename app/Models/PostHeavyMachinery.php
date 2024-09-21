@@ -16,7 +16,6 @@ class PostHeavyMachinery extends Model
         'post_id',
         'title',
         'brand',
-        'model',
         'year',
         'condition',
         'fuel_type',
@@ -38,7 +37,6 @@ class PostHeavyMachinery extends Model
         $restructuredData = [
             'post_id' => $data['post_id'] ?? null,
             'brand' => $data['brand'] ?? null,
-            'model' => $data['model'] ?? null,
             'year' => $data['year'] ?? null,
             'condition' => $data['condition'] ?? null,
             'fuel_type' => $data['fuelType'] ?? null,

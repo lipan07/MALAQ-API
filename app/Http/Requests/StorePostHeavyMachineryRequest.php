@@ -28,14 +28,13 @@ class StorePostHeavyMachineryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'adTitle' => 'required|string|max:255',
             'brand' => ['required', 'string', Rule::in(HeavyMachineryBrand::allTypes())],
-            'model' => 'required|string|max:255',
-            'year' => 'required|digits:4',
             'condition' => ['required', 'string', Rule::in(Condition::allTypes())],
+            'year' => 'required|digits:4',
+            'fuelType' => ['required', 'string', Rule::in(CarFuelType::allTypes())],
             'owners' => 'required|integer',
             'listedBy' => 'required|string',
-            'fuelType' => ['required', 'string', Rule::in(CarFuelType::allTypes())],
+            'adTitle' => 'required|string|max:255',
             // 'hours_used' => 'required|integer',
             'description' => 'nullable|string',
             'amount' => 'required|numeric',
