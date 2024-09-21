@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\CarFuelType;
 use App\Enums\CategoryGuardName;
 use App\Enums\Condition;
 use App\Enums\HeavyMachineryBrand;
