@@ -27,11 +27,11 @@ class StorePostBikeRequest extends FormRequest
     {
         return [
             'brand' => ['required', 'string', Rule::in(VehicleBrand::allTypes())],
-            'year' => 'nullable|string|max:10',
-            'km_driven' => 'nullable|string',
-            'title' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'amount' => 'nullable|numeric',
+            'year' => 'required|string|max:10',
+            'km_driven' => 'required|string',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'amount' => 'required|numeric',
         ];
     }
 }

@@ -283,6 +283,9 @@ class PostController extends Controller
             CategoryGuardName::LandPlots->value => PostLandPlot::class,
             CategoryGuardName::Mobiles->value => PostMobile::class,
             CategoryGuardName::Bikes->value => PostBike::class,
+            CategoryGuardName::Motorcycles->value => PostBike::class,
+            CategoryGuardName::Scooters->value => PostBike::class,
+            CategoryGuardName::Bycycles->value => PostBike::class,
             CategoryGuardName::Pets->value => PostPet::class,
             CategoryGuardName::Furniture->value => PostFurniture::class,
             CategoryGuardName::Fashion->value => PostFashion::class,
@@ -364,7 +367,11 @@ class PostController extends Controller
                 return (new StorePostLandPlotRequest())->rules();
             case CategoryGuardName::Mobiles->value:
                 return (new StorePostMobileRequest())->rules();
+                //Start:: Bike
             case CategoryGuardName::Bikes->value:
+            case CategoryGuardName::Motorcycles->value:
+            case CategoryGuardName::Scooters->value:
+            case CategoryGuardName::Bycycles->value:
                 return (new StorePostBikeRequest())->rules();
                 //Start:: Others Post
             case CategoryGuardName::Accessories->value:
