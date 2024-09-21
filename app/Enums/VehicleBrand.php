@@ -68,7 +68,6 @@ enum VehicleBrand: string
     case Trek = 'Trek';
     case Triban = 'Triban';
     case Vector91 = 'Vector 91';
-    case BicyclesOther = 'Other Brands';
 
         // Motorcycles
     case HarleyDavidson = 'Harley-Davidson';
