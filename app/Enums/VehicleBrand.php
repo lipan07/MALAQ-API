@@ -7,6 +7,21 @@ enum VehicleBrand: string
         //Bycycle
     case Hercules = 'Hercules';
     case Hero = 'Hero';
+    case Adrenix = 'Adrenix';
+    case Atlas = 'Atlas';
+    case BTwin = 'BTwin';
+    case Firefox = 'Firefox';
+    case GSports = 'G Sports';
+    case Giant = 'Giant';
+    case HRX = 'HRX';
+    case Keysto = 'Keysto';
+    case Leader = 'Leader';
+    case Montra = 'Montra';
+    case NinetyOne = 'Ninety one';
+    case Scott = 'Scott';
+    case Trek = 'Trek';
+    case Triban = 'Triban';
+    case Vector = 'Vector 91';
         //Motorcycle
     case HarleyDavidson = 'Harley-Davidson';
     case Yezdi = 'Yezdi';
@@ -91,6 +106,6 @@ enum VehicleBrand: string
      */
     public static function allTypes(): array
     {
-        return array_map(fn ($case) => $case->value, self::cases());
+        return array_map(fn($case) => $case->value, self::cases());
     }
 }
