@@ -4,7 +4,7 @@ namespace App\Enums;
 
 enum PgGuestHousesType: string
 {
-    case GUEST_HOUSES = 'Guest Houses';
+    case GUEST_HOUSES = 'Guest House';
     case PG = 'PG';
     case ROOMMATE = 'Roommate';
 
@@ -15,6 +15,6 @@ enum PgGuestHousesType: string
      */
     public static function allTypes(): array
     {
-        return array_map(fn ($case) => $case->value, self::cases());
+        return array_map(fn($case) => $case->value, self::cases());
     }
 }

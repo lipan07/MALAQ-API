@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Enums\CategoryGuardName;
 use App\Enums\PgGuestHousesType;
 use App\Enums\PostType;
+use App\Enums\PropertyConstructionStatus;
 use App\Enums\PropertyFurnishing;
 use App\Enums\PropertyListedBy;
 use Illuminate\Foundation\Http\FormRequest;
@@ -28,12 +29,13 @@ class StorePgGuestHouseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pg_type' => ['required', 'string', Rule::in(PgGuestHousesType::allTypes())],
+            'pgType' => ['required', 'string', Rule::in(PgGuestHousesType::allTypes())],
             'furnishing' => ['required', 'string', Rule::in(PropertyFurnishing::allTypes())],
-            'listed_by' => ['required', 'string', Rule::in(PropertyListedBy::allTypes())],
-            'carpet_area' => 'nullable|integer',
-            'is_meal_included' => 'nullable|boolean',
-            'title' => 'nullable|string|max:255',
+            'listedBy' => ['required', 'string', Rule::in(PropertyListedBy::allTypes())],
+            'construction_status' => ['required', 'string', Rule::in(PropertyConstructionStatus::allTypes())],
+            'carpetArea' => 'nullable|integer',
+            'isMealIncluded' => 'nullable|boolean',
+            'adTitle' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'amount' => 'nullable|numeric',
         ];

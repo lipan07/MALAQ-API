@@ -31,4 +31,24 @@ class PostPgGuestHouse extends Model
         'listed_by' => PropertyListedBy::class,
         'is_meal_included' => 'boolean'
     ];
+
+
+    public static function restructureStoreData($data)
+    {
+        $restructuredData = [
+            'post_id' => $data['post_id'] ?? null,
+            'pg_type' => $data['pgType'] ?? null,
+            'furnishing' => $data['furnishing'] ?? null,
+            'listed_by' => $data['listeBy'] ?? null,
+            'carpet_area' => $data['carpetArea'] ?? null,
+            'is_meal_included' => $data['isMealIncluded'] ?? null,
+            'amount' => $data['amount'] ?? null,
+            'title' => $data['adTitle'] ?? null,
+            'description' => $data['description'] ?? null,
+            // Add other fields you need to restructure or process
+        ];
+
+        // Save the restructured data
+        return self::create($restructuredData);
+    }
 }

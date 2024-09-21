@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\CategoryGuardName;
 use App\Enums\PostType;
+use App\Enums\PropertyConstructionStatus;
 use App\Enums\PropertyFurnishing;
 use App\Enums\PropertyListedBy;
 use Illuminate\Foundation\Http\FormRequest;
@@ -28,14 +29,15 @@ class StoreShopOfficeRequest extends FormRequest
     {
         return [
             'furnishing' => ['required', 'string', Rule::in(PropertyFurnishing::allTypes())],
-            'listed_by' => ['required', 'string', Rule::in(PropertyListedBy::allTypes())],
-            'super_builtup_area' => 'nullable|integer',
-            'carpet_area' => 'nullable|integer',
-            'monthly_maintenance' => 'nullable|numeric',
-            'car_parking' => 'nullable|integer',
+            'listedBy' => ['required', 'string', Rule::in(PropertyListedBy::allTypes())],
+            'construction_status' => ['required', 'string', Rule::in(PropertyConstructionStatus::allTypes())],
+            'superBuiltUpArea' => 'nullable|integer',
+            'carpetArea' => 'nullable|integer',
+            'maintenance' => 'nullable|numeric',
+            'carParking' => 'nullable|integer',
             'washroom' => 'nullable|string|max:255',
-            'project_name' => 'nullable|string|max:255',
-            'title' => 'nullable|string|max:255',
+            'projectName' => 'nullable|string|max:255',
+            'adTitle' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'amount' => 'nullable|numeric',
         ];
