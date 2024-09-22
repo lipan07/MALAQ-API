@@ -42,16 +42,16 @@ enum VehicleBrand: string
     case TwentyTwoMotors = 'Twenty Two Motors';
     case UM = 'UM';
     case Yo = 'Yo';
-    case BajajScooter = 'Bajaj';
+    case Bajaj = 'Bajaj';
     case HeroScooter = 'Hero';
-    case HondaScooter = 'Honda';
+    case Honda = 'Honda';
     case MahindraScooter = 'Mahindra';
     case SuzukiScooter = 'Suzuki';
     case TVSScooter = 'TVS';
 
         // Bicycles
     case Hercules = 'Hercules';
-    case Hero = 'Hero';
+    case Hero = 'Hero Bycycle';
     case Adrenix = 'Adrenix';
     case Atlas = 'Atlas';
     case BSA = 'BSA';
@@ -87,7 +87,6 @@ enum VehicleBrand: string
     case HopElectric = 'Hop Electric';
     case Indian = 'Indian';
     case Keeway = 'Keeway';
-    case LMLMotorcycle = 'LML';
     case MahindraMotorcycle = 'Mahindra';
     case Matter = 'Matter';
     case MotoGuzzi = 'Moto Guzzi';
@@ -100,15 +99,12 @@ enum VehicleBrand: string
     case Triumph = 'Triumph';
     case Victory = 'Victory';
     case Zontes = 'Zontes';
-    case BajajMotorcycle = 'Bajaj';
     case HeroMotorcycle = 'Hero';
-    case HeroHondaMotorcycle = 'Hero Honda';
-    case HondaMotorcycle = 'Honda';
     case KTM = 'KTM';
     case RoyalEnfield = 'Royal Enfield';
     case SuzukiMotorcycle = 'Suzuki';
     case TVSMotorcycle = 'TVS';
-    case YamahaMotorcycle = 'Yamaha';
+
         //Other
     case OtherBrands = 'Other Brands';
 
