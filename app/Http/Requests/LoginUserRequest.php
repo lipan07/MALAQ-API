@@ -24,8 +24,26 @@ class LoginUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'phoneNumber' => 'required|max:15',
-            'password' => 'required|string|min:4|max:20',
+            'phoneNumber' => [
+                'required',
+                'regex:/^[0-9]{10}$/', // exactly 10 digits
+            ],
+            'otp' => [
+                'required',
+                'string',
+                'regex:/^[A-Za-z0-9]{4}$/' // exactly 4 alphanumeric characters
+            ]
+        ];
+    }
+
+    /**
+     * Custom error messages for validation.
+     */
+    public function messages()
+    {
+        return [
+            'phoneNumber.regex' => 'The phone number must be a valid 10-digit number.',
+            'otp.regex' => 'The OTP must be exactly 4 characters long and alphanumeric.'
         ];
     }
 

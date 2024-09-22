@@ -23,18 +23,29 @@ class AuthController extends Controller
         return response()->json(['user' => $user->makeHidden(['id'])->toArray()]);
     }
 
+    // public function login(LoginUserRequest $request)
+    // {
+    //     $user = User::where(['phone_no' => $request->phoneNumber])->first();
+
+    //     if (!$user || !Hash::check($request->password, $user->password)) {
+    //         return response()->json(['message' => 'The provided credentials are incorrect.'], 401);
+    //     }
+    //     $user->update(['password' => '']);
+
+    //     return response()->json(['token' => $user->createToken('API Token')->plainTextToken]);
+    // }
+
     public function login(LoginUserRequest $request)
     {
         $user = User::where(['phone_no' => $request->phoneNumber])->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user || ($request->otp != $user->otp)) {
             return response()->json(['message' => 'The provided credentials are incorrect.'], 401);
         }
         $user->update(['password' => '']);
 
         return response()->json(['token' => $user->createToken('API Token')->plainTextToken]);
     }
-
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
