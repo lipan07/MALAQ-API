@@ -351,7 +351,7 @@ class PostController extends Controller
 
         if ($modelClass) {
             $request->merge(['post_id' => $post->id]);
-            PostMobile::restructureStoreData(array_merge($request->all()));
+            $modelClass::restructureStoreData(array_merge($request->all()));
         }
         return response()->json(['message' => 'Post created successfully'], 201);
     }

@@ -38,6 +38,13 @@ class AuthController extends Controller
     public function login(LoginUserRequest $request)
     {
         $user = User::where(['phone_no' => $request->phoneNumber])->first();
+        if (!$user) {
+            $user = User::create([
+                'name' => 'A',
+                'phone_no' => $request->phoneNumber,
+                'password' => Hash::make('password'),
+            ]);
+        }
 
         if (!$user || ($request->otp != $user->otp)) {
             return response()->json(['message' => 'The provided credentials are incorrect.'], 401);
