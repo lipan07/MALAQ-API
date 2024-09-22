@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\PostCarController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SmsController;
@@ -41,6 +42,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chats/{post_id}', [ChatController::class, 'show']);
     //Report
     Route::post('/reports', [ReportController::class, 'store']);
+    //Vehicle brand
+    Route::get('/motorcycle/brand', [PostCarController::class, 'motorcycleBrand']);
+    Route::get('/scooter/brand', [PostCarController::class, 'scooterBrand']);
+    Route::get('/bycycle/brand', [PostCarController::class, 'bycycleBrand']);
     //Logout
     Route::post('logout', [AuthController::class, 'logout']);
 });

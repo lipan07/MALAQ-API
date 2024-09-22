@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use App\Enums\CategoryGuardName;
 use App\Enums\PostType;
-use App\Enums\VehicleBrand;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -26,7 +25,7 @@ class StorePostBikeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'brand' => ['required', 'string', Rule::in(VehicleBrand::allTypes())],
+            'brand' => ['required', 'string'],
             'year' => 'required|string|max:10',
             'km_driven' => 'required|string',
             'adTitle' => 'required|string|max:255',
