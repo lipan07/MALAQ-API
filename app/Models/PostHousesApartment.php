@@ -19,6 +19,7 @@ class PostHousesApartment extends Model
         'post_id',
         'property_type',
         'bedrooms',
+        'bathrooms',
         'furnishing',
         'construction_status',
         'listed_by',
