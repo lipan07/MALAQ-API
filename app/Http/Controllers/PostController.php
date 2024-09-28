@@ -24,6 +24,7 @@ use App\Http\Requests\StorePostPetRequest;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\StorePostServiceRequest;
 use App\Http\Requests\StorePostSportHobbyRequest;
+use App\Http\Requests\StoreServicePostRequest;
 use App\Http\Requests\StoreShopOfficeRequest;
 use App\Http\Requests\UpdatePgGuestHouseRequest;
 use App\Http\Requests\UpdatePostAccessoriesRequest;
@@ -325,7 +326,7 @@ class PostController extends Controller
             CategoryGuardName::FishAquarium->value => PostOther::class,
             CategoryGuardName::PetsFoodAccessories->value => PostOther::class,
             CategoryGuardName::OtherPets->value => PostOther::class,
-            CategoryGuardName::PackersMovers->value => PostOther::class,
+            CategoryGuardName::PackersMovers->value => PostService::class,
             CategoryGuardName::OtherServices->value => PostOther::class,
             CategoryGuardName::Others->value => PostOther::class,
             CategoryGuardName::MachinerySpareParts->value => PostOther::class,
@@ -345,6 +346,14 @@ class PostController extends Controller
             CategoryGuardName::Accountant->value => PostJob::class,
             CategoryGuardName::Designer->value => PostJob::class,
             CategoryGuardName::OtherJobs->value => PostJob::class,
+            //Service Post
+            CategoryGuardName::EducationClasses->value => PostService::class,
+            CategoryGuardName::ToursTravels->value => PostService::class,
+            CategoryGuardName::ElectronicsRepairServices->value => PostService::class,
+            CategoryGuardName::HealthBeauty->value => PostService::class,
+            CategoryGuardName::HomeRenovationRepair->value => PostService::class,
+            CategoryGuardName::CleaningPestControl->value => PostService::class,
+            CategoryGuardName::LegalDocumentationSevices->value => PostService::class,
         ];
 
         $modelClass = $modelMapping[$request->guard_name] ?? null;
@@ -424,7 +433,16 @@ class PostController extends Controller
             case CategoryGuardName::OtherJobs->value:
                 return (new StorePostJobRequest())->rules();
                 //End:: Job Post
-
+                //Start:: Service Post
+            case CategoryGuardName::EducationClasses->value:
+            case CategoryGuardName::ToursTravels->value:
+            case CategoryGuardName::ElectronicsRepairServices->value:
+            case CategoryGuardName::HealthBeauty->value:
+            case CategoryGuardName::HomeRenovationRepair->value:
+            case CategoryGuardName::CleaningPestControl->value:
+            case CategoryGuardName::LegalDocumentationSevices->value:
+                return (new StoreServicePostRequest())->rules();
+                //End:: Service Post
             case CategoryGuardName::ShopOffices->value:
                 return (new StoreShopOfficeRequest())->rules();
             case CategoryGuardName::PgGuestHouses->value:
