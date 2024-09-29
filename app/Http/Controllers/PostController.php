@@ -256,7 +256,7 @@ class PostController extends Controller
         }
 
         // Step 2: Create the post
-        $post = $this->createOrUpdatePost($request);
+        $post = $this->createPost($request);
 
         // Step 3: Handle the images
         $this->handlePostImages($request, $post);
@@ -268,9 +268,9 @@ class PostController extends Controller
         return response()->json(['message' => 'Post created successfully'], 201);
     }
 
-    private function createOrUpdatePost(Request $request)
+    private function createPost(Request $request)
     {
-        return Post::updateOrCreate(['id' => $request->id], [
+        return Post::create([
             'category_id' => Category::getIdByGuardName($request->guard_name),
             'user_id' => auth()->id(),
             'post_time' => now(),
@@ -504,9 +504,9 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, Post $post)
     {
-        \Log::info($post);
-        \Log::info('post');
-        \Log::info($request);
+        if (empty($post)) {
+            return response(['status' => 'error', 'message' => 'Could not retrieve data'], 404);
+        }
         $rules = $this->getValidationRulesForUpdate($request->guard_name);
 
         $validator = Validator::make($request->all(), $rules);
@@ -519,7 +519,13 @@ class PostController extends Controller
         }
 
         // Step 2: Create the post
-        $post = $this->createOrUpdatePost($request);
+        $post->update([
+            'category_id' => Category::getIdByGuardName($request->guard_name),
+            'address' => $request->address,
+            'latitude' => $request->latitude, // Fixed typo here from 'lattitude'
+            'longitude' => $request->longitude,
+            'type' => $request->post_type,
+        ]);
 
         // Step 3: Handle the images
         $this->handlePostImages($request, $post);
