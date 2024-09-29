@@ -26,10 +26,11 @@ class UpdatePostRequest extends FormRequest
     {
         return [
             'guard_name' => ['sometimes', 'required', 'string', Rule::in(CategoryGuardName::allTypes())],
-            'type' => ['sometimes', 'required', 'string', Rule::in(PostType::allTypes())],
+            'post_type' => ['sometimes', 'required', 'string', Rule::in(PostType::allTypes())],
             'address' => 'sometimes|required|string|max:250',
             'latitude' => 'sometimes|nullable|numeric|between:-90,90',
             'longitude' => 'sometimes|nullable|numeric|between:-180,180',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 }
