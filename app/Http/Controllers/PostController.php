@@ -625,7 +625,6 @@ class PostController extends Controller
                 return (new UpdatePostHeavyMachineryRequest())->rules();
             default:
                 return [
-                    'id' => ['required', 'exists:posts,id'],
                     'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
                     'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
                 ];
