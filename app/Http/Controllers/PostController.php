@@ -504,6 +504,9 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, Post $post)
     {
+        \Log::info($post);
+        \Log::info('post');
+        \Log::info($request);
         $rules = $this->getValidationRulesForUpdate($request->guard_name);
 
         $validator = Validator::make($request->all(), $rules);
@@ -618,7 +621,7 @@ class PostController extends Controller
                 return [
                     'id' => ['required', 'exists:posts,id'],
                     'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
-                    'type' => ['required', 'string', Rule::in(PostType::allTypes())],
+                    'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
                 ];
         }
     }
