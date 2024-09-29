@@ -254,19 +254,36 @@ class PostController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
-        // Create the post
-        $post = Post::create([
+
+        // Step 2: Create the post
+        $post = $this->createOrUpdatePost($request);
+
+        // Step 3: Handle the images
+        $this->handlePostImages($request, $post);
+
+        // Step 4: Handle category-specific models
+        $this->handleCategorySpecificModels($request, $post);
+
+        // Return a success response
+        return response()->json(['message' => 'Post created successfully'], 201);
+    }
+
+    private function createOrUpdatePost(Request $request)
+    {
+        return Post::updateOrCreate(['id' => $request->id], [
             'category_id' => Category::getIdByGuardName($request->guard_name),
             'user_id' => auth()->id(),
             'post_time' => now(),
             'address' => $request->address,
-            'latitude' => $request->lattitude,
+            'latitude' => $request->latitude, // Fixed typo here from 'lattitude'
             'longitude' => $request->longitude,
             'type' => $request->post_type,
             'status' => PostStatus::Pending,
         ]);
+    }
 
-        // Handle the images
+    private function handlePostImages(Request $request, Post $post)
+    {
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $imageFile) {
                 // Store the image
@@ -277,8 +294,23 @@ class PostController extends Controller
                 ]);
             }
         }
+    }
 
-        $modelMapping = [
+    private function handleCategorySpecificModels(Request $request, Post $post)
+    {
+        $modelMapping = $this->getModelMapping();
+
+        $modelClass = $modelMapping[$request->guard_name] ?? null;
+
+        if ($modelClass) {
+            $request->merge(['post_id' => $post->id]);
+            $modelClass::restructureStoreData(array_merge($request->all()));
+        }
+    }
+
+    private function getModelMapping()
+    {
+        return [
             CategoryGuardName::Cars->value => PostCar::class,
             CategoryGuardName::HousesApartments->value => PostHousesApartment::class,
             CategoryGuardName::LandPlots->value => PostLandPlot::class,
@@ -355,14 +387,6 @@ class PostController extends Controller
             CategoryGuardName::CleaningPestControl->value => PostService::class,
             CategoryGuardName::LegalDocumentationSevices->value => PostService::class,
         ];
-
-        $modelClass = $modelMapping[$request->guard_name] ?? null;
-
-        if ($modelClass) {
-            $request->merge(['post_id' => $post->id]);
-            $modelClass::restructureStoreData(array_merge($request->all()));
-        }
-        return response()->json(['message' => 'Post created successfully'], 201);
     }
 
     protected function getValidationRulesForStore($guardName)
@@ -441,7 +465,7 @@ class PostController extends Controller
             case CategoryGuardName::HomeRenovationRepair->value:
             case CategoryGuardName::CleaningPestControl->value:
             case CategoryGuardName::LegalDocumentationSevices->value:
-                return (new StoreServicePostRequest())->rules();
+                return (new StorePostServiceRequest())->rules();
                 //End:: Service Post
             case CategoryGuardName::ShopOffices->value:
                 return (new StoreShopOfficeRequest())->rules();
@@ -480,7 +504,28 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, Post $post)
     {
-        //
+        $rules = $this->getValidationRulesForUpdate($request->guard_name);
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors()->first(),
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        // Step 2: Create the post
+        $post = $this->createOrUpdatePost($request);
+
+        // Step 3: Handle the images
+        $this->handlePostImages($request, $post);
+
+        // Step 4: Handle category-specific models
+        $this->handleCategorySpecificModels($request, $post);
+
+        // Return a success response
+        return response()->json(['message' => 'Post updated successfully'], 201);
     }
 
     protected function getValidationRulesForUpdate($guardName)
@@ -492,40 +537,86 @@ class PostController extends Controller
                 return (new UpdatePostHousesApartmentRequest())->rules();
             case CategoryGuardName::LandPlots->value:
                 return (new UpdatePostLandPlotRequest())->rules();
-            case CategoryGuardName::Fashion->value:
-                return (new UpdatePostFashionRequest())->rules();
             case CategoryGuardName::Mobiles->value:
                 return (new UpdatePostMobileRequest())->rules();
+                //Start:: Bike
             case CategoryGuardName::Bikes->value:
+            case CategoryGuardName::Motorcycles->value:
+            case CategoryGuardName::Scooters->value:
+            case CategoryGuardName::Bycycles->value:
                 return (new UpdatePostBikeRequest())->rules();
-            case CategoryGuardName::Job->value:
-                return (new UpdatePostJobRequest())->rules();
-            case CategoryGuardName::Pets->value:
-                return (new UpdatePostPetRequest())->rules();
-            case CategoryGuardName::Furniture->value:
-                return (new UpdatePostFurnitureRequest())->rules();
-            case CategoryGuardName::ElectronicsAppliances->value:
-                return (new UpdatePostElectronicsApplianceRequest())->rules();
+                //Start:: Others Post
+            case CategoryGuardName::Accessories->value:
+            case CategoryGuardName::ComputersLaptops->value:
+            case CategoryGuardName::TvsVideoAudio->value:
+            case CategoryGuardName::Acs->value:
+            case CategoryGuardName::Fridges->value:
+            case CategoryGuardName::WashingMachines->value:
+            case CategoryGuardName::CamerasLenses->value:
+            case CategoryGuardName::HarddisksPrintersMonitors->value:
+            case CategoryGuardName::KitchenOtherAppliances->value:
+            case CategoryGuardName::SofaDining->value:
+            case CategoryGuardName::BedsWardrobes->value:
+            case CategoryGuardName::HomeDecorGarden->value:
+            case CategoryGuardName::KidsFurniture->value:
+            case CategoryGuardName::OtherHouseholdItems->value:
+            case CategoryGuardName::MensFashion->value:
+            case CategoryGuardName::WomensFashion->value:
+            case CategoryGuardName::KidsFashion->value:
+            case CategoryGuardName::Books->value:
+            case CategoryGuardName::GymFitness->value:
+            case CategoryGuardName::MusicalInstruments->value:
+            case CategoryGuardName::SportsInstrument->value:
+            case CategoryGuardName::OtherHobbies->value:
+            case CategoryGuardName::Dogs->value:
+            case CategoryGuardName::FishAquarium->value:
+            case CategoryGuardName::PetsFoodAccessories->value:
+            case CategoryGuardName::OtherPets->value:
+            case CategoryGuardName::PackersMovers->value:
+            case CategoryGuardName::OtherServices->value:
             case CategoryGuardName::Others->value:
+            case CategoryGuardName::MachinerySpareParts->value:
                 return (new UpdatePostOtherRequest())->rules();
+                //End:: Others Post
+                //Start:: Job Post
+            case CategoryGuardName::DataEntryBackOffice->value:
+            case CategoryGuardName::SalesMarketing->value:
+            case CategoryGuardName::BpoTelecaller->value:
+            case CategoryGuardName::Driver->value:
+            case CategoryGuardName::OfficeAssistant->value:
+            case CategoryGuardName::DeliveryCollection->value:
+            case CategoryGuardName::Teacher->value:
+            case CategoryGuardName::Cook->value:
+            case CategoryGuardName::ReceptionistFrontOffice->value:
+            case CategoryGuardName::OperatorTechnician->value:
+            case CategoryGuardName::EngineerDeveloper->value:
+            case CategoryGuardName::HotelTravelExecutive->value:
+            case CategoryGuardName::Accountant->value:
+            case CategoryGuardName::Designer->value:
+            case CategoryGuardName::OtherJobs->value:
+                return (new UpdatePostJobRequest())->rules();
+                //End:: Job Post
+                //Start:: Service Post
+            case CategoryGuardName::EducationClasses->value:
+            case CategoryGuardName::ToursTravels->value:
+            case CategoryGuardName::ElectronicsRepairServices->value:
+            case CategoryGuardName::HealthBeauty->value:
+            case CategoryGuardName::HomeRenovationRepair->value:
+            case CategoryGuardName::CleaningPestControl->value:
+            case CategoryGuardName::LegalDocumentationSevices->value:
+                return (new UpdatePostServiceRequest())->rules();
+                //End:: Service Post
             case CategoryGuardName::ShopOffices->value:
                 return (new UpdateShopOfficeRequest())->rules();
             case CategoryGuardName::PgGuestHouses->value:
                 return (new UpdatePgGuestHouseRequest())->rules();
-            case CategoryGuardName::Accessories->value:
-                return (new UpdatePostAccessoriesRequest())->rules();
             case CategoryGuardName::CommercialHeavyVehicles->value:
                 return (new UpdatePostHeavyVehicleRequest())->rules();
             case CategoryGuardName::CommercialHeavyMachinery->value:
                 return (new UpdatePostHeavyMachineryRequest())->rules();
-            case CategoryGuardName::Books->value:
-                return (new UpdatePostBookRequest())->rules();
-            case CategoryGuardName::SportsInstrument->value:
-                return (new UpdatePostSportHobbyRequest())->rules();
-            case CategoryGuardName::Services->value:
-                return (new UpdatePostServiceRequest())->rules();
             default:
                 return [
+                    'id' => ['required', 'exists:posts,id'],
                     'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
                     'type' => ['required', 'string', Rule::in(PostType::allTypes())],
                 ];

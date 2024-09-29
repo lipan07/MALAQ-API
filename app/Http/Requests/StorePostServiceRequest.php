@@ -25,8 +25,9 @@ class StorePostServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
+            'type' => 'required|string|max:50',
+            'adTitle' => 'required|string|max:255',
+            'description' => 'required|string',
             'amount' => 'nullable|numeric',
         ];
     }

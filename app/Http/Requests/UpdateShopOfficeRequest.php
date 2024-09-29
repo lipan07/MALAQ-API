@@ -3,6 +3,10 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Enums\PropertyConstructionStatus;
+use App\Enums\PropertyFurnishing;
+use App\Enums\PropertyListedBy;
+use Illuminate\Validation\Rule;
 
 class UpdateShopOfficeRequest extends FormRequest
 {
@@ -22,9 +26,19 @@ class UpdateShopOfficeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'sometimes|nullable|string|max:255',
-            'description' => 'sometimes|nullable|string',
-            'amount' => 'sometimes|nullable|numeric',
+            'id' => ['required', 'exists:posts,id'],
+            'furnishing' => ['required', 'string', Rule::in(PropertyFurnishing::allTypes())],
+            'listedBy' => ['required', 'string', Rule::in(PropertyListedBy::allTypes())],
+            'construction_status' => ['required', 'string', Rule::in(PropertyConstructionStatus::allTypes())],
+            'superBuiltUpArea' => 'nullable|integer',
+            'carpetArea' => 'nullable|integer',
+            'maintenance' => 'nullable|numeric',
+            'carParking' => 'nullable|integer',
+            'washroom' => 'nullable|string|max:255',
+            'projectName' => 'nullable|string|max:255',
+            'adTitle' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'amount' => 'nullable|numeric',
         ];
     }
 }

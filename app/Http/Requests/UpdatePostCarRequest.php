@@ -27,18 +27,16 @@ class UpdatePostCarRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'address' => 'sometimes|required|string|max:250',
-            'latitude' => 'sometimes|nullable|numeric',
-            'longitude' => 'sometimes|nullable|numeric',
-            'brand' => ['sometimes', 'required', 'string', Rule::in(CarBrand::allTypes())],
-            'year' => 'sometimes|required|digits:4',
-            'fuel' => ['sometimes', 'required', 'string', Rule::in(CarFuelType::allTypes())],
-            'transmission' => ['sometimes', 'required', 'string', Rule::in(CarTransmission::allTypes())],
-            'km_driven' => 'sometimes|required|integer',
-            'no_of_owner' => ['sometimes', 'required', 'string', Rule::in(CarNoOfOwner::allTypes())],
-            'title' => 'sometimes|required|string',
-            'description' => 'sometimes|required|string',
-            'amount' => 'sometimes|required|numeric',
+            'id' => ['required', 'exists:posts,id'],
+            'brand' => ['required', 'string', Rule::in(CarBrand::allTypes())],
+            'year' => 'required|digits:4',
+            'fuelType' => ['required', 'string', Rule::in(CarFuelType::allTypes())],
+            'transmission' => ['required', 'string', Rule::in(CarTransmission::allTypes())],
+            'kmDriven' => 'required|integer',
+            'owners' => ['required', 'string', Rule::in(CarNoOfOwner::allTypes())],
+            'adTitle' => 'required|string',
+            'description' => 'required|string',
+            'amount' => 'required|numeric',
         ];
     }
 }

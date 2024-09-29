@@ -25,15 +25,16 @@ class UpdatePostLandPlotRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'listed_by' => ['sometimes', 'required', 'string', Rule::in(PropertyListedBy::allTypes())],
-            'carpet_area' => 'sometimes|required|integer',
-            'length' => 'sometimes|nullable|integer',
-            'breadth' => 'sometimes|nullable|integer',
-            'facing' => ['sometimes', 'required', 'string', Rule::in(PropertyFacing::allTypes())],
-            'project_name' => 'sometimes|nullable|string|max:255',
-            'title' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string',
-            'amount' => 'sometimes|required|numeric',
+            'id' => ['required', 'exists:posts,id'],
+            'listedBy' => ['required', 'string', Rule::in(PropertyListedBy::allTypes())],
+            'plotArea' => 'required|integer',
+            'length' => 'nullable|integer',
+            'breadth' => 'nullable|integer',
+            'facing' => ['required', 'string', Rule::in(PropertyFacing::allTypes())],
+            'projectName' => 'nullable|string|max:255',
+            'adTitle' => 'required|string|max:255',
+            'description' => 'required|string',
+            'amount' => 'required|numeric',
         ];
     }
 }

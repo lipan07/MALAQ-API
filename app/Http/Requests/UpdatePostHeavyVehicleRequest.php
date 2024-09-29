@@ -26,17 +26,18 @@ class UpdatePostHeavyVehicleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'sometimes|required|string|max:255',
-            'brand' => ['sometimes', 'required', 'string', Rule::in(CommercialVehicleBrand::allTypes())],
-            'model' => 'sometimes|required|string|max:255',
-            'year' => 'sometimes|required|digits:4',
-            'condition' => ['sometimes', 'required', 'string', Rule::in(Condition::allTypes())],
-            'km_driven' => 'sometimes|required|integer',
-            'fuel_type' => ['sometimes', 'required', 'string', Rule::in(CarFuelType::allTypes())],
-            'price' => 'sometimes|required|numeric',
-            'description' => 'sometimes|nullable|string',
-            'contact_name' => 'sometimes|required|string|max:255',
-            'contact_phone' => 'sometimes|required|string|max:255',
+            'id' => ['required', 'exists:posts,id'],
+            'adTitle' => 'required|string|max:255',
+            'brand' => ['required', 'string', Rule::in(CommercialVehicleBrand::allTypes())],
+            'year' => 'required|digits:4',
+            'condition' => ['required', 'string', Rule::in(Condition::allTypes())],
+            'owners' => 'required|integer',
+            'listedBy' => 'required|string',
+            'fuelType' => ['required', 'string', Rule::in(CarFuelType::allTypes())],
+            'price' => 'required|numeric',
+            'description' => 'nullable|string',
+            'contact_name' => 'required|string|max:255',
+            'contact_phone' => 'required|string|max:255',
         ];
     }
 }

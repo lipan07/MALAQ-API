@@ -23,12 +23,13 @@ class UpdatePostBikeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'brand' => ['sometimes', 'required', 'string'],
-            'year' => 'sometimes|nullable|string|max:10',
-            'km_driven' => 'sometimes|nullable|string',
-            'title' => 'sometimes|nullable|string|max:255',
-            'description' => 'sometimes|nullable|string',
-            'amount' => 'sometimes|nullable|numeric',
+            'id' => ['required', 'exists:posts,id'],
+            'brand' => ['required', 'string'],
+            'year' => 'required|string|max:10',
+            'km_driven' => 'required|string',
+            'adTitle' => 'required|string|max:255',
+            'description' => 'required|string',
+            'amount' => 'required|numeric',
         ];
     }
 }

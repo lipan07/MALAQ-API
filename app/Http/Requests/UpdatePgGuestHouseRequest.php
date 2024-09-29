@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\PgGuestHousesType;
+use App\Enums\PropertyConstructionStatus;
 use App\Enums\PropertyFurnishing;
 use App\Enums\PropertyListedBy;
 use Illuminate\Foundation\Http\FormRequest;
@@ -26,14 +27,16 @@ class UpdatePgGuestHouseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pg_type' => ['sometimes', 'required', 'string', Rule::in(PgGuestHousesType::allTypes())],
-            'furnishing' => ['sometimes', 'required', 'string', Rule::in(PropertyFurnishing::allTypes())],
-            'listed_by' => ['sometimes', 'required', 'string', Rule::in(PropertyListedBy::allTypes())],
-            'carpet_area' => 'sometimes|nullable|integer',
-            'is_meal_included' => 'sometimes|nullable|boolean',
-            'title' => 'sometimes|nullable|string|max:255',
-            'description' => 'sometimes|nullable|string',
-            'amount' => 'sometimes|nullable|numeric',
+            'id' => ['required', 'exists:posts,id'],
+            'pgType' => ['required', 'string', Rule::in(PgGuestHousesType::allTypes())],
+            'furnishing' => ['required', 'string', Rule::in(PropertyFurnishing::allTypes())],
+            'listedBy' => ['required', 'string', Rule::in(PropertyListedBy::allTypes())],
+            'construction_status' => ['required', 'string', Rule::in(PropertyConstructionStatus::allTypes())],
+            'carpetArea' => 'nullable|integer',
+            'isMealIncluded' => 'nullable|boolean',
+            'adTitle' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'amount' => 'nullable|numeric',
         ];
     }
 }

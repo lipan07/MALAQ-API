@@ -25,12 +25,13 @@ class UpdatePostJobRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'salary_period' => ['sometimes', 'required', 'string', Rule::in(SalaryPeriod::allTypes())],
-            'position_type' => ['sometimes', 'required', 'string', Rule::in(PositionType::allTypes())],
-            'salary_from' => 'sometimes|required|numeric',
-            'salary_to' => 'sometimes|nullable|numeric',
-            'title' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string',
+            'id' => ['required', 'exists:posts,id'],
+            'salaryPeriod' => ['required', 'string', Rule::in(SalaryPeriod::allTypes())],
+            'positionType' => ['required', 'string', Rule::in(PositionType::allTypes())],
+            'salaryFrom' => 'required|numeric',
+            'salaryTo' => 'nullable|numeric',
+            'adTitle' => 'required|string|max:255',
+            'description' => 'required|string',
         ];
     }
 }

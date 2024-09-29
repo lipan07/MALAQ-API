@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\CarFuelType;
 use App\Enums\Condition;
 use App\Enums\HeavyMachineryBrand;
 use Illuminate\Foundation\Http\FormRequest;
@@ -25,16 +26,19 @@ class UpdatePostHeavyMachineryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'sometimes|required|string|max:255',
-            'brand' => ['sometimes', 'required', 'string', Rule::in(HeavyMachineryBrand::allTypes())],
-            'model' => 'sometimes|required|string|max:255',
-            'year' => 'sometimes|required|digits:4',
-            'condition' => ['sometimes', 'required', 'string', Rule::in(Condition::allTypes())],
-            'hours_used' => 'sometimes|required|integer',
-            'description' => 'sometimes|nullable|string',
-            'price' => 'sometimes|required|numeric',
-            'contact_name' => 'sometimes|required|string|max:255',
-            'contact_phone' => 'sometimes|required|string|max:255',
+            'id' => ['required', 'exists:posts,id'],
+            'brand' => ['required', 'string', Rule::in(HeavyMachineryBrand::allTypes())],
+            'condition' => ['required', 'string', Rule::in(Condition::allTypes())],
+            'year' => 'required|digits:4',
+            'fuelType' => ['required', 'string', Rule::in(CarFuelType::allTypes())],
+            'owners' => 'required|integer',
+            'listedBy' => 'required|string',
+            'adTitle' => 'required|string|max:255',
+            // 'hours_used' => 'required|integer',
+            'description' => 'nullable|string',
+            'amount' => 'required|numeric',
+            'contact_name' => 'required|string|max:255',
+            'contact_phone' => 'required|string|max:255',
         ];
     }
 }

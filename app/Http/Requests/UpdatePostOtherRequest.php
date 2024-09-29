@@ -22,9 +22,10 @@ class UpdatePostOtherRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'sometimes|nullable|string|max:255',
-            'description' => 'sometimes|nullable|string',
-            'amount' => 'sometimes|nullable|numeric',
+            'id' => ['required', 'exists:posts,id'],
+            'adTitle' => 'required|string|max:255',
+            'description' => 'required|string',
+            'amount' => 'required|numeric',
         ];
     }
 }

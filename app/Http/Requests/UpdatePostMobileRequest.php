@@ -25,12 +25,12 @@ class UpdatePostMobileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'post_type' => ['sometimes', 'required', 'string', Rule::in(PostType::allTypes())],
-            'brand' => ['sometimes', 'required', 'string', Rule::in(MobileBrand::allTypes())],
-            'year' => 'sometimes|nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
-            'title' => 'sometimes|nullable|string|max:255',
-            'description' => 'sometimes|nullable|string',
-            'amount' => 'sometimes|nullable|numeric',
+            'id' => ['required', 'exists:posts,id'],
+            'brand' => ['required', 'string', Rule::in(MobileBrand::allTypes())],
+            'year' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
+            'adTitle' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'amount' => 'nullable|numeric',
         ];
     }
 }
