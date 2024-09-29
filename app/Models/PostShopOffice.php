@@ -37,7 +37,6 @@ class PostShopOffice extends Model
     public static function restructureStoreData($data)
     {
         $restructuredData = [
-            'post_id' => $data['post_id'] ?? null,
             'furnishing' => $data['furnishing'] ?? null,
             'listed_by' => $data['listedBy'] ?? null,
             'construction_status' => $data['constructionStatus'] ?? null,
@@ -54,6 +53,6 @@ class PostShopOffice extends Model
         ];
 
         // Save the restructured data
-        return self::create($restructuredData);
+        return self::updateOrCreate(['post_id' => $data['post_id'] ?? null,], $restructuredData);
     }
 }

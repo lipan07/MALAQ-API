@@ -21,7 +21,6 @@ class PostService extends Model
     public static function restructureStoreData($data)
     {
         $restructuredData = [
-            'post_id' => $data['post_id'] ?? null,
             'type' => $data['type'] ?? null,
             'amount' => $data['amount'] ?? null,
             'title' => $data['adTitle'] ?? null,
@@ -30,6 +29,6 @@ class PostService extends Model
         ];
 
         // Save the restructured data
-        return self::create($restructuredData);
+        return self::updateOrCreate(['post_id' => $data['post_id'] ?? null,], $restructuredData);
     }
 }

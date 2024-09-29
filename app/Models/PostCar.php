@@ -41,7 +41,6 @@ class PostCar extends Model
     public static function restructureStoreData($data)
     {
         $restructuredData = [
-            'post_id' => $data['post_id'] ?? null,
             'brand' => $data['brand'] ?? null,
             'year' => $data['year'] ?? null,
             'color' => $data['color'] ?? null,
@@ -56,6 +55,6 @@ class PostCar extends Model
         ];
 
         // Save the restructured data
-        return self::create($restructuredData);
+        return self::updateOrCreate(['post_id' => $data['post_id'] ?? null,], $restructuredData);
     }
 }

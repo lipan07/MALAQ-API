@@ -33,7 +33,6 @@ class PostLandPlot extends Model
     public static function restructureStoreData($data)
     {
         $restructuredData = [
-            'post_id' => $data['post_id'] ?? null,
             'listed_by' => $data['listedBy'] ?? null,
             'carpet_area' => $data['plotArea'] ?? null,
             'facing' => $data['facing'] ?? null,
@@ -47,6 +46,6 @@ class PostLandPlot extends Model
         ];
 
         // Save the restructured data
-        return self::create($restructuredData);
+        return self::updateOrCreate(['post_id' => $data['post_id'] ?? null,], $restructuredData);
     }
 }

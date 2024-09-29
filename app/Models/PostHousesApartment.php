@@ -48,7 +48,6 @@ class PostHousesApartment extends Model
     public static function restructureStoreData($data)
     {
         $restructuredData = [
-            'post_id' => $data['post_id'] ?? null,
             'property_type' => $data['propertyType'] ?? null,
             'bedrooms' => $data['bedroom'] ?? null,
             'bathrooms' => $data['bathroom'] ?? null,
@@ -70,6 +69,6 @@ class PostHousesApartment extends Model
         ];
 
         // Save the restructured data
-        return self::create($restructuredData);
+        return self::updateOrCreate(['post_id' => $data['post_id'] ?? null,], $restructuredData);
     }
 }

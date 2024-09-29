@@ -30,7 +30,6 @@ class PostJob extends Model
     public static function restructureStoreData($data)
     {
         $restructuredData = [
-            'post_id' => $data['post_id'] ?? null,
             'salary_period' => $data['salaryPeriod'] ?? null,
             'position_type' => $data['positionType'] ?? null,
             'salary_from' => $data['salaryFrom'] ?? null,
@@ -41,6 +40,6 @@ class PostJob extends Model
         ];
 
         // Save the restructured data
-        return self::create($restructuredData);
+        return self::updateOrCreate(['post_id' => $data['post_id'] ?? null,], $restructuredData);
     }
 }
