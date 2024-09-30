@@ -86,7 +86,7 @@ class PostController extends Controller
         if ($request->category) {
             $posts->where('category_id', $request->category);
         }
-        $posts = $posts->orderBy('created_at', 'DESC')->paginate(15);
+        $posts = $posts->orderBy('created_at', 'DESC')->simplePaginate(15);
 
         foreach ($posts as $post) {
             $categoryGuardName = Category::getGuardNameById($post->category_id);
@@ -153,22 +153,7 @@ class PostController extends Controller
             }
         }
 
-        // return PostResource::collection($posts);
-
-        return response()->json([
-            'status' => 'success',
-            'data' => PostResource::collection($posts), // Get paginated data
-            'pagination' => [
-                'current_page' => $posts->currentPage(),
-                'last_page' => $posts->lastPage(),
-                'per_page' => $posts->perPage(),
-                'total' => $posts->total(),
-                'first_page_url' => $posts->url(1),
-                'last_page_url' => $posts->url($posts->lastPage()),
-                'next_page_url' => $posts->nextPageUrl(),
-                'prev_page_url' => $posts->previousPageUrl(),
-            ]
-        ]);
+        return PostResource::collection($posts);
     }
 
 
