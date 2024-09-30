@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\MController;
 use App\Http\Controllers\PostCarController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReportController;
@@ -33,7 +34,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/users/{id}', [UserController::class, 'update']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
     //Post
-    Route::resource('posts', PostController::class);
+    // Route::resource('posts', PostController::class);
+
+    Route::get('posts', [PostController::class, 'index'])->name('posts.index');
+    Route::get('posts/{post}', [PostController::class, 'show'])->name('posts.show');
+    Route::post('posts', [PostController::class, 'store'])->name('posts.store');
+    Route::post('posts/{post}', [PostController::class, 'update'])->name('posts.update');
+    Route::delete('posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+
     Route::get('/my-post', [PostController::class, 'myPost']);
     //Category
     Route::get('/category', [CategoryController::class, 'index']);
