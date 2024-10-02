@@ -479,7 +479,7 @@ class PostController extends Controller
                 return (new StorePostHeavyVehicleRequest())->rules();
             case CategoryGuardName::CommercialHeavyMachinery->value:
                 return (new StorePostHeavyMachineryRequest())->rules();
-            case CategoryGuardName::VehicleSpareParts->value():
+            case CategoryGuardName::VehicleSpareParts->value:
                 return (new StorePostVehicleSparePartsRequest())->rules();
 
             default:
@@ -630,7 +630,7 @@ class PostController extends Controller
                 return (new UpdatePostHeavyVehicleRequest())->rules();
             case CategoryGuardName::CommercialHeavyMachinery->value:
                 return (new UpdatePostHeavyMachineryRequest())->rules();
-            case CategoryGuardName::VehicleSpareParts->value():
+            case CategoryGuardName::VehicleSpareParts->value:
                 return (new UpdatePostVehicleSparePartsRequest())->rules();
             default:
                 return [
