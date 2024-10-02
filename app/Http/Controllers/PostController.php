@@ -72,6 +72,7 @@ use App\Models\PostService;
 use App\Models\PostShopOffice;
 use App\Models\PostSportHobby;
 use App\Models\PostVehicleSpareParts;
+use App\Services\PostService as ServicesPostService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -91,150 +92,17 @@ class PostController extends Controller
         }
         $posts = $posts->orderBy('created_at', 'DESC')->simplePaginate(15);
 
-        foreach ($posts as $post) {
-            $categoryGuardName = Category::getGuardNameById($post->category_id);
-            switch ($categoryGuardName) {
-                case 'mobiles':
-                    $post->load('mobile');
-                    break;
-                case 'cars':
-                    $post->load('car');
-                    break;
-                case 'houses_apartments':
-                    $post->load('housesApartment');
-                    break;
-                case 'land_plots':
-                    $post->load('landPlots');
-                    break;
-                case 'fashion':
-                    $post->load('fashion');
-                    break;
-                case 'bikes':
-                    $post->load('bikes');
-                    break;
-                case 'job':
-                    $post->load('jobs');
-                    break;
-                case 'pets':
-                    $post->load('pets');
-                    break;
-                case 'furniture':
-                    $post->load('furnitures');
-                    break;
-                case 'electronics_appliances':
-                    $post->load('electronicsAppliances');
-                    break;
-                case 'others':
-                    $post->load('others');
-                    break;
-                case 'shop_offices':
-                    $post->load('shopOffices');
-                    break;
-                case 'pg_guest_houses':
-                    $post->load('pgGuestHouses');
-                    break;
-                case 'accessories':
-                    $post->load('accessories');
-                    break;
-                case 'commercial_heavy_vehicles':
-                    $post->load('commercialHeavyVehicles');
-                    break;
-                case 'commercial_heavy_machinery':
-                    $post->load('commercialHeavyMachinery');
-                    break;
-                case 'books':
-                    $post->load('books');
-                    break;
-                case 'sports_instrument':
-                    $post->load('sportsInstruments');
-                    break;
-                case 'services':
-                    $post->load('services');
-                    break;
-                case CategoryGuardName::VehicleSpareParts->value:
-                    $post->load('vehicleSpareParts');
-                    break;
-
-                    // Add more cases for other categories if needed
-            }
-        }
+        $posts = ServicesPostService::fetchPostData($posts);
 
         return PostResource::collection($posts);
     }
-
 
     public function myPost()
     {
         $user = auth()->user();
         $posts = Post::with('category', 'images')->where(['user_id' => $user->id])->orderBy('created_at', 'DESC')->simplePaginate(6);
 
-        foreach ($posts as $post) {
-            $categoryGuardName = Category::getGuardNameById($post->category_id);
-            switch ($categoryGuardName) {
-                case 'mobiles':
-                    $post->load('mobile');
-                    break;
-                case 'cars':
-                    $post->load('car');
-                    break;
-                case 'houses_apartments':
-                    $post->load('housesApartment');
-                    break;
-                case 'land_plots':
-                    $post->load('landPlots');
-                    break;
-                case 'fashion':
-                    $post->load('fashion');
-                    break;
-                case 'bikes':
-                    $post->load('bikes');
-                    break;
-                case 'job':
-                    $post->load('jobs');
-                    break;
-                case 'pets':
-                    $post->load('pets');
-                    break;
-                case 'furniture':
-                    $post->load('furnitures');
-                    break;
-                case 'electronics_appliances':
-                    $post->load('electronicsAppliances');
-                    break;
-                case 'others':
-                    $post->load('others');
-                    break;
-                case 'shop_offices':
-                    $post->load('shopOffices');
-                    break;
-                case 'pg_guest_houses':
-                    $post->load('pgGuestHouses');
-                    break;
-                case 'accessories':
-                    $post->load('accessories');
-                    break;
-                case 'commercial_heavy_vehicles':
-                    $post->load('commercialHeavyVehicles');
-                    break;
-                case 'commercial_heavy_machinery':
-                    $post->load('commercialHeavyMachinery');
-                    break;
-                case 'books':
-                    $post->load('books');
-                    break;
-                case 'sports_instrument':
-                    $post->load('sportsInstruments');
-                    break;
-                case 'services':
-                    $post->load('services');
-                    break;
-                case CategoryGuardName::VehicleSpareParts->value:
-                    $post->load('vehicleSpareParts');
-                    break;
-
-                    // Add more cases for other categories if needed
-            }
-        }
+        $posts = ServicesPostService::fetchPostData($posts);
         // Return the restructured paginated result
 
         return PostResource::collection($posts);

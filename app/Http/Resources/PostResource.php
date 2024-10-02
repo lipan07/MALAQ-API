@@ -46,7 +46,8 @@ class PostResource extends JsonResource
                 $this->commercialHeavyMachinery ??
                 $this->books ??
                 $this->sportsInstruments ??
-                $this->services ?? []
+                $this->services ??
+                $this->vehicleSpareParts ?? []
         ];
     }
 }
