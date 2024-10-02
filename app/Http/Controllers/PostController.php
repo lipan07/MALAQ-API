@@ -24,6 +24,7 @@ use App\Http\Requests\StorePostPetRequest;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\StorePostServiceRequest;
 use App\Http\Requests\StorePostSportHobbyRequest;
+use App\Http\Requests\StorePostVehicleSparePartsRequest;
 use App\Http\Requests\StoreServicePostRequest;
 use App\Http\Requests\StoreShopOfficeRequest;
 use App\Http\Requests\UpdatePgGuestHouseRequest;
@@ -475,6 +476,9 @@ class PostController extends Controller
                 return (new StorePostHeavyVehicleRequest())->rules();
             case CategoryGuardName::CommercialHeavyMachinery->value:
                 return (new StorePostHeavyMachineryRequest())->rules();
+            case CategoryGuardName::VehicleSpareParts->value():
+                return (new StorePostVehicleSparePartsRequest())->rules();
+
             default:
                 return [
                     'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
