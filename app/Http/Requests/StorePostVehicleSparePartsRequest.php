@@ -23,7 +23,7 @@ class StorePostVehicleSparePartsRequest extends FormRequest
     {
         return [
             'type' => 'required|string',
-            'title' => 'required|string',
+            'adTitle' => 'required|string',
             'amount' => 'required|string',
             'description' => 'required|string',
         ];

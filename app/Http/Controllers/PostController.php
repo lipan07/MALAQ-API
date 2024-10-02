@@ -46,6 +46,7 @@ use App\Http\Requests\UpdatePostPetRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Requests\UpdatePostServiceRequest;
 use App\Http\Requests\UpdatePostSportHobbyRequest;
+use App\Http\Requests\UpdatePostVehicleSparePartsRequest;
 use App\Http\Requests\UpdateShopOfficeRequest;
 use App\Http\Resources\PostResource;
 use App\Models\Category;
@@ -70,6 +71,7 @@ use App\Models\PostProperty;
 use App\Models\PostService;
 use App\Models\PostShopOffice;
 use App\Models\PostSportHobby;
+use App\Models\PostVehicleSpareParts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -387,6 +389,7 @@ class PostController extends Controller
             CategoryGuardName::HomeRenovationRepair->value => PostService::class,
             CategoryGuardName::CleaningPestControl->value => PostService::class,
             CategoryGuardName::LegalDocumentationSevices->value => PostService::class,
+            CategoryGuardName::VehicleSpareParts->value => PostVehicleSpareParts::class,
         ];
     }
 
@@ -627,6 +630,8 @@ class PostController extends Controller
                 return (new UpdatePostHeavyVehicleRequest())->rules();
             case CategoryGuardName::CommercialHeavyMachinery->value:
                 return (new UpdatePostHeavyMachineryRequest())->rules();
+            case CategoryGuardName::VehicleSpareParts->value():
+                return (new UpdatePostVehicleSparePartsRequest())->rules();
             default:
                 return [
                     'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],

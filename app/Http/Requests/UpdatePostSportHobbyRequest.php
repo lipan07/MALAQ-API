@@ -22,6 +22,7 @@ class UpdatePostSportHobbyRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'id' => ['required', 'exists:posts,id'],
             'title' => 'sometimes|nullable|string|max:255',
             'description' => 'sometimes|nullable|string',
             'amount' => 'sometimes|nullable|numeric',
