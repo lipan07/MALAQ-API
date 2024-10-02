@@ -25,8 +25,8 @@ class UpdatePostBikeRequest extends FormRequest
         return [
             'id' => ['required', 'exists:posts,id'],
             'brand' => ['required', 'string'],
-            'year' => 'required|string|max:10',
-            'km_driven' => 'required|string',
+            'year' => 'nullable|string|max:10',
+            'km_driven' => 'nullable|string',
             'adTitle' => 'required|string|max:255',
             'description' => 'required|string',
             'amount' => 'required|numeric',
