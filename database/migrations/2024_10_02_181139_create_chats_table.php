@@ -12,13 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('chats', function (Blueprint $table) {
+            // Primary key as UUID
             $table->uuid('id')->primary();
+
+            // Foreign keys as UUID
             $table->uuid('post_id');
-            $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
-            $table->foreignUuid('sender_id')->constrained('users')->onDelete('cascade');
-            $table->foreignUuid('receiver_id')->constrained('users')->onDelete('cascade');
-            $table->text('message');
+            $table->uuid('buyer_id');
+            $table->uuid('seller_id');
             $table->timestamps();
+
+            // Foreign key constraints
+            $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
+            $table->foreign('buyer_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('seller_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

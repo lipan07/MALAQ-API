@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('shop_offices', function (Blueprint $table) {
+        Schema::table('post_shop_offices', function (Blueprint $table) {
             $table->string('car_parking', 2)->nullable()->change();
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('shop_offices', function (Blueprint $table) {
+        Schema::table('post_shop_offices', function (Blueprint $table) {
             $table->integer('car_parking')->change();
         });
     }

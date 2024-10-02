@@ -55,6 +55,17 @@ class User extends Authenticatable
         return $this->hasMany(Post::class);
     }
 
+    public function buyerChats()
+    {
+        return $this->hasMany(Chat::class, 'buyer_id', 'id');
+    }
+
+    // A User can have many Chats as a Seller
+    public function sellerChats()
+    {
+        return $this->hasMany(Chat::class, 'seller_id', 'id');
+    }
+
     public function images()
     {
         return $this->morphOne(Image::class, 'imageable');
