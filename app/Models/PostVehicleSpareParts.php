@@ -11,6 +11,7 @@ class PostVehicleSpareParts extends Model
     use HasFactory, HasUuids;
 
     protected $fillable = [
+        'post_id',
         'type',
         'title',
         'amount',
