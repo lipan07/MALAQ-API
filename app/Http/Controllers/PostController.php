@@ -151,6 +151,9 @@ class PostController extends Controller
                 case 'services':
                     $post->load('services');
                     break;
+                case CategoryGuardName::VehicleSpareParts->value:
+                    $post->load('vehicleSpareParts');
+                    break;
 
                     // Add more cases for other categories if needed
             }
@@ -224,6 +227,9 @@ class PostController extends Controller
                     break;
                 case 'services':
                     $post->load('services');
+                    break;
+                case CategoryGuardName::VehicleSpareParts->value:
+                    $post->load('vehicleSpareParts');
                     break;
 
                     // Add more cases for other categories if needed

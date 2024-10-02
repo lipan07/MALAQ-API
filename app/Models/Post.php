@@ -142,4 +142,9 @@ class Post extends Model
     {
         return $this->hasOne(PostService::class, 'post_id');
     }
+
+    public function vehicleSpareParts()
+    {
+        return $this->hasOne(PostVehicleSpareParts::class, 'post_id');
+    }
 }
