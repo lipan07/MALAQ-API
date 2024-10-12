@@ -32,9 +32,8 @@ class ChatController extends Controller
     {
         $chat = Chat::create([
             'post_id' => $request->post_id,
-            'sender_id' => $request->sender_id,
-            'receiver_id' => $request->receiver_id,
-            'message' => $request->message,
+            'seller_id' => $request->sender_id,
+            'buyer_id' => $request->receiver_id,
         ]);
 
         return response()->json([

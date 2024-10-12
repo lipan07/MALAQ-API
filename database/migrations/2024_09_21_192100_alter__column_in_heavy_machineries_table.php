@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('post_heavy_machineries', function (Blueprint $table) {
             $table->dropColumn('hours_used');
             $table->dropColumn('price');
-            $table->dropColumn('model');
+            // $table->dropColumn('model');
             $table->decimal('amount', 10, 2);
             $table->string('owner');
             $table->string('fuel_type');
@@ -29,7 +29,7 @@ return new class extends Migration
     {
         Schema::table('post_heavy_machineries', function (Blueprint $table) {
             $table->string('hours_used');
-            $table->string('model');
+            // $table->string('model');
             $table->decimal('price', 10, 2);
             $table->dropColumn('amount');
             $table->dropColumn('owner');
