@@ -47,7 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/category', [CategoryController::class, 'index']);
     //Chat
     Route::post('/chats', [ChatController::class, 'store']);
-    Route::get('/chats/{post_id}', [ChatController::class, 'show']);
+    Route::get('/chats/{id}', [ChatController::class, 'show']);
     //Report
     Route::post('/reports', [ReportController::class, 'store']);
     //Vehicle brand
