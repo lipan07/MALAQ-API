@@ -55,7 +55,7 @@ class ChatController extends Controller
      */
     public function show(Request $request, $id)
     {
-        \Log::info($chat);
+        \Log::info($id);
         // $chats = $chat->load('messages');
         $chats = Message::where('chat_id', $id)->get();
 
