@@ -31,11 +31,7 @@ class MessageSent
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
     public function broadcastOn()
-    // public function broadcastOn(): array
     {
-        // return [
-        //     new PrivateChannel('channel-name'),
-        // ];
-        return new Channel('chat');
+        return new Channel('chat.' . $this->message['chat_id']);
     }
 }
