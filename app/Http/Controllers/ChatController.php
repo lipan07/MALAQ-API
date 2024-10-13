@@ -51,9 +51,9 @@ class ChatController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Post $post)
+    public function show(Chat $chat)
     {
-        $chats = Chat::where('post_id', $post->id)->get();
+        $chats = $chat->load('messages');
 
         return response()->json([
             'message' => 'Chat messages fetched successfully',
