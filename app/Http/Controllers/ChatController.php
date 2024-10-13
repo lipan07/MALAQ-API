@@ -38,8 +38,8 @@ class ChatController extends Controller
             'buyer_id' => $request->receiver_id,
         ]);
         $message = Message::create([
-            'chat_id' => $request->chat_id,
-            'user_id' => $request->user_id,
+            'chat_id' => $chat->id,
+            'user_id' => $request->sender_id,
             'message' => $request->message,
         ]);
 
