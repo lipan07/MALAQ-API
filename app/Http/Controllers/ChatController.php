@@ -6,6 +6,8 @@ use App\Http\Requests\StorechatRequest;
 use App\Http\Requests\UpdatechatRequest;
 use App\Models\chat;
 use App\Models\Post;
+use App\Events\MessageSent;
+use App\Models\Message;
 
 class ChatController extends Controller
 {
@@ -35,11 +37,15 @@ class ChatController extends Controller
             'seller_id' => $request->sender_id,
             'buyer_id' => $request->receiver_id,
         ]);
+        $message = Message::create([
+            'chat_id' => $request->chat_id,
+            'user_id' => $request->user_id,
+            'message' => $request->message,
+        ]);
 
-        return response()->json([
-            'message' => 'Chat message sent successfully',
-            'chat' => $chat,
-        ], 201);
+        broadcast(new MessageSent($message))->toOthers();
+
+        return response()->json(['status' => 'Message Sent!']);
     }
 
     /**
