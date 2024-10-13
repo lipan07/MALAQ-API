@@ -32,8 +32,9 @@ class ChatController extends Controller
      */
     public function store(StorechatRequest $request)
     {
-        $chat = Chat::create([
-            'post_id' => $request->post_id,
+        $chat = Chat::updateOrCreate([
+            'post_id' => $request->post_id
+        ], [
             'seller_id' => $request->sender_id,
             'buyer_id' => $request->receiver_id,
         ]);
