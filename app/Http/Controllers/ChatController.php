@@ -8,6 +8,7 @@ use App\Models\chat;
 use App\Models\Post;
 use App\Events\MessageSent;
 use App\Models\Message;
+use Illuminate\Http\Request;
 
 class ChatController extends Controller
 {
@@ -52,11 +53,11 @@ class ChatController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Chat $chat)
+    public function show(Request $request, $id)
     {
         \Log::info($chat);
         // $chats = $chat->load('messages');
-        $chats = Message::where('chat_id', $chat->id)->get();
+        $chats = Message::where('chat_id', $id)->get();
 
         return response()->json([
             'message' => 'Chat messages fetched successfully',
