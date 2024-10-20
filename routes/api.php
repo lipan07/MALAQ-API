@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 //Sms
-Route::post('/send-sms', [SmsController::class, 'sendMessage']);
+// Route::post('/send-sms', [SmsController::class, 'sendMessage']);
 
 Route::middleware('auth:sanctum')->group(function () {
     //User
@@ -56,6 +56,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bycycle/brand', [PostCarController::class, 'bycycleBrand']);
     //Logout
     Route::post('logout', [AuthController::class, 'logout']);
+
+    Route::post('/open-chat', [ChatController::class, 'openChat']);
+    Route::post('/send-message', [ChatController::class, 'sendMessage']);
 });
 
 Route::get('test', function () {

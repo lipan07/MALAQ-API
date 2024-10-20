@@ -18,6 +18,6 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('chat.{chatId}', function ($user, $chatId) {
-    // You can implement your logic here to authorize the user
-    return true; // Allow all users for now
+    // You can add any authorization logic here
+    return true;
 });

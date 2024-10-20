@@ -34,7 +34,9 @@ class ChatController extends Controller
     public function store(StorechatRequest $request)
     {
         $chat = Chat::updateOrCreate([
-            'post_id' => $request->post_id
+            'post_id' => $request->post_id,
+            'seller_id' => $request->sender_id,
+            'buyer_id' => $request->receiver_id,
         ], [
             'seller_id' => $request->sender_id,
             'buyer_id' => $request->receiver_id,
@@ -45,7 +47,7 @@ class ChatController extends Controller
             'message' => $request->message,
         ]);
 
-        broadcast(new MessageSent($message))->toOthers();
+        broadcast(new MessageSent($chat->id, $message))->toOthers();
 
         return response()->json(['status' => 'Message Sent!']);
     }
@@ -56,8 +58,7 @@ class ChatController extends Controller
     public function show(Request $request, $id)
     {
         \Log::info($id);
-        // $chats = $chat->load('messages');
-        $chats = Message::where('chat_id', $id)->get();
+        $chats = Message::where('chat_id', $id)->orderBy('created_at', 'asc')->get();
 
         return response()->json([
             'message' => 'Chat messages fetched successfully',
@@ -87,5 +88,48 @@ class ChatController extends Controller
     public function destroy(chat $chat)
     {
         //
+    }
+    public function openChat(Request $request)
+    {
+        $buyerId = $request->input('buyer_id');
+        $sellerId = $request->input('seller_id');
+        $postId = $request->input('post_id');
+
+        // Check if chat already exists
+        $chat = Chat::where('buyer_id', $buyerId)
+            ->where('seller_id', $sellerId)
+            ->where('post_id', $postId)
+            ->first();
+
+        if ($chat) {
+            // Return existing chat and messages
+            $messages = Message::where('chat_id', $chat->id)->get();
+            return response()->json(['chat' => $chat, 'messages' => $messages]);
+        } else {
+            // Create new chat if it doesn't exist
+            $chat = Chat::create([
+                'buyer_id' => $buyerId,
+                'seller_id' => $sellerId,
+                'post_id' => $postId,
+            ]);
+            return response()->json(['chat' => $chat, 'messages' => []]);
+        }
+    }
+
+    public function sendMessage(Request $request)
+    {
+        $chatId = $request->input('chat_id');
+        $messageText = $request->input('message');
+
+        // Store the message
+        $message = Message::create([
+            'chat_id' => $chatId,
+            'message' => $messageText,
+        ]);
+
+        // Broadcast the message using Laravel Broadcasting (Pusher)
+        broadcast(new MessageSent($chatId, $messageText))->toOthers();
+
+        return response()->json(['message' => $message]);
     }
 }
