@@ -118,11 +118,13 @@ class ChatController extends Controller
 
     public function sendMessage(Request $request)
     {
+        $user = auth()->user();
         $chatId = $request->input('chat_id');
         $messageText = $request->input('message');
 
         // Store the message
         $message = Message::create([
+            'user_id' => $user->id,
             'chat_id' => $chatId,
             'message' => $messageText,
         ]);
