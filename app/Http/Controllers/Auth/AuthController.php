@@ -51,7 +51,7 @@ class AuthController extends Controller
         }
         $user->update(['password' => '']);
 
-        return response()->json(['token' => $user->createToken('API Token')->plainTextToken]);
+        return response()->json(['token' => $user->createToken('API Token')->plainTextToken, 'user' => $user]);
     }
     public function logout(Request $request)
     {
