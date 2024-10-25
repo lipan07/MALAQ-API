@@ -91,6 +91,7 @@ class ChatController extends Controller
     }
     public function openChat(Request $request)
     {
+        \Log::info($request->all());
         $buyerId = $request->input('buyer_id');
         $sellerId = $request->input('seller_id');
         $postId = $request->input('post_id');
