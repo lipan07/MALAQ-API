@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Events\MessageSent;
 use App\Models\Message;
 use Illuminate\Http\Request;
+use App\Services\PostService as ServicesPostService;
 
 class ChatController extends Controller
 {
@@ -19,6 +20,9 @@ class ChatController extends Controller
     {
         $user = auth()->user();
         $chats = Chat::with('post')->where('seller_id', $user->id)->orWhere('buyer_id', $user->id)->get();
+        foreach ($chats as $chat) {
+            $chat->post = ServicesPostService::fetchPostData($chat->post);
+        }
         return response()->json(['chats' => $chats]);
     }
 
