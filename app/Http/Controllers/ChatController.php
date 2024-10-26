@@ -7,6 +7,7 @@ use App\Http\Requests\UpdatechatRequest;
 use App\Models\chat;
 use App\Models\Post;
 use App\Events\MessageSent;
+use App\Http\Resources\ChatResource;
 use App\Http\Resources\PostResource;
 use App\Models\Message;
 use Illuminate\Http\Request;
@@ -23,8 +24,9 @@ class ChatController extends Controller
         $chats = Chat::with('post')->where('seller_id', $user->id)->orWhere('buyer_id', $user->id)->get();
         foreach ($chats as $chat) {
             $posts = ServicesPostService::fetchSinglePostData($chat->post);
-            $chat->post = new PostResource($posts);
         }
+
+        $chats = ChatResource::collection($posts);
         return response()->json(['chats' => $chats]);
     }
 
