@@ -21,7 +21,7 @@ class ChatController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        $chats = Chat::with('post')->where('seller_id', $user->id)->orWhere('buyer_id', $user->id)->get();
+        $chats = Chat::with('post', 'buyer')->where('seller_id', $user->id)->orWhere('buyer_id', $user->id)->get();
         foreach ($chats as $chat) {
             $chat->post = ServicesPostService::fetchSinglePostData($chat->post);
         }
