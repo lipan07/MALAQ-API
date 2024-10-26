@@ -141,7 +141,7 @@ class ChatController extends Controller
         ]);
 
         // Broadcast the message using Laravel Broadcasting (Pusher)
-        broadcast(new MessageSent($chatId, $messageText))->toOthers();
+        broadcast(new MessageSent($message))->toOthers();
 
         return response()->json(['message' => $message]);
     }

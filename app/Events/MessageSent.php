@@ -10,18 +10,16 @@ class MessageSent implements ShouldBroadcast
 {
     use SerializesModels;
 
-    public $chatId;
     public $message;
 
-    public function __construct($chatId, $message)
+    public function __construct($message)
     {
-        $this->chatId = $chatId;
         $this->message = $message;
     }
 
     public function broadcastOn()
     {
-        return new Channel("chat.{$this->chatId}");
+        return new Channel("chat.{$this->message->chat_id}");
     }
 
     public function broadcastWith()
