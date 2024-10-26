@@ -21,6 +21,7 @@ class ChatResource extends JsonResource
             'seller_id' => $this->seller_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'buyer' => $this->buyer,
             'post' => new PostResource($this->post), // Format post using PostResource
         ];
     }
