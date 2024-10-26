@@ -27,8 +27,12 @@ class MessageSent implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'chat_id' => $this->chatId,
-            'message' => $this->message,
+            'chat_id' => $this->message->chat_id,
+            'created_at' => $this->message->created_at->toDateTimeString(),
+            'id' => $this->message->id,
+            'message' => $this->message->message,
+            'updated_at' => $this->message->updated_at->toDateTimeString(),
+            'user_id' => $this->message->user_id
         ];
     }
 }
