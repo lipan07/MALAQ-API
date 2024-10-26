@@ -46,6 +46,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //Category
     Route::get('/category', [CategoryController::class, 'index']);
     //Chat
+    Route::get('/chats', [ChatController::class, 'index']);
     Route::post('/chats', [ChatController::class, 'store']);
     Route::get('/chats/{id}', [ChatController::class, 'show']);
     //Report

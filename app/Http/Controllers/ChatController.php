@@ -15,9 +15,11 @@ class ChatController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $user = auth()->user();
+        $chats = Chat::where('seller_id', $user->id)->orWhere('buyer_id', $user->id)->get();
+        return response()->json(['chats' => $chats]);
     }
 
     /**

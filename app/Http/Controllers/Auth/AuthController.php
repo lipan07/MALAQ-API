@@ -42,7 +42,7 @@ class AuthController extends Controller
             $user = User::create([
                 'name' => 'A',
                 'phone_no' => $request->phoneNumber,
-                'password' => Hash::make('password'),
+                'password' => Hash::make('1234'),
             ]);
         }
 
