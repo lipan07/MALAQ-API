@@ -23,7 +23,7 @@ class ChatController extends Controller
         $chats = Chat::with('post')->where('seller_id', $user->id)->orWhere('buyer_id', $user->id)->get();
         foreach ($chats as $chat) {
             $posts = ServicesPostService::fetchSinglePostData($chat->post);
-            $chat->post = PostResource::collection($posts);
+            $chat->post = new PostResource($posts);
         }
         return response()->json(['chats' => $chats]);
     }
