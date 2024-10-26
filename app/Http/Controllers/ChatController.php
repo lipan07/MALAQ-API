@@ -43,6 +43,7 @@ class ChatController extends Controller
      */
     public function store(StorechatRequest $request)
     {
+        $user = auth()->user();
         $chat = Chat::updateOrCreate([
             'post_id' => $request->post_id,
             'seller_id' => $request->sender_id,
@@ -53,7 +54,7 @@ class ChatController extends Controller
         ]);
         $message = Message::create([
             'chat_id' => $chat->id,
-            'user_id' => $request->sender_id,
+            'user_id' => $user->id,
             'message' => $request->message,
         ]);
 
@@ -67,7 +68,6 @@ class ChatController extends Controller
      */
     public function show(Request $request, $id)
     {
-        \Log::info($id);
         $chats = Message::where('chat_id', $id)->orderBy('created_at', 'asc')->get();
 
         return response()->json([
