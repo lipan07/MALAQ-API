@@ -21,7 +21,7 @@ class ChatController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        $chats = Chat::with('post', 'buyer')->where('seller_id', $user->id)->orWhere('buyer_id', $user->id)->get();
+        $chats = Chat::with('post', 'buyer')->where('seller_id', $user->id)->orWhere('buyer_id', $user->id)->orderBy('updated_at', 'DESC')->get();
         foreach ($chats as $chat) {
             $chat->post = ServicesPostService::fetchSinglePostData($chat->post);
         }
@@ -139,6 +139,7 @@ class ChatController extends Controller
             'chat_id' => $chatId,
             'message' => $messageText,
         ]);
+        Chat::where('id', $chatId)->update('updated_at', now());
 
         // Broadcast the message using Laravel Broadcasting (Pusher)
         broadcast(new MessageSent($message))->toOthers();
