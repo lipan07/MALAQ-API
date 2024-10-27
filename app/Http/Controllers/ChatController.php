@@ -139,7 +139,7 @@ class ChatController extends Controller
             'chat_id' => $chatId,
             'message' => $messageText,
         ]);
-        Chat::where('id', $chatId)->update('updated_at', now());
+        Chat::where('id', $chatId)->update(['updated_at' => now()]);
 
         // Broadcast the message using Laravel Broadcasting (Pusher)
         broadcast(new MessageSent($message))->toOthers();
