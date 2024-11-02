@@ -91,7 +91,7 @@ class PostController extends Controller
             $posts->where('category_id', $request->category);
         }
         if ($request->has('search')) {
-            $posts->where('title', 'LIKE', '%{$request->search}%');
+            $posts->where('title', 'LIKE', "%{$request->search}%");
         }
         $posts = $posts->orderBy('created_at', 'DESC')->simplePaginate(15);
 
