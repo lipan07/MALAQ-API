@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('address', 200)->nullable();
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 11, 8)->nullable();
-            $table->text('about_me')->nullable();
+            $table->atring('about_me', 255)->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

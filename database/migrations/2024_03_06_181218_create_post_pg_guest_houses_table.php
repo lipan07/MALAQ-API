@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('listed_by')->nullable();
             $table->integer('carpet_area')->nullable();
             $table->boolean('is_meal_included')->nullable();
-            $table->text('description')->nullable();
+            $table->string('description', 255)->nullable();
             $table->decimal('amount', 10, 2)->nullable();
             $table->timestamps();
         });

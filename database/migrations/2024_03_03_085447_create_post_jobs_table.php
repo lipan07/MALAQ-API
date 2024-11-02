@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('position_type', 20);
             $table->decimal('salary_from', 10, 2);
             $table->decimal('salary_to', 10, 2)->nullable();
-            $table->text('description');
+            $table->string('description', 255);
             $table->timestamps();
         });
     }

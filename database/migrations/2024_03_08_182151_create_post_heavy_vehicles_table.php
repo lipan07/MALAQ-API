@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('km_driven');
             $table->string('fuel_type');
             $table->decimal('price', 10, 2);
-            $table->text('description')->nullable();
+            $table->string('description', 255)->nullable();
             $table->string('contact_name');
             $table->string('contact_phone');
             $table->timestamps();

@@ -16,9 +16,9 @@ return new class extends Migration
             $table->dropColumn('price');
             // $table->dropColumn('model');
             $table->decimal('amount', 10, 2);
-            $table->string('owner');
-            $table->string('fuel_type');
-            $table->string('listed_by');
+            $table->string('owner', 100);
+            $table->string('fuel_type', 20);
+            $table->string('listed_by', 100);
         });
     }
 

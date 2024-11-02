@@ -18,7 +18,7 @@ return new class extends Migration
             // Foreign keys as UUID
             $table->uuid('chat_id');
             $table->uuid('user_id');
-            $table->text('message');
+            $table->string('message', 255);
             $table->timestamps();
 
             // Foreign key constraints

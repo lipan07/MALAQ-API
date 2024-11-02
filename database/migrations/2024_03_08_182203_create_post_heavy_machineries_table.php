@@ -19,7 +19,7 @@ return new class extends Migration
             $table->year('year');
             $table->string('condition');
             $table->integer('hours_used');
-            $table->text('description')->nullable();
+            $table->string('description', 255)->nullable();
             $table->decimal('price', 10, 2);
             $table->string('contact_name');
             $table->string('contact_phone');

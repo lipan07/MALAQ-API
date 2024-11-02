@@ -17,8 +17,8 @@ return new class extends Migration
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
             $table->string('brand', 20)->nullable();
             $table->string('year', 10)->nullable();
-            $table->string('km_driven')->nullable();
-            $table->text('description')->nullable();
+            $table->string('km_driven', 50)->nullable();
+            $table->string('description', 255)->nullable();
             $table->decimal('amount', 10, 2)->nullable();
             $table->timestamps();
         });

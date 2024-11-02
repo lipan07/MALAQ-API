@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('car_parking')->nullable();
             $table->string('washroom')->nullable();
             $table->string('project_name')->nullable();
-            $table->text('description')->nullable();
+            $table->string('description', 255)->nullable();
             $table->decimal('amount', 10, 2)->nullable();
             $table->timestamps();
         });

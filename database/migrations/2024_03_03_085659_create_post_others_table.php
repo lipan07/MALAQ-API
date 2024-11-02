@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('post_id');
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
-            $table->text('description')->nullable();
+            $table->string('description', 255)->nullable();
             $table->decimal('amount', 10, 2)->nullable();
             $table->timestamps();
         });

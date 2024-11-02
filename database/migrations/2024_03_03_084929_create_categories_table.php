@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->foreign('parent_id')->references('id')->on('categories')->onDelete('cascade');
             $table->string('guard_name', 50);
-            $table->string('name');
+            $table->string('name', 100);
             $table->timestamps();
         });
     }

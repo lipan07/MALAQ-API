@@ -15,13 +15,13 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('post_id');
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
-            $table->string('brand');
+            $table->string('brand', 20);
             $table->year('year')->nullable();
-            $table->string('fuel');
-            $table->string('transmission');
+            $table->string('fuel', 20);
+            $table->string('transmission', 20);
             $table->integer('km_driven');
-            $table->string('no_of_owner')->nullable();
-            $table->text('description')->nullable();
+            $table->string('no_of_owner', 20)->nullable();
+            $table->string('description', 255)->nullable();
             $table->decimal('amount', 10, 2);
             $table->timestamps();
         });

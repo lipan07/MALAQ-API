@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignUuid('post_id')->constrained()->onDelete('cascade');
             $table->foreignUuid('reporting_user_id')->constrained('users')->onDelete('cascade');
             $table->string('type'); // The type of report from the ReportType enum
-            $table->text('description')->nullable(); // Additional details from the user if 'Other' is selected
+            $table->string('description', 255)->nullable(); // Additional details from the user if 'Other' is selected
             $table->timestamps();
         });
     }
