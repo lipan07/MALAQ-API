@@ -151,6 +151,7 @@ class PostController extends Controller
             'category_id' => Category::getIdByGuardName($request->guard_name),
             'user_id' => auth()->id(),
             'post_time' => now(),
+            'title' => $request->adTitle,
             'address' => $request->address,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
@@ -402,6 +403,7 @@ class PostController extends Controller
         // Step 2: Create the post
         $post->update([
             'category_id' => Category::getIdByGuardName($request->guard_name),
+            'title' => $request->adTitle,
             'address' => $request->address,
             'latitude' => $request->latitude, // Fixed typo here from 'lattitude'
             'longitude' => $request->longitude,
