@@ -36,7 +36,6 @@ class UpdateShopOfficeRequest extends FormRequest
             'carParking' => 'nullable|integer',
             'washroom' => 'nullable|string|max:255',
             'projectName' => 'nullable|string|max:255',
-            'adTitle' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'amount' => 'nullable|numeric',
         ];

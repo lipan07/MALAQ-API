@@ -15,7 +15,6 @@ class PostBike extends Model
         'brand',
         'year',
         'km_driven',
-        'title',
         'description',
         'amount',
     ];
@@ -32,7 +31,6 @@ class PostBike extends Model
             'year' => $data['year'] ?? null,
             'km_driven' => $data['km_driven'] ?? null,
             'amount' => $data['amount'] ?? null,
-            'title' => $data['adTitle'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

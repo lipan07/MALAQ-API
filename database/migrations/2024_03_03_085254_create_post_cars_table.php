@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('transmission');
             $table->integer('km_driven');
             $table->string('no_of_owner')->nullable();
-            $table->string('title');
             $table->text('description')->nullable();
             $table->decimal('amount', 10, 2);
             $table->timestamps();

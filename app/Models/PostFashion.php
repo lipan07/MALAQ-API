@@ -14,7 +14,6 @@ class PostFashion extends Model
     protected $fillable = [
         'post_id',
         'gender',
-        'title',
         'description',
         'amount',
     ];

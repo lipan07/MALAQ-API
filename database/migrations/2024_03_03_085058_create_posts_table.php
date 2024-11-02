@@ -13,16 +13,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('posts', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->uuid('id')->primary()->index();
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
-            $table->uuid('user_id')->nullable();
+            $table->uuid('user_id')->nullable()->index();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->text('address', 250);
-            $table->decimal('latitude', 10, 7)->nullable();
-            $table->decimal('longitude', 10, 7)->nullable();
-            $table->text('type', 5);
-            $table->string('status', 20);
-            $table->timestamp('post_time');
+            $table->text('address', 250)->index();
+            $table->decimal('latitude', 10, 7)->nullable()->index();
+            $table->decimal('longitude', 10, 7)->nullable()->index();
+            $table->text('type', 5)->index();
+            $table->string('status', 20)->index();
+            $table->timestamp('post_time')->index();
             $table->timestamps();
         });
     }

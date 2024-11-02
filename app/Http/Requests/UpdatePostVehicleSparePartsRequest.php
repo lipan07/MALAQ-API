@@ -24,7 +24,6 @@ class UpdatePostVehicleSparePartsRequest extends FormRequest
         return [
             'id' => ['required', 'exists:posts,id'],
             'type' => 'required|string',
-            'adTitle' => 'required|string',
             'amount' => 'required|string',
             'description' => 'required|string',
         ];

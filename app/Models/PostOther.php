@@ -12,7 +12,6 @@ class PostOther extends Model
 
     protected $fillable = [
         'post_id',
-        'title',
         'description',
         'amount',
     ];
@@ -21,7 +20,6 @@ class PostOther extends Model
     {
         $restructuredData = [
             'amount' => $data['amount'] ?? null,
-            'title' => $data['adTitle'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

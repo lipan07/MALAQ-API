@@ -27,6 +27,7 @@ class StorePostRequest extends FormRequest
         return [
             'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
             'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
+            'adTitle' => 'required|string|max:100',
             'address' => 'required|string|max:250',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',

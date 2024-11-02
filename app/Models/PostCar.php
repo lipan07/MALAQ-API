@@ -26,7 +26,6 @@ class PostCar extends Model
         'transmission',
         'km_driven',
         'no_of_owner',
-        'title',
         'description',
         'amount'
     ];
@@ -48,7 +47,6 @@ class PostCar extends Model
             'fuel' => $data['fuelType'] ?? null,
             'transmission' => $data['transmission'] ?? null,
             'km_driven' => $data['kmDriven'] ?? null,
-            'title' => $data['adTitle'] ?? null,
             'description' => $data['description'] ?? null,
             'no_of_owner' => $data['owners'] ?? null,
             // Add other fields you need to restructure or process

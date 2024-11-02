@@ -27,7 +27,6 @@ class UpdatePostHeavyVehicleRequest extends FormRequest
     {
         return [
             'id' => ['required', 'exists:posts,id'],
-            'adTitle' => 'required|string|max:255',
             'brand' => ['required', 'string', Rule::in(CommercialVehicleBrand::allTypes())],
             'year' => 'required|digits:4',
             'condition' => ['required', 'string', Rule::in(Condition::allTypes())],

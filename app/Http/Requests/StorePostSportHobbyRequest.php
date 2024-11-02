@@ -25,7 +25,6 @@ class StorePostSportHobbyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'amount' => 'nullable|numeric',
         ];

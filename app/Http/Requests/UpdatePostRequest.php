@@ -27,6 +27,7 @@ class UpdatePostRequest extends FormRequest
         return [
             'guard_name' => ['sometimes', 'required', 'string', Rule::in(CategoryGuardName::allTypes())],
             'post_type' => ['sometimes', 'required', 'string', Rule::in(PostType::allTypes())],
+            'adTitle' => 'required|string|max:100',
             'address' => 'sometimes|required|string|max:250',
             'latitude' => 'sometimes|nullable|numeric|between:-90,90',
             'longitude' => 'sometimes|nullable|numeric|between:-180,180',

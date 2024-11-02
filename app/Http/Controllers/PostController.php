@@ -152,7 +152,7 @@ class PostController extends Controller
             'user_id' => auth()->id(),
             'post_time' => now(),
             'address' => $request->address,
-            'latitude' => $request->latitude, // Fixed typo here from 'lattitude'
+            'latitude' => $request->latitude,
             'longitude' => $request->longitude,
             'type' => $request->post_type,
             'status' => PostStatus::Pending,

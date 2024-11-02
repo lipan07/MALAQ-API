@@ -12,7 +12,6 @@ class PostBook extends Model
 
     protected $fillable = [
         'post_id',
-        'title',
         'description',
         'amount',
     ];

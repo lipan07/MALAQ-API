@@ -30,7 +30,8 @@ class MessageSent implements ShouldBroadcast
             'id' => $this->message->id,
             'message' => $this->message->message,
             'updated_at' => $this->message->updated_at->toDateTimeString(),
-            'user_id' => $this->message->user_id
+            'user_id' => $this->message->user_id,
+            'is_seen' => $this->message->is_seen,
         ];
     }
 }

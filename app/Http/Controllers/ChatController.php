@@ -146,4 +146,12 @@ class ChatController extends Controller
 
         return response()->json(['message' => $message]);
     }
+
+    public function markMessagesAsSeen($chatId, $userId)
+    {
+        Message::where('chat_id', $chatId)
+            ->where('user_id', '!=', $userId) // Messages sent by others
+            ->where('is_seen', false)
+            ->update(['is_seen' => true]);
+    }
 }

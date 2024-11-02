@@ -27,7 +27,6 @@ class StorePostFashionRequest extends FormRequest
     {
         return [
             'gender' => ['required', 'string', Rule::in(Gender::allTypes())],
-            'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'amount' => 'nullable|numeric',
         ];

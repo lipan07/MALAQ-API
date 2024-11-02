@@ -20,7 +20,6 @@ class PostLandPlot extends Model
         'breadth',
         'facing',
         'project_name',
-        'title',
         'description',
         'amount',
     ];
@@ -40,7 +39,6 @@ class PostLandPlot extends Model
             'breadth' => $data['breadth'] ?? null,
             'project_name' => $data['projectName'] ?? null,
             'amount' => $data['amount'] ?? null,
-            'title' => $data['adTitle'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

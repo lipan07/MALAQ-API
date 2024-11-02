@@ -18,7 +18,6 @@ class PostJob extends Model
         'position_type',
         'salary_from',
         'salary_to',
-        'title',
         'description',
     ];
 
@@ -34,7 +33,6 @@ class PostJob extends Model
             'position_type' => $data['positionType'] ?? null,
             'salary_from' => $data['salaryFrom'] ?? null,
             'salary_to' => $data['salaryTo'] ?? null,
-            'title' => $data['adTitle'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

@@ -16,7 +16,6 @@ return new class extends Migration
             $table->uuid('post_id');
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
             $table->string('type');
-            $table->string('title');
             $table->string('amount');
             $table->string('description');
             $table->timestamps();

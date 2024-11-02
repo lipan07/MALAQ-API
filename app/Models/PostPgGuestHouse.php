@@ -21,7 +21,6 @@ class PostPgGuestHouse extends Model
         'carpet_area',
         'car_parking',
         'is_meal_included',
-        'title',
         'description',
         'amount',
     ];
@@ -44,7 +43,6 @@ class PostPgGuestHouse extends Model
             'car_parking' => $data['carParking'] ?? null,
             'is_meal_included' => $data['isMealIncluded'] ?? null,
             'amount' => $data['amount'] ?? null,
-            'title' => $data['adTitle'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

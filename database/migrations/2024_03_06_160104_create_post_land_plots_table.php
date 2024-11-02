@@ -21,7 +21,6 @@ return new class extends Migration
             $table->integer('breadth')->nullable();
             $table->string('facing')->nullable();
             $table->string('project_name')->nullable();
-            $table->string('title');
             $table->text('description');
             $table->decimal('amount', 10, 2);
             $table->timestamps();

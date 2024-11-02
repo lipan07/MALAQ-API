@@ -24,7 +24,6 @@ class PostShopOffice extends Model
         'car_parking',
         'washroom',
         'project_name',
-        'title',
         'description',
         'amount',
     ];
@@ -47,7 +46,6 @@ class PostShopOffice extends Model
             'washroom' => $data['washroom'] ?? null,
             'project_name' => $data['projectName'] ?? null,
             'amount' => $data['amount'] ?? null,
-            'title' => $data['adTitle'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

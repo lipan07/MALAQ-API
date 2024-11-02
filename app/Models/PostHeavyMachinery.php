@@ -14,7 +14,6 @@ class PostHeavyMachinery extends Model
 
     protected $fillable = [
         'post_id',
-        'title',
         'brand',
         'year',
         'condition',
@@ -42,7 +41,6 @@ class PostHeavyMachinery extends Model
             'owner' => $data['owners'] ?? null,
             'listed_by' => $data['listedBy'] ?? null,
             'amount' => $data['amount'] ?? null,
-            'title' => $data['adTitle'] ?? null,
             'description' => $data['description'] ?? null,
             'contact_name' => $data['contact_name'] ?? null,
             'contact_phone' => $data['contact_phone'] ?? null,

@@ -33,7 +33,6 @@ class UpdatePostHeavyMachineryRequest extends FormRequest
             'fuelType' => ['required', 'string', Rule::in(CarFuelType::allTypes())],
             'owners' => 'required|integer',
             'listedBy' => 'required|string',
-            'adTitle' => 'required|string|max:255',
             // 'hours_used' => 'required|integer',
             'description' => 'nullable|string',
             'amount' => 'required|numeric',

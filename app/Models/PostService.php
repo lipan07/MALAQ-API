@@ -13,7 +13,6 @@ class PostService extends Model
     protected $fillable = [
         'post_id',
         'type',
-        'title',
         'description',
         'amount',
     ];
@@ -23,7 +22,6 @@ class PostService extends Model
         $restructuredData = [
             'type' => $data['type'] ?? null,
             'amount' => $data['amount'] ?? null,
-            'title' => $data['adTitle'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

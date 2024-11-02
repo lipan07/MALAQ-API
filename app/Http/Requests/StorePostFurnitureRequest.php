@@ -25,7 +25,6 @@ class StorePostFurnitureRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'adTitle' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'amount' => 'nullable|numeric',
         ];

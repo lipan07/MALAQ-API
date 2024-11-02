@@ -35,7 +35,6 @@ class StorePostCarRequest extends FormRequest
             'transmission' => ['required', 'string', Rule::in(CarTransmission::allTypes())],
             'kmDriven' => 'required|integer',
             'owners' => ['required', 'string', Rule::in(CarNoOfOwner::allTypes())],
-            'adTitle' => 'required|string',
             'description' => 'required|string',
             'amount' => 'required|numeric',
         ];

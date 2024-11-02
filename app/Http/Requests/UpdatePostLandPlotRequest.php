@@ -32,7 +32,6 @@ class UpdatePostLandPlotRequest extends FormRequest
             'breadth' => 'nullable|integer',
             'facing' => ['required', 'string', Rule::in(PropertyFacing::allTypes())],
             'projectName' => 'nullable|string|max:255',
-            'adTitle' => 'required|string|max:255',
             'description' => 'required|string',
             'amount' => 'required|numeric',
         ];

@@ -14,6 +14,7 @@ class Message extends Model
         'chat_id',
         'user_id',
         'message',
+        'is_seen',
     ];
 
     public function chat()
@@ -24,5 +25,10 @@ class Message extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function markAsSeen()
+    {
+        $this->update(['is_seen' => true]);
     }
 }

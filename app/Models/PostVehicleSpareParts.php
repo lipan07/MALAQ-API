@@ -13,7 +13,6 @@ class PostVehicleSpareParts extends Model
     protected $fillable = [
         'post_id',
         'type',
-        'title',
         'amount',
         'description'
     ];
@@ -23,7 +22,6 @@ class PostVehicleSpareParts extends Model
         $restructuredData = [
             'type' => $data['type'] ?? null,
             'amount' => $data['amount'] ?? null,
-            'title' => $data['adTitle'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

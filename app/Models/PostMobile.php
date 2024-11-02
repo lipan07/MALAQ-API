@@ -15,7 +15,6 @@ class PostMobile extends Model
         'post_id',
         'brand',
         'year',
-        'title',
         'description',
         'amount',
     ];
@@ -36,7 +35,6 @@ class PostMobile extends Model
             'brand' => $data['brand'] ?? null,
             'year' => $data['year'] ?? null,
             'amount' => $data['amount'] ?? null,
-            'title' => $data['adTitle'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

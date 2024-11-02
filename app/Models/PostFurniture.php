@@ -12,7 +12,6 @@ class PostFurniture extends Model
 
     protected $fillable = [
         'post_id',
-        'title',
         'description',
         'amount',
     ];

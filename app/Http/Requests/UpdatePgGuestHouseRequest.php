@@ -34,7 +34,6 @@ class UpdatePgGuestHouseRequest extends FormRequest
             'construction_status' => ['required', 'string', Rule::in(PropertyConstructionStatus::allTypes())],
             'carpetArea' => 'nullable|integer',
             'isMealIncluded' => 'nullable|boolean',
-            'adTitle' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'amount' => 'nullable|numeric',
         ];

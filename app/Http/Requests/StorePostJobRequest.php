@@ -31,7 +31,6 @@ class StorePostJobRequest extends FormRequest
             'positionType' => ['required', 'string', Rule::in(PositionType::allTypes())],
             'salaryFrom' => 'required|numeric',
             'salaryTo' => 'nullable|numeric',
-            'adTitle' => 'required|string|max:255',
             'description' => 'required|string',
         ];
     }

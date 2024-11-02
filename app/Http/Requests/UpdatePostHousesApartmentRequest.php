@@ -43,7 +43,6 @@ class UpdatePostHousesApartmentRequest extends FormRequest
             'carParking' => 'nullable|string',
             'facing' => ['required', 'string', Rule::in(PropertyFacing::allTypes())],
             'projectName' => 'nullable|string|max:255',
-            'adTitle' => 'required|string|max:255',
             'description' => 'nullable|string',
             'amount' => 'required|numeric',
             'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',

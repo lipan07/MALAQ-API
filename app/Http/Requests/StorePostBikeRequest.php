@@ -28,7 +28,6 @@ class StorePostBikeRequest extends FormRequest
             'brand' => ['required', 'string'],
             'year' => 'nullable|string|max:10',
             'km_driven' => 'nullable|string',
-            'adTitle' => 'required|string|max:255',
             'description' => 'required|string',
             'amount' => 'required|numeric',
         ];

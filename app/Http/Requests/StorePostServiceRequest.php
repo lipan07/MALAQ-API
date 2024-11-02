@@ -26,7 +26,6 @@ class StorePostServiceRequest extends FormRequest
     {
         return [
             'type' => 'required|string|max:50',
-            'adTitle' => 'required|string|max:255',
             'description' => 'required|string',
             'amount' => 'nullable|numeric',
         ];
