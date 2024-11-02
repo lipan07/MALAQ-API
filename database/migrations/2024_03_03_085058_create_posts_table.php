@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->uuid('user_id')->nullable()->index();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('title', 100)->nullable()->index();
             $table->string('address', 250)->nullable()->index();
             $table->decimal('latitude', 10, 7)->nullable()->index();
             $table->decimal('longitude', 10, 7)->nullable()->index();
