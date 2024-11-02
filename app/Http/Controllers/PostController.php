@@ -90,6 +90,9 @@ class PostController extends Controller
         if ($request->category) {
             $posts->where('category_id', $request->category);
         }
+        if ($request->has('search')) {
+            $posts->where('title', 'LIKE', '%{$request->search}%');
+        }
         $posts = $posts->orderBy('created_at', 'DESC')->simplePaginate(15);
 
         $posts = ServicesPostService::fetchPostData($posts);
