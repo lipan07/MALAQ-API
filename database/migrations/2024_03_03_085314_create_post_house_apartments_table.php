@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('post_houses_apartments', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->uuid('id')->primary(); // Primary key
             $table->uuid('post_id');
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
             $table->string('property_type', 100);
@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('furnishing', 50);
             $table->string('construction_status', 50);
             $table->string('listed_by', 100);
-            $table->integer('super_builtup_area', 50)->nullable();
+            $table->integer('super_builtup_area')->nullable(); // Corrected: No auto_increment or additional primary key
             $table->integer('carpet_area')->nullable();
             $table->decimal('monthly_maintenance', 10, 2)->nullable();
             $table->integer('total_floors')->nullable();
