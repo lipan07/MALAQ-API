@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageSeen;
 use App\Http\Requests\StorechatRequest;
 use App\Http\Requests\UpdatechatRequest;
 use App\Models\chat;
