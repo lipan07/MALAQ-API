@@ -153,7 +153,7 @@ class ChatController extends Controller
         $user = auth()->user();
         $message = Message::find($messageId);
 
-        if ($message && $message->user_id !== $user->id) { // Ensure it's not the user's own message
+        if ($message) { // Ensure it's not the user's own message
             $message->is_seen = true;
             $message->save();
 
