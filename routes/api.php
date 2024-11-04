@@ -53,7 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reports', [ReportController::class, 'store']);
     //Vehicle brand
     Route::get('/motorcycle/brand', [PostCarController::class, 'motorcycleBrand']);
-    Route::get('/scooter/brand', [PostCarCßßßontroller::class, 'scooterBrand']);
+    Route::get('/scooter/brand', [PostCarController::class, 'scooterBrand']);
     Route::get('/bycycle/brand', [PostCarController::class, 'bycycleBrand']);
     //Logout
     Route::post('logout', [AuthController::class, 'logout']);
