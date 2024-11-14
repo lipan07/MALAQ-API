@@ -148,4 +148,10 @@ class Post extends Model
     {
         return $this->hasOne(PostVehicleSpareParts::class, 'post_id');
     }
+
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'post_followers', 'post_id', 'user_id')
+            ->withTimestamps();
+    }
 }

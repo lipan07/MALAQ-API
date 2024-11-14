@@ -3,10 +3,12 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\FollowerController;
 use App\Http\Controllers\MController;
 use App\Http\Controllers\PostCarController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SmsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -61,6 +63,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/open-chat', [ChatController::class, 'openChat']);
     Route::post('/send-message', [ChatController::class, 'sendMessage']);
     Route::post('/messages/{message}/seen', [ChatController::class, 'markMessagesAsSeen']);
+
+    //Follower
+    Route::post('/user/follow', [FollowerController::class, 'followUser']);
+    Route::post('/post/follow', [FollowerController::class, 'followPost']);
+    Route::delete('/user/unfollow', [FollowerController::class, 'unfollowUser']);
+    Route::delete('/post/unfollow', [FollowerController::class, 'unfollowPost']);
+
+    //Settings
+    Route::post('/settings/change-password', [SettingsController::class, 'changePassword']);
+    Route::post('/settings/logout-all-devices', [SettingsController::class, 'logoutAllDevices']);
+    Route::delete('/settings/delete-account', [SettingsController::class, 'deleteAccount']);
 });
 
 Route::get('test', function () {
