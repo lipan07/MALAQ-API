@@ -66,10 +66,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/messages/{message}/seen', [ChatController::class, 'markMessagesAsSeen']);
 
     //Follower
-    Route::get('/user/following/list', [FollowerController::class, 'userFollowingList']);
+    // Route::get('/user/following/list', [FollowerController::class, 'userFollowingList']);
     Route::get('/post/following/list', [FollowerController::class, 'postFollowingList']);
+    Route::get('/user/following/list', [FollowerController::class, 'getFollowing']);
     Route::post('/user/follow', [FollowerController::class, 'followUser']);
     Route::post('/post/follow', [FollowerController::class, 'followPost']);
+
+    Route::get('/post/follower/list', [FollowerController::class, 'getFollowers']);
+    // Route::get('/user/follower/list', [FollowerController::class, 'getFollowers']);
 
     //Settings
     Route::post('/settings/change-password', [SettingsController::class, 'changePassword']);
