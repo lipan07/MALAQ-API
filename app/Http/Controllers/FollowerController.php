@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\PostFollower;
 use Illuminate\Http\Request;
 
 class FollowerController extends Controller
@@ -39,5 +40,17 @@ class FollowerController extends Controller
             $user->followedPosts()->detach($postId);
             return response()->json(['message' => 'Unfollowed successfully'], 200);
         }
+    }
+
+    public function userFollowingList()
+    {
+        $user = auth()->user();
+    }
+
+    public function postFollowingList()
+    {
+        $user = auth()->user();
+        $postFollowers =  PostFollower::with('post.images')->where(['user_id' => $user->id])->get();
+        return response()->json(['posts' => $postFollowers], 200);
     }
 }

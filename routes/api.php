@@ -65,6 +65,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/messages/{message}/seen', [ChatController::class, 'markMessagesAsSeen']);
 
     //Follower
+    Route::get('/user/following/list', [FollowerController::class, 'userFollowingList']);
+    Route::get('/post/following/list', [FollowerController::class, 'postFollowingList']);
     Route::post('/user/follow', [FollowerController::class, 'followUser']);
     Route::post('/post/follow', [FollowerController::class, 'followPost']);
 
