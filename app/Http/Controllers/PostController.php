@@ -373,7 +373,13 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        //
+        $userId = auth()->id(); // Get the authenticated user ID
+
+        $posts = Post::with(['follower' => function ($query) use ($userId) {
+            $query->where('user_id', $userId); // Filter follower details by the authenticated user
+        }])->get();
+
+        return response()->json($posts);
     }
 
     /**
