@@ -87,7 +87,7 @@ class PostController extends Controller
     public function index(Request $request)
     {
         $userId = auth()->id();
-        $posts = Post::with(['category', 'images', 'follower' => function ($query) use ($userId) {
+        $posts = Post::with(['user', 'category', 'images', 'follower' => function ($query) use ($userId) {
             $query->where('user_id', $userId); // Filter follower details by the authenticated user
         }]);
         if ($request->category) {
@@ -106,7 +106,7 @@ class PostController extends Controller
     public function myPost()
     {
         $user = auth()->user();
-        $posts = Post::with('category', 'images')->where(['user_id' => $user->id])->orderBy('created_at', 'DESC')->simplePaginate(6);
+        $posts = Post::with('user', 'category', 'images')->where(['user_id' => $user->id])->orderBy('created_at', 'DESC')->simplePaginate(6);
 
         $posts = ServicesPostService::fetchPostData($posts);
         // Return the restructured paginated result

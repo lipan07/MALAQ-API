@@ -27,6 +27,7 @@ class PostResource extends JsonResource
             'post_time' => $this->post_time,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'user' => $this->user,
             'category' => $this->category,
             'images' => $this->images->pluck('url'), // Get only the URL of each image
             'follower' => $this->follower ? true : false,
