@@ -377,10 +377,11 @@ class PostController extends Controller
 
         $posts = Post::with(['category', 'images', 'follower' => function ($query) use ($userId) {
             $query->where('user_id', $userId); // Filter follower details by the authenticated user
-        }])->get();
+        }])->where('id', $post->id)->get();
+
         $posts = ServicesPostService::fetchPostData($posts);
 
-        return PostResource::collection($posts);
+        return PostResource::collection($posts)[0];
     }
 
     /**
