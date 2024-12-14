@@ -86,7 +86,10 @@ class PostController extends Controller
      */
     public function index(Request $request)
     {
-        $posts = Post::with('category', 'images');
+        $userId = auth()->id();
+        $posts = Post::with(['category', 'images', 'follower' => function ($query) use ($userId) {
+            $query->where('user_id', $userId); // Filter follower details by the authenticated user
+        }]);
         if ($request->category) {
             $posts->where('category_id', $request->category);
         }
