@@ -15,6 +15,13 @@ class Image extends Model
 
     protected $fillable = ['url', 'imageable_id', 'imageable_type'];
 
+    protected $hidden = [
+        'imageable_type',
+        'imageable_id',
+        'created_at',
+        'updated_at'
+    ];
+
     public function imageable(): MorphTo
     {
         return $this->morphTo();
