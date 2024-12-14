@@ -375,11 +375,12 @@ class PostController extends Controller
     {
         $userId = auth()->id(); // Get the authenticated user ID
 
-        $posts = Post::with(['follower' => function ($query) use ($userId) {
+        $posts = Post::with(['category', 'images', 'follower' => function ($query) use ($userId) {
             $query->where('user_id', $userId); // Filter follower details by the authenticated user
         }])->get();
+        $posts = ServicesPostService::fetchPostData($posts);
 
-        return response()->json($posts);
+        return PostResource::collection($posts);
     }
 
     /**
