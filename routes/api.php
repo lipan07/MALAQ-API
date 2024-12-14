@@ -67,8 +67,6 @@ Route::middleware('auth:sanctum')->group(function () {
     //Follower
     Route::post('/user/follow', [FollowerController::class, 'followUser']);
     Route::post('/post/follow', [FollowerController::class, 'followPost']);
-    Route::delete('/user/unfollow', [FollowerController::class, 'unfollowUser']);
-    Route::delete('/post/unfollow', [FollowerController::class, 'unfollowPost']);
 
     //Settings
     Route::post('/settings/change-password', [SettingsController::class, 'changePassword']);

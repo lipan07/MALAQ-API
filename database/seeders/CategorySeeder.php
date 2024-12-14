@@ -76,7 +76,7 @@ class CategorySeeder extends Seeder
                 ['name' => 'Women', 'guard_name' => 'womens_fashion'],
                 ['name' => 'Kids', 'guard_name' => 'kids_fashion']
             ]],
-            ['name' => 'Books, Sports & Hobbies', 'guard_name' => 'boks_sports_hobbies', 'children' => [
+            ['name' => 'Books, Sports & Hobbies', 'guard_name' => 'books_sports_hobbies', 'children' => [
                 ['name' => 'Books', 'guard_name' => 'books'],
                 ['name' => 'Gym & Fitness', 'guard_name' => 'gym_fitness'],
                 ['name' => 'Musical Instruments', 'guard_name' => 'musical_instruments'],
