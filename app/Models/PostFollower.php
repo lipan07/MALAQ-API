@@ -9,7 +9,7 @@ class PostFollower extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id', 'user_id', 'post_id',  'post_user_id'];
+    protected $fillable = ['user_id', 'post_id',  'post_user_id'];
 
     public function post()
     {
