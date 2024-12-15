@@ -78,7 +78,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/follow-post', [FollowerController::class, 'followPost']);
     Route::get('/post-followers/{post_id}', [FollowerController::class, 'getFollowers']);
-    Route::get('/user-following-posts/{user_id}', [FollowerController::class, 'getFollowingPosts']);
+    Route::get('/user-following-posts', [FollowerController::class, 'getFollowingPosts']);
     Route::get('/my-post-followers', [FollowerController::class, 'getAllFollowersForMyPosts']);
 
 
