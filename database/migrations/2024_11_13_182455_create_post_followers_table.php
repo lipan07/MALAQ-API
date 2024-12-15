@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('post_followers', function (Blueprint $table) {
             $table->uuid('user_id');
             $table->uuid('post_id');
+            $table->uuid('post_user_id');
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
+            $table->foreign('post_user_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->timestamps();  // Tracks when each follow relationship was created/updated
 

@@ -67,13 +67,20 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Follower
     // Route::get('/user/following/list', [FollowerController::class, 'userFollowingList']);
-    Route::get('/post/following/list', [FollowerController::class, 'postFollowingList']);
+    // Route::get('/post/following/list', [FollowerController::class, 'postFollowingList']);
     Route::get('/user/following/list', [FollowerController::class, 'getFollowing']);
     Route::post('/user/follow', [FollowerController::class, 'followUser']);
-    Route::post('/post/follow', [FollowerController::class, 'followPost']);
+    // Route::post('/post/follow', [FollowerController::class, 'followPost']);
 
-    Route::get('/post/follower/list', [FollowerController::class, 'getFollowers']);
+    // Route::get('/post/follower/list', [FollowerController::class, 'getFollowers']);
     // Route::get('/user/follower/list', [FollowerController::class, 'getFollowers']);
+
+
+    Route::post('/follow-post', [FollowerController::class, 'followPost']);
+    Route::get('/post-followers/{post_id}', [FollowerController::class, 'getFollowers']);
+    Route::get('/user-following-posts/{user_id}', [FollowerController::class, 'getFollowingPosts']);
+    Route::get('/my-post-followers', [FollowerController::class, 'getAllFollowersForMyPosts']);
+
 
     //Settings
     Route::post('/settings/change-password', [SettingsController::class, 'changePassword']);

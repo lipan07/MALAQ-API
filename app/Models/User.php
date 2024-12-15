@@ -71,17 +71,20 @@ class User extends Authenticatable
         return $this->morphOne(Image::class, 'imageable');
     }
 
-    public function followings()
+    /**
+     * Get the users that this user follows.
+     */
+    public function following()
     {
-        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'user_id')->with('images')
-            ->withTimestamps(); // if you are keeping track of 'created_at' and 'updated_at'
+        return $this->belongsToMany(User::class, 'user_follows', 'follower_id', 'following_id');
     }
 
-    // Users that follow this user
+    /**
+     * Get the users that follow this user.
+     */
     public function followers()
     {
-        return $this->belongsToMany(User::class, 'followers', 'user_id', 'follower_id')->with('images')
-            ->withTimestamps(); // same reason as above
+        return $this->belongsToMany(User::class, 'user_follows', 'following_id', 'follower_id');
     }
 
     public function followedPosts()

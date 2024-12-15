@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Models\PostFollower;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FollowerController extends Controller
 {
@@ -22,50 +23,45 @@ class FollowerController extends Controller
         }
     }
 
-    // Logged-in user follows a post
     public function followPost(Request $request)
     {
-        $user = auth()->user(); // Authenticated user
-        $postId = $request->post_id; // Post to follow
+        $user_id = Auth::id();
+        $post_id = $request->post_id;
+        $post = Post::find($post_id);
 
-        $post = Post::find($postId);
         if (!$post) {
-            return response()->json(['message' => 'Post not found.'], 404);
+            return response()->json(['message' => 'Post not found'], 404);
         }
 
-        if (!$user->followedPosts()->where('post_id', $postId)->exists()) {
-            $user->followedPosts()->attach($postId);
-            return response()->json(['message' => 'Followed successfully'], 201);
-        } else {
-            $user->followedPosts()->detach($postId);
-            return response()->json(['message' => 'Unfollowed successfully'], 200);
-        }
+        $follow = PostFollower::firstOrCreate([
+            'user_id' => $user_id,
+            'post_id' => $post_id,
+            'post_user_id' => $post->user_id
+        ]);
+
+        return response()->json(['message' => 'Followed successfully', 'follow' => $follow]);
     }
 
-    public function userFollowingList()
+    public function getFollowers($post_id)
     {
-        $user = auth()->user();
+        $followers = PostFollower::where('post_id', $post_id)->with('user')->get();
+        return response()->json($followers);
     }
 
-    public function postFollowingList()
+    public function getFollowingPosts($user_id)
     {
-        $user = auth()->user();
-        $postFollowers =  PostFollower::with('post.images')->where(['user_id' => $user->id])->get();
-        return response()->json(['posts' => $postFollowers], 200);
+        $posts = PostFollower::where('user_id', $user_id)->with('post')->get();
+        return response()->json($posts);
     }
 
-    public function getFollowers()
+    public function getAllFollowersForMyPosts()
     {
-        $user = auth()->user();
-        $followers = $user->followers()->get(['id', 'name', 'email']); // Fetch follower details
-        return response()->json(['followers' => $followers], 200);
-    }
+        $user_id = Auth::id(); // Get the ID of the logged-in user
 
-    public function getFollowing()
-    {
-        $user = auth()->user();
+        $followers = PostFollower::whereHas('post', function ($query) use ($user_id) {
+            $query->where('user_id', $user_id); // Only consider posts created by the user
+        })->with('user')->get();
 
-        $following = $user->followings()->get(['id', 'name', 'email']); // Fetch following details
-        return response()->json(['following' => $following], 200);
+        return response()->json($followers);
     }
 }
