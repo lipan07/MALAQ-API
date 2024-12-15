@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('post_followers', function (Blueprint $table) {
+            $table->uuid('id')->primary();
             $table->uuid('user_id');
             $table->uuid('post_id');
             $table->uuid('post_user_id');
@@ -22,7 +23,7 @@ return new class extends Migration
 
             $table->timestamps();  // Tracks when each follow relationship was created/updated
 
-            $table->primary(['user_id', 'post_id']);  // Ensures that the relationship is unique
+            $table->unique(['user_id', 'post_id'], 'unique_follow');
         });
     }
 
