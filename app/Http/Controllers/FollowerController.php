@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\PostFollower;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -25,30 +26,34 @@ class FollowerController extends Controller
 
     public function followPost(Request $request)
     {
-        $user_id = Auth::id();
-        $post_id = $request->post_id;
-        $post = Post::find($post_id);
+        try {
+            $user_id = Auth::id();
+            $post_id = $request->post_id;
+            $post = Post::find($post_id);
 
-        if (!$post) {
-            return response()->json(['message' => 'Post not found'], 404);
-        }
+            if (!$post) {
+                return response()->json(['message' => 'Post not found'], 404);
+            }
 
-        $follow = PostFollower::where('user_id', $user_id)
-            ->where('post_id', $post_id)
-            ->first();
+            $follow = PostFollower::where('user_id', $user_id)
+                ->where('post_id', $post_id)
+                ->first();
 
-        if ($follow) {
-            // If already following, unfollow the post
-            $follow->delete();
-            return response()->json(['message' => 'Unfollowed successfully']);
-        } else {
-            // If not following, follow the post
-            $follow = PostFollower::create([
-                'user_id' => $user_id,
-                'post_id' => $post_id,
-                'post_user_id' => $post->user_id
-            ]);
-            return response()->json(['message' => 'Followed successfully', 'follow' => $follow]);
+            if ($follow) {
+                // If already following, unfollow the post
+                $follow->delete();
+                return response()->json(['message' => 'Unfollowed successfully']);
+            } else {
+                // If not following, follow the post
+                $follow = PostFollower::create([
+                    'user_id' => $user_id,
+                    'post_id' => $post_id,
+                    'post_user_id' => $post->user_id
+                ]);
+                return response()->json(['message' => 'Followed successfully', 'follow' => $follow]);
+            }
+        } catch (Exception $e) {
+            \Log::error($e->getMessage());
         }
     }
 
