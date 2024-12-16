@@ -33,14 +33,25 @@ class FollowerController extends Controller
             return response()->json(['message' => 'Post not found'], 404);
         }
 
-        $follow = PostFollower::firstOrCreate([
-            'user_id' => $user_id,
-            'post_id' => $post_id,
-            'post_user_id' => $post->user_id
-        ]);
+        $follow = PostFollower::where('user_id', $user_id)
+            ->where('post_id', $post_id)
+            ->first();
 
-        return response()->json(['message' => 'Followed successfully', 'follow' => $follow]);
+        if ($follow) {
+            // If already following, unfollow the post
+            $follow->delete();
+            return response()->json(['message' => 'Unfollowed successfully']);
+        } else {
+            // If not following, follow the post
+            $follow = PostFollower::create([
+                'user_id' => $user_id,
+                'post_id' => $post_id,
+                'post_user_id' => $post->user_id
+            ]);
+            return response()->json(['message' => 'Followed successfully', 'follow' => $follow]);
+        }
     }
+
 
     public function getFollowers($post_id)
     {
