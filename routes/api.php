@@ -33,12 +33,11 @@ Route::post('login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     //User
     Route::get('/user', [UserController::class, 'index']);
-    Route::get('/user/{user}', [UserController::class, 'show']);
+    Route::get('/users/{user}', [UserController::class, 'show']);
     Route::put('/users/{id}', [UserController::class, 'update']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
-    //Post
-    // Route::resource('posts', PostController::class);
 
+    //Post
     Route::get('posts', [PostController::class, 'index'])->name('posts.index');
     Route::get('posts/{post}', [PostController::class, 'show'])->name('posts.show');
     Route::post('posts', [PostController::class, 'store'])->name('posts.store');

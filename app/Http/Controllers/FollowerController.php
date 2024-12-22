@@ -116,14 +116,16 @@ class FollowerController extends Controller
     /**
      * Get all followers of the logged-in user.
      *
-     * @param  int  $userId
      * @return \Illuminate\Http\JsonResponse
      */
-    public function userFollowers($userId)
+    public function userFollowers()
     {
         $user_id = Auth::id();
         $user = User::findOrFail($user_id);
-        $followers = $user->followers()->select('id', 'name', 'email')->get();
+        $followers = $user->followers()
+            ->with('images:id,imageable_id,url') // Include the images relationship
+            ->select('id', 'name', 'email')
+            ->get();
 
         return response()->json([
             'followers' => $followers,
@@ -133,14 +135,16 @@ class FollowerController extends Controller
     /**
      * Get all users the logged-in user is following.
      *
-     * @param  int  $userId
      * @return \Illuminate\Http\JsonResponse
      */
     public function userFollowing()
     {
         $user_id = Auth::id();
         $user = User::findOrFail($user_id);
-        $following = $user->following()->select('id', 'name', 'email')->get();
+        $following = $user->following()
+            ->with('images:id,imageable_id,url') // Include the images relationship
+            ->select('id', 'name', 'email')
+            ->get();
 
         return response()->json([
             'following' => $following,
