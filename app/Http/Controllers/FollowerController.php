@@ -124,7 +124,7 @@ class FollowerController extends Controller
         $user = User::findOrFail($user_id);
         $followers = $user->followers()
             ->with('images:id,imageable_id,url') // Include the images relationship
-            ->select('id', 'name', 'email')
+            ->select('id', 'name', 'email', 'address', 'latitude', 'longitude', 'about_me')
             ->get();
 
         return response()->json([
@@ -143,7 +143,7 @@ class FollowerController extends Controller
         $user = User::findOrFail($user_id);
         $following = $user->following()
             ->with('images:id,imageable_id,url') // Include the images relationship
-            ->select('id', 'name', 'email')
+            ->select('id', 'name', 'email', 'address', 'latitude', 'longitude', 'about_me')
             ->get();
 
         return response()->json([
