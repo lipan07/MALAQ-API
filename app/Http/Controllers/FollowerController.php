@@ -92,11 +92,11 @@ class FollowerController extends Controller
     public function followUser(Request $request)
     {
         $request->validate([
-            'follower_id' => 'required|exists:users,id',
+            // 'follower_id' => 'required|exists:users,id',
             'following_id' => 'required|exists:users,id',
         ]);
 
-        $follower = User::find($request->follower_id);
+        $follower = Auth::user();
         $followingId = $request->following_id;
 
         // Prevent following self
