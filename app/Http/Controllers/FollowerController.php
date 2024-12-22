@@ -4,25 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\PostFollower;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class FollowerController extends Controller
 {
-    public function followUser(Request $request)
-    {
-        $user = auth()->user(); // Authenticated user
-        $targetUserId = $request->user_id; // User to follow
+    // public function followUser(Request $request)
+    // {
+    //     $user = auth()->user(); // Authenticated user
+    //     $targetUserId = $request->user_id; // User to follow
 
-        if (!$user->following()->where('user_id', $targetUserId)->exists()) {
-            $user->following()->attach($targetUserId);
-            return response()->json(['message' => 'Followed successfully'], 201);
-        } else {
-            $user->following()->detach($targetUserId);
-            return response()->json(['message' => 'Unfollowed successfully'], 200);
-        }
-    }
+    //     if (!$user->following()->where('user_id', $targetUserId)->exists()) {
+    //         $user->following()->attach($targetUserId);
+    //         return response()->json(['message' => 'Followed successfully'], 201);
+    //     } else {
+    //         $user->following()->detach($targetUserId);
+    //         return response()->json(['message' => 'Unfollowed successfully'], 200);
+    //     }
+    // }
 
     public function followPost(Request $request)
     {
@@ -58,20 +59,20 @@ class FollowerController extends Controller
     }
 
 
-    public function getFollowers($post_id)
+    public function postFollowerByPostID($post_id)
     {
         $followers = PostFollower::where('post_id', $post_id)->with('user')->get();
         return response()->json($followers);
     }
 
-    public function getFollowingPosts()
+    public function postFollowing()
     {
         $user_id = Auth::id();
         $posts = PostFollower::where('user_id', $user_id)->with('post')->get();
         return response()->json($posts);
     }
 
-    public function getAllFollowersForMyPosts()
+    public function postFollowers()
     {
         $user_id = Auth::id(); // Get the ID of the logged-in user
 
@@ -80,5 +81,69 @@ class FollowerController extends Controller
         })->with('user')->get();
 
         return response()->json($followers);
+    }
+
+    /**
+     * Follow a user.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function followUser(Request $request)
+    {
+        $request->validate([
+            'follower_id' => 'required|exists:users,id',
+            'following_id' => 'required|exists:users,id',
+        ]);
+
+        $follower = User::find($request->follower_id);
+        $followingId = $request->following_id;
+
+        // Prevent following self
+        if ($follower->id === $followingId) {
+            return response()->json(['message' => 'You cannot follow yourself.'], 400);
+        }
+
+        // Check if already following
+        if (!$follower->following()->where('following_id', $followingId)->exists()) {
+            $follower->following()->attach($followingId);
+            return response()->json(['message' => 'Followed successfully.'], 201);
+        }
+
+        return response()->json(['message' => 'You are already following this user.'], 400);
+    }
+
+    /**
+     * Get all followers of the logged-in user.
+     *
+     * @param  int  $userId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function userFollowers($userId)
+    {
+        $user_id = Auth::id();
+        $user = User::findOrFail($user_id);
+        $followers = $user->followers()->select('id', 'name', 'email')->get();
+
+        return response()->json([
+            'followers' => $followers,
+        ]);
+    }
+
+    /**
+     * Get all users the logged-in user is following.
+     *
+     * @param  int  $userId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function userFollowing()
+    {
+        $user_id = Auth::id();
+        $user = User::findOrFail($user_id);
+        $following = $user->following()->select('id', 'name', 'email')->get();
+
+        return response()->json([
+            'following' => $following,
+        ]);
     }
 }
