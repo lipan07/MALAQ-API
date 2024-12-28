@@ -61,7 +61,7 @@ class FollowerController extends Controller
 
     public function postFollowerByPostID($post_id)
     {
-        $followers = PostFollower::where('post_id', $post_id)->with('user')->get();
+        $followers = PostFollower::where('post_id', $post_id)->with('user', 'user.images')->get();
         return response()->json($followers);
     }
 
