@@ -108,6 +108,9 @@ class FollowerController extends Controller
         if (!$follower->following()->where('following_id', $followingId)->exists()) {
             $follower->following()->attach($followingId);
             return response()->json(['message' => 'Followed successfully.'], 201);
+        } else {
+            $follower->following()->detach($followingId);
+            return response()->json(['message' => 'Unfollowed successfully'], 200);
         }
 
         return response()->json(['message' => 'You are already following this user.'], 400);
