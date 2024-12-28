@@ -6,13 +6,13 @@ enum MobileBrand: string
 {
     case IPHONE = 'iphone';
     case SAMSUNG = 'samsung';
-    case MI_PHONE = 'mi-phone';
-    case VIVO_PHONE = 'vivo-phone';
-    case OPPO_PHONE = 'oppo-phone';
+    case XIAOMI = 'xiaomi';
+    case VIVO = 'vivo';
+    case OPPO = 'oppo';
     case REALME = 'realme';
     case ASUS = 'asus';
-    case BLACKBERRY = 'phones-blackberry';
-    case GIONEE_PHONE = 'gionee-phone';
+    case BLACKBERRY = 'blackberry';
+    case GIONEE = 'gionee';
     case GOOGLE_PIXEL = 'google-pixel';
     case HONOR = 'honor';
     case HTC = 'htc';
@@ -21,10 +21,10 @@ enum MobileBrand: string
     case INTEX = 'intex';
     case KARBONN = 'karbonn';
     case LAVA = 'lava';
-    case LENOVO_MOBILE = 'lenovo-mobile';
+    case LENOVO = 'lenovo';
     case LG = 'lg';
     case MICROMAX = 'micromax';
-    case MOTOROLA_PHONE = 'motorola-phone';
+    case MOTOROLA = 'motorola';
     case NOKIA = 'nokia';
     case ONE_PLUS = 'one-plus';
     case SONY = 'sony';
@@ -38,6 +38,6 @@ enum MobileBrand: string
      */
     public static function allTypes(): array
     {
-        return array_map(fn ($case) => $case->value, self::cases());
+        return array_map(fn($case) => $case->value, self::cases());
     }
 }
