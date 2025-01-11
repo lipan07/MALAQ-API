@@ -90,10 +90,10 @@ class PostController extends Controller
         $posts = Post::with(['user', 'category', 'images', 'follower' => function ($query) use ($userId) {
             $query->where('user_id', $userId); // Filter follower details by the authenticated user
         }]);
-        if ($request->category) {
+        if ($request->has('category') && $request->category > 0) {
             $posts->where('category_id', $request->category);
         }
-        if ($request->has('search')) {
+        if ($request->has('search') && !empty($request->search)) {
             $posts->where('title', 'LIKE', "%{$request->search}%");
         }
         $posts = $posts->orderBy('created_at', 'DESC')->simplePaginate(15);
