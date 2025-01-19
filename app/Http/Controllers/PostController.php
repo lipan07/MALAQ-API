@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\CategoryGuardName;
 use App\Enums\PostStatus;
 use App\Enums\PostType;
+use App\Http\Requests\FetchPostsRequest;
 use App\Http\Requests\StorePgGuestHouseRequest;
 use App\Http\Requests\StorePostAccessoriesRequest;
 use App\Http\Requests\StorePostBikeRequest;
@@ -84,22 +85,51 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(FetchPostsRequest $request)
     {
-        $userId = auth()->id();
-        $posts = Post::with(['user', 'category', 'images', 'follower' => function ($query) use ($userId) {
-            $query->where('user_id', $userId); // Filter follower details by the authenticated user
-        }]);
-        if ($request->has('category') && $request->category > 0) {
-            $posts->where('category_id', $request->category);
-        }
-        if ($request->has('search') && !empty($request->search)) {
-            $posts->where('title', 'LIKE', "%{$request->search}%");
-        }
-        $posts = $posts->orderBy('created_at', 'DESC')->simplePaginate(15);
+        $userId = Auth::id();
 
+        // Query posts with relationships
+        $postsQuery = Post::with([
+            'user',
+            'category',
+            'images',
+            'follower' => fn($query) => $query->where('user_id', $userId), // Only include followers for the authenticated user
+        ]);
+
+        // Filter by category if provided
+        if ($request->filled('category')) {
+            if (!in_array($request->category, [1, 7])) {
+                $hasSubCategories = Category::where('parent_id', $request->category)->exists();
+
+                if (!$hasSubCategories) {
+                    return response()->json([
+                        'message' => 'This category does not have any subcategories.',
+                        'sub_category_ids' => [],
+                    ], 404);
+                }
+
+                // Fetch all subcategory IDs
+                $subCategoryIds = Category::where('parent_id', $request->category)->pluck('id')->toArray();
+
+                $postsQuery->whereIn('category_id', $subCategoryIds);
+            } else {
+                $postsQuery->where('category_id', $request->category);
+            }
+        }
+
+        // Filter by search term if provided
+        if ($request->filled('search')) {
+            $postsQuery->where('title', 'LIKE', '%' . $request->search . '%');
+        }
+
+        // Paginate and order results
+        $posts = $postsQuery->orderByDesc('created_at')->simplePaginate(15);
+
+        // Fetch additional data for posts
         $posts = ServicesPostService::fetchPostData($posts);
 
+        // Return as resource collection
         return PostResource::collection($posts);
     }
 
