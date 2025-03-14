@@ -22,7 +22,7 @@ class PostHeavyVehicle extends Model
         'fuel_type',
         'owner',
         'listed_by',
-        'price',
+        'amount',
         'description',
         'contact_name',
         'contact_phone',
