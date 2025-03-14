@@ -16,7 +16,6 @@ class PostHeavyVehicle extends Model
     protected $fillable = [
         'post_id',
         'brand',
-        'model',
         'year',
         'condition',
         'km_driven',
@@ -39,7 +38,6 @@ class PostHeavyVehicle extends Model
     {
         $restructuredData = [
             'brand' => $data['brand'] ?? null,
-            'model' => $data['model'] ?? null,
             'year' => $data['year'] ?? null,
             'condition' => $data['condition'] ?? null,
             // 'km_driven' => $data['kmDriven'] ?? null,
