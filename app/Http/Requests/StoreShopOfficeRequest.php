@@ -30,7 +30,7 @@ class StoreShopOfficeRequest extends FormRequest
         return [
             'furnishing' => ['required', 'string', Rule::in(PropertyFurnishing::allTypes())],
             'listedBy' => ['required', 'string', Rule::in(PropertyListedBy::allTypes())],
-            'construction_status' => ['required', 'string', Rule::in(PropertyConstructionStatus::allTypes())],
+            'constructionStatus' => ['required', 'string', Rule::in(PropertyConstructionStatus::allTypes())],
             'superBuiltUpArea' => 'nullable|integer',
             'carpetArea' => 'nullable|integer',
             'maintenance' => 'nullable|numeric',
