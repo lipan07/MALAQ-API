@@ -32,7 +32,7 @@ class StorePgGuestHouseRequest extends FormRequest
             'pgType' => ['required', 'string', Rule::in(PgGuestHousesType::allTypes())],
             'furnishing' => ['required', 'string', Rule::in(PropertyFurnishing::allTypes())],
             'listedBy' => ['required', 'string', Rule::in(PropertyListedBy::allTypes())],
-            'construction_status' => ['required', 'string', Rule::in(PropertyConstructionStatus::allTypes())],
+            // 'construction_status' => ['required', 'string', Rule::in(PropertyConstructionStatus::allTypes())],
             'carpetArea' => 'nullable|integer',
             'isMealIncluded' => 'nullable|boolean',
             'description' => 'nullable|string',
