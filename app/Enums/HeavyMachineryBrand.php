@@ -4,27 +4,21 @@ namespace App\Enums;
 
 enum HeavyMachineryBrand: string
 {
-    case KOMATSU = 'Komatsu';
-    case TATA_HITACHI = 'Tata Hitachi';
-    case HYUNDAI = 'Hyundai';
-    case HITACHI = 'Hitachi';
-    case HINDUSTAN_ENTERPRISES = 'Hindustan Enterprises';
-    case ACE_CONSTRUCTION_EQUIPMENT = 'ACE Construction Equipment';
+    case CATERPILLAR = 'Caterpillar';
     case JCB = 'JCB';
-    case JOHN_DEERE = 'John Deere';
-    case VOLVO_CONSTRUCTION_EQUIPMENT = 'Volvo Construction Equipment';
-    case CASE = 'Case';
+    case TATA_HITACHI = 'Tata Hitachi';
     case VOLVO = 'Volvo';
-    case SANY = 'Sany';
-    case LIEBHERR = 'Liebherr';
-        // Additional brands as identified
-    case BEML = 'Bharat Earth Movers Limited';
+    case KOMATSU = 'Komatsu';
     case L_AND_T_CONSTRUCTION_EQUIPMENT = 'L&T Construction Equipment';
-    case SCHWING_STETTER = 'Schwing Stetter India';
-    case TEREX = 'Terex India';
-    case KOBELCO = 'Kobelco Construction Equipment India';
-    case SANY_HEAVY_INDUSTRY_INDIA = 'Sany Heavy Industry India';
-    case PUZZOLANA = 'Puzzolana Machinery Fabricators';
+    case BEML = 'BEML (Bharat Earth Movers Limited)';
+    case HYUNDAI_CONSTRUCTION_EQUIPMENT = 'Hyundai Construction Equipment';
+    case SANY = 'SANY';
+    case CASE_CONSTRUCTION = 'Case Construction';
+    case DOOSAN = 'Doosan';
+    case MAHINDRA_CONSTRUCTION_EQUIPMENT = 'Mahindra Construction Equipment';
+    case LIUGONG = 'LiuGong';
+    case JOHN_DEERE = 'John Deere';
+    case XCMG = 'XCMG';
     case OTHERS = 'Others';
 
     /**
@@ -34,6 +28,6 @@ enum HeavyMachineryBrand: string
      */
     public static function allTypes(): array
     {
-        return array_map(fn ($case) => $case->value, self::cases());
+        return array_map(fn($case) => $case->value, self::cases());
     }
 }
