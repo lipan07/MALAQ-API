@@ -40,7 +40,7 @@ class PostHeavyVehicle extends Model
             'brand' => $data['brand'] ?? null,
             'year' => $data['year'] ?? null,
             'condition' => $data['condition'] ?? null,
-            // 'km_driven' => $data['kmDriven'] ?? null,
+            'km_driven' => $data['kmDriven'] ?? null,
             'fuel_type' => $data['fuelType'] ?? null,
             'owner' => $data['owners'] ?? null,
             'listed_by' => $data['listedBy'] ?? null,
