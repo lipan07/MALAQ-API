@@ -9,6 +9,7 @@ enum CarFuelType: string
     case LPG = 'LPG';
     case Electric = 'Electric';
     case Petrol = 'Petrol';
+    case Others = 'Others';
 
     /**
      * Returns all types as an array.
@@ -17,6 +18,6 @@ enum CarFuelType: string
      */
     public static function allTypes(): array
     {
-        return array_map(fn ($case) => $case->value, self::cases());
+        return array_map(fn($case) => $case->value, self::cases());
     }
 }
