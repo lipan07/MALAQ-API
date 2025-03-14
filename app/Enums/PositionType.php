@@ -5,8 +5,8 @@ namespace App\Enums;
 enum PositionType: string
 {
     case Contract = 'Contract';
-    case FullTime = 'Full-Time';
-    case PartTime = 'Part-Time';
+    case FullTime = 'Full-time';
+    case PartTime = 'Part-time';
     case Temporary = 'Temporary';
 
     /**
@@ -26,6 +26,6 @@ enum PositionType: string
      */
     public static function allTypes(): array
     {
-        return array_map(fn ($case) => $case->value, self::cases());
+        return array_map(fn($case) => $case->value, self::cases());
     }
 }
