@@ -32,7 +32,7 @@ class StorePostHeavyMachineryRequest extends FormRequest
             'condition' => ['required', 'string', Rule::in(Condition::allTypes())],
             'year' => 'required|digits:4',
             'fuelType' => ['required', 'string', Rule::in(CarFuelType::allTypes())],
-            'owners' => 'required|integer',
+            'owners' => 'required|string',
             'listedBy' => 'required|string',
             // 'hours_used' => 'required|integer',
             'description' => 'nullable|string',
