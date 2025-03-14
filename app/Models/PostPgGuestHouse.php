@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
+use function PHPUnit\Framework\isEmpty;
+
 class PostPgGuestHouse extends Model
 {
     use HasFactory, HasUuids;
@@ -41,7 +43,7 @@ class PostPgGuestHouse extends Model
             'listed_by' => $data['listeBy'] ?? null,
             'carpet_area' => $data['carpetArea'] ?? null,
             'car_parking' => $data['carParking'] ?? null,
-            'is_meal_included' => $data['isMealIncluded'] ?? null,
+            'is_meal_included' => ($data['isMealIncluded'] == 'Yes' || empty($data['isMealIncluded'])) ? true : false,
             'amount' => $data['amount'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
