@@ -68,7 +68,7 @@ class FollowerController extends Controller
     public function postFollowing()
     {
         $user_id = Auth::id();
-        $posts = PostFollower::where('user_id', $user_id)->with('post')->get();
+        $posts = PostFollower::where('user_id', $user_id)->with('post', 'post.images')->get();
         return response()->json($posts);
     }
 
