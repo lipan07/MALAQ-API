@@ -408,14 +408,31 @@ class PostController extends Controller
     {
         $userId = auth()->id(); // Get the authenticated user ID
 
-        $posts = Post::with(['category', 'images', 'follower' => function ($query) use ($userId) {
-            $query->where('user_id', $userId); // Filter follower details by the authenticated user
-        }])->where('id', $post->id)->get();
+        // Fetch the post along with required relationships
+        $posts = Post::with([
+            'category',
+            'images',
+            'user', // Ensure post owner is fetched
+            'follower' => function ($query) use ($userId) {
+                $query->where('user_id', $userId); // Check if the user follows the post
+            }
+        ])->where('id', $post->id)->get();
 
         $posts = ServicesPostService::fetchPostData($posts);
 
-        return PostResource::collection($posts)[0];
+        // Get the post owner
+        $postOwnerId = $post->user_id;
+
+        // Check if the logged-in user follows the post owner
+        $isFollowingPostUser = auth()->user()?->following()->where('following_id', $postOwnerId)->exists() ?? false;
+
+        // Convert collection to resource and attach `is_following_post_user`
+        $postResource = PostResource::collection($posts)[0];
+        $postResource->additional(['is_following_post_user' => $isFollowingPostUser]);
+
+        return $postResource;
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -455,13 +472,57 @@ class PostController extends Controller
         ]);
 
         // Step 3: Handle the images
-        $this->handlePostImages($request, $post);
+        $this->handlePostUpdateImages($request, $post);
 
         // Step 4: Handle category-specific models
         $this->handleCategorySpecificModels($request, $post);
 
         // Return a success response
         return response()->json(['message' => 'Post updated successfully'], 201);
+    }
+
+    private function handlePostUpdateImages(Request $request, Post $post)
+    {
+        // Get existing image URLs from the database for the post
+        $existingImages = $post->images()->pluck('url')->toArray();
+
+        // Get the URLs of images from the request
+        $requestImageUrls = [];
+        $uploadedFiles = [];
+
+        foreach ($request->file('images', []) as $imageFile) {
+            $uploadedFiles[] = $imageFile;
+        }
+
+        foreach ($request->input('images', []) as $imageUrl) {
+            if (is_string($imageUrl)) {
+                $requestImageUrls[] = $imageUrl;
+            }
+        }
+
+        // Remove images from the database and storage if they are not in the request
+        $imagesToRemove = array_diff($existingImages, $requestImageUrls);
+        foreach ($imagesToRemove as $imageUrl) {
+            // Remove the image file from storage
+            $relativePath = str_replace(config('app.url') . '/storage/', '', $imageUrl);
+            Storage::disk('public')->delete($relativePath);
+
+            // Remove the image record from the database
+            $post->images()->where('url', $imageUrl)->delete();
+        }
+
+        // Handle new image uploads
+        foreach ($uploadedFiles as $imageFile) {
+            // Store the image
+            $path = $imageFile->store($request->guard_name . '/images', 'public');
+            $newImageUrl = config('app.url') . Storage::url($path);
+
+            // Check if the image URL already exists in the database
+            if (!in_array($newImageUrl, $existingImages)) {
+                // Save the new image record in the database
+                $post->images()->create(['url' => $newImageUrl]);
+            }
+        }
     }
 
     protected function getValidationRulesForUpdate($guardName)
