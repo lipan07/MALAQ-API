@@ -78,6 +78,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
@@ -157,6 +158,7 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request)
     {
+        Log::error('Lipan store');
         $rules = $this->getValidationRulesForStore($request->guard_name);
 
         $validator = Validator::make($request->all(), $rules);
@@ -447,6 +449,7 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, Post $post)
     {
+        Log::error('Lipan update');
         if (empty($post)) {
             return response(['status' => 'error', 'message' => 'Could not retrieve data'], 404);
         }
