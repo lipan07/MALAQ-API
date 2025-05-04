@@ -493,11 +493,12 @@ class PostController extends Controller
         $requestImageUrls = [];
         $uploadedFiles = [];
 
+        foreach ($request->input('images', []) as $imageFile) {
+            $uploadedFiles[] = $imageFile;
+        }
         foreach ($request->input('images', []) as $imageUrl) {
             if (is_string($imageUrl)) {
                 $requestImageUrls[] = $imageUrl;
-            } else {
-                $uploadedFiles[] = $imageUrl;
             }
         }
 
