@@ -500,7 +500,7 @@ class PostController extends Controller
         // Handle deleted images
         if ($request->has('deleted_images')) {
             $imagesToDelete = $post->images()
-                ->whereIn('id', $request->deleted_images)
+                ->whereIn('url', $request->deleted_images)
                 ->get();
 
             foreach ($imagesToDelete as $image) {
