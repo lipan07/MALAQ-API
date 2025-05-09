@@ -486,34 +486,39 @@ class PostController extends Controller
 
     private function handlePostUpdateImages(Request $request, Post $post)
     {
-        // 1. Handle deleted images
+        // Handle case when no image parameters are passed
+        if (!$request->hasAny(['existing_images', 'new_images', 'deleted_images'])) {
+            // Remove all existing images
+            $post->images()->each(function ($image) {
+                $relativePath = str_replace(config('app.url') . '/storage/', '', $image->url);
+                Storage::disk('public')->delete($relativePath);
+                $image->delete();
+            });
+            return;
+        }
+
+        // Handle deleted images
         if ($request->has('deleted_images')) {
             $imagesToDelete = $post->images()
                 ->whereIn('id', $request->deleted_images)
                 ->get();
 
             foreach ($imagesToDelete as $image) {
-                // Delete from storage
-                $path = str_replace(config('app.url') . '/storage/', '', $image->url);
-                Storage::disk('public')->delete($path);
-
-                // Delete from database
+                $relativePath = str_replace(config('app.url') . '/storage/', '', $image->url);
+                Storage::disk('public')->delete($relativePath);
                 $image->delete();
             }
         }
 
-        // 2. Handle new images
+        // Handle new images
         if ($request->hasFile('new_images')) {
             foreach ($request->file('new_images') as $imageFile) {
                 $path = $imageFile->store($post->guard_name . '/images', 'public');
-
                 $post->images()->create([
                     'url' => config('app.url') . Storage::url($path)
                 ]);
             }
         }
-
-        // 3. Existing images are automatically preserved if not in deleted_images
     }
 
     protected function getValidationRulesForUpdate($guardName)
