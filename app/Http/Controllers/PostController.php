@@ -486,45 +486,34 @@ class PostController extends Controller
 
     private function handlePostUpdateImages(Request $request, Post $post)
     {
-        // Get existing image URLs from the database for the post
-        $existingImages = $post->images()->pluck('url')->toArray();
+        // 1. Handle deleted images
+        if ($request->has('deleted_images')) {
+            $imagesToDelete = $post->images()
+                ->whereIn('id', $request->deleted_images)
+                ->get();
 
-        // Get the URLs of images from the request
-        $requestImageUrls = [];
-        $uploadedFiles = [];
+            foreach ($imagesToDelete as $image) {
+                // Delete from storage
+                $path = str_replace(config('app.url') . '/storage/', '', $image->url);
+                Storage::disk('public')->delete($path);
 
-        foreach ($request->input('images', []) as $imageFile) {
-            $uploadedFiles[] = $imageFile;
-        }
-        foreach ($request->input('images', []) as $imageUrl) {
-            if (is_string($imageUrl)) {
-                $requestImageUrls[] = $imageUrl;
+                // Delete from database
+                $image->delete();
             }
         }
 
-        // Remove images from the database and storage if they are not in the request
-        $imagesToRemove = array_diff($existingImages, $requestImageUrls);
-        foreach ($imagesToRemove as $imageUrl) {
-            // Remove the image file from storage
-            $relativePath = str_replace(config('app.url') . '/storage/', '', $imageUrl);
-            Storage::disk('public')->delete($relativePath);
+        // 2. Handle new images
+        if ($request->hasFile('new_images')) {
+            foreach ($request->file('new_images') as $imageFile) {
+                $path = $imageFile->store($post->guard_name . '/images', 'public');
 
-            // Remove the image record from the database
-            $post->images()->where('url', $imageUrl)->delete();
-        }
-
-        // Handle new image uploads
-        foreach ($uploadedFiles as $imageFile) {
-            // Store the image
-            $path = $imageFile->store($request->guard_name . '/images', 'public');
-            $newImageUrl = config('app.url') . Storage::url($path);
-
-            // Check if the image URL already exists in the database
-            if (!in_array($newImageUrl, $existingImages)) {
-                // Save the new image record in the database
-                $post->images()->create(['url' => $newImageUrl]);
+                $post->images()->create([
+                    'url' => config('app.url') . Storage::url($path)
+                ]);
             }
         }
+
+        // 3. Existing images are automatically preserved if not in deleted_images
     }
 
     protected function getValidationRulesForUpdate($guardName)
