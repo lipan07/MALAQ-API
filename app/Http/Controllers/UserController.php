@@ -67,7 +67,7 @@ class UserController extends Controller
             'businessName' => 'sometimes|string|max:255',
             'businessType' => 'sometimes|string|max:255',
             'businessAddress' => 'sometimes|string|max:255',
-            'profileImage' => 'sometimes|file|image|max:2048',
+            'profile_image' => 'sometimes|file|image|max:2048',
             'businessWebsite' => 'sometimes|url|max:255',
             'bio' => 'sometimes|string|max:255',
         ]);
@@ -93,8 +93,8 @@ class UserController extends Controller
         );
 
         // Handle profile image
-        if ($request->hasFile('profileImage')) {
-            $imagePath = $request->file('profileImage')->store('profile_images', 'public');
+        if ($request->hasFile('profile_image')) {
+            $imagePath = $request->file('profile_image')->store('profile_images', 'public');
 
             $user->images()->updateOrCreate(
                 ['imageable_id' => $user->id, 'imageable_type' => User::class],
