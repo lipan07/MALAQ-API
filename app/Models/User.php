@@ -93,7 +93,7 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    public function companyDetails()
+    public function companyDetail()
     {
         return $this->hasOne(CompanyDetail::class);
     }
