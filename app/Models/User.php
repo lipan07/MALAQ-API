@@ -95,6 +95,6 @@ class User extends Authenticatable
 
     public function companyDetail()
     {
-        return $this->hasOne(CompanyDetail::class);
+        return $this->hasOne(CompanyDetail::class, 'users_id');
     }
 }
