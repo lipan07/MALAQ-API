@@ -92,4 +92,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Post::class, 'post_followers', 'user_id', 'post_id')
             ->withTimestamps();
     }
+
+    public function companyDetails()
+    {
+        return $this->hasOne(CompanyDetail::class);
+    }
 }
