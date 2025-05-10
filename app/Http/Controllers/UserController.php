@@ -59,20 +59,51 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $request->validate([
-            'name' => 'sometimes|string|max:255',
+            'firstName' => 'sometimes|string|max:255',
+            'lastName' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:users,email,' . $id,
-            'password' => 'sometimes|string|min:8',
-            'address' => 'sometimes|string|max:255',
-            'latitude' => 'sometimes|numeric',
-            'longitude' => 'sometimes|numeric',
-            'about_me' => 'sometimes|string|max:255',
+            'phoneNumber' => 'sometimes|string|max:15',
+            'businessName' => 'sometimes|string|max:255',
+            'businessType' => 'sometimes|string|max:255',
+            'businessAddress' => 'sometimes|string|max:255',
+            'profileImage' => 'sometimes|file|image|max:2048',
+            'businessWebsite' => 'sometimes|url|max:255',
+            'bio' => 'sometimes|string|max:255',
         ]);
 
-        $user->update($request->all());
+        // Update user details
+        $user->update([
+            'name' => $request->input('firstName') . ', ' . $request->input('lastName'),
+            'email' => $request->input('email'),
+            'phone_no' => $request->input('phoneNumber'),
+            'address' => $request->input('businessAddress'),
+            'about_me' => $request->input('bio'),
+        ]);
+
+        // Update or create company details
+        $user->companyDetail()->updateOrCreate(
+            ['users_id' => $user->id],
+            [
+                'name' => $request->input('businessName'),
+                'type' => $request->input('businessType'),
+                'address' => $request->input('businessAddress'),
+                'website' => $request->input('businessWebsite'),
+            ]
+        );
+
+        // Handle profile image
+        if ($request->hasFile('profileImage')) {
+            $imagePath = $request->file('profileImage')->store('profile_images', 'public');
+
+            $user->images()->updateOrCreate(
+                ['imageable_id' => $user->id, 'imageable_type' => User::class],
+                ['url' => $imagePath]
+            );
+        }
 
         return response()->json([
             'message' => 'User updated successfully',
-            'user' => $user,
+            'user' => $user->load('companyDetail', 'images'),
         ]);
     }
 
