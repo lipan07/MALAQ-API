@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -81,14 +82,15 @@ class UserController extends Controller
         ]);
 
         // Update or create company details
-        $user->companyDetail()
-            ->where(['users_id' => $user->id])
-            ->update([
+        $user->companyDetail()->updateOrCreate(
+            ['users_id' => $user->id],
+            [
                 'name' => $request->input('businessName'),
                 'type' => $request->input('businessType'),
                 'address' => $request->input('businessAddress'),
                 'website' => $request->input('businessWebsite'),
-            ]);
+            ]
+        );
 
         // Handle profile image
         if ($request->hasFile('profileImage')) {
@@ -103,6 +105,29 @@ class UserController extends Controller
         return response()->json([
             'message' => 'User updated successfully',
             'user' => $user->load('companyDetail', 'images'),
+        ]);
+    }
+
+    /**
+     * Get the profile details of the authenticated user.
+     */
+    public function getProfile(Request $request)
+    {
+        $userId = Auth::id();
+        $user = User::find($userId);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not authenticated',
+            ], 401);
+        }
+
+        // Load related data: company details and profile image
+        $user->load('companyDetail', 'images');
+
+        return response()->json([
+            'message' => 'Profile details retrieved successfully',
+            'data' => $user,
         ]);
     }
 

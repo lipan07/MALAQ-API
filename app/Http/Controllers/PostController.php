@@ -158,7 +158,6 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request)
     {
-        Log::error('Lipan store');
         $rules = $this->getValidationRulesForStore($request->guard_name);
 
         $validator = Validator::make($request->all(), $rules);

@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{user}', [UserController::class, 'show']);
     Route::post('/users/{id}', [UserController::class, 'update']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
+    Route::get('/get-my-profile', [UserController::class, 'getProfile']);
 
     //Post
     Route::get('posts', [PostController::class, 'index'])->name('posts.index');
