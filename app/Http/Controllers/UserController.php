@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -98,7 +99,7 @@ class UserController extends Controller
 
             $user->images()->updateOrCreate(
                 ['imageable_id' => $user->id, 'imageable_type' => User::class],
-                ['url' => $imagePath]
+                ['url' => config('app.url') . Storage::url($imagePath)]
             );
         }
 
