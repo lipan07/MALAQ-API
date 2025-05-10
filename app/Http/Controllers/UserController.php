@@ -81,15 +81,14 @@ class UserController extends Controller
         ]);
 
         // Update or create company details
-        $user->companyDetail()->updateOrCreate(
-            ['users_id' => $user->id],
-            [
+        $user->companyDetail()
+            ->where(['users_id' => $user->id])
+            ->update([
                 'name' => $request->input('businessName'),
                 'type' => $request->input('businessType'),
                 'address' => $request->input('businessAddress'),
                 'website' => $request->input('businessWebsite'),
-            ]
-        );
+            ]);
 
         // Handle profile image
         if ($request->hasFile('profileImage')) {
