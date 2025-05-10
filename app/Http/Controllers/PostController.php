@@ -200,8 +200,8 @@ class PostController extends Controller
 
     private function handlePostImages(Request $request, Post $post)
     {
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $imageFile) {
+        if ($request->hasFile('new_images')) {
+            foreach ($request->file('new_images') as $imageFile) {
                 // Store the image
                 $path = $imageFile->store($request->guard_name . '/images', 'public');
                 // Save image record in the database
