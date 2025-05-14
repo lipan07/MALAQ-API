@@ -38,6 +38,7 @@ class AuthController extends Controller
     public function login(LoginUserRequest $request)
     {
         $user = User::where(['phone_no' => $request->phoneNumber])->first();
+
         if (!$user) {
             $user = User::create([
                 'name' => 'A',
@@ -49,10 +50,23 @@ class AuthController extends Controller
         if (!$user || ($request->otp != $user->otp)) {
             return response()->json(['message' => 'The provided credentials are incorrect.'], 401);
         }
+
         $user->update(['password' => '']);
 
-        return response()->json(['token' => $user->createToken('API Token')->plainTextToken, 'user' => $user]);
+        // Load the images relationship
+        $user->load('images');
+
+        return response()->json([
+            'token' => $user->createToken('API Token')->plainTextToken,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'phone_no' => $user->phone_no,
+                'images' => $user->images, // Include the images data
+            ],
+        ]);
     }
+
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
