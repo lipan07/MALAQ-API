@@ -43,6 +43,7 @@ class AuthController extends Controller
         if (($request->otp != '1234')) {
             return response()->json(['message' => 'The provided credentials are incorrect.'], 401);
         }
+
         if (!$user) {
             $user = User::create([
                 'name' => 'A',

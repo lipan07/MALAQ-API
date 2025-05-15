@@ -61,16 +61,16 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $request->validate([
-            'firstName' => 'sometimes|string|max:255',
-            'lastName' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,' . $id,
-            'phoneNumber' => 'sometimes|string|max:15',
-            'businessName' => 'sometimes|string|max:255',
-            'businessType' => 'sometimes|string|max:255',
-            'businessAddress' => 'sometimes|string|max:255',
-            'profile_image' => 'sometimes|file|image|max:2048',
-            'businessWebsite' => 'sometimes|url|max:255',
-            'bio' => 'sometimes|string|max:255',
+            'firstName' => 'required|string|max:255',
+            'lastName' => 'required|string|max:255',
+            'email' => 'nullable|email|unique:users,email,' . $id,
+            'phoneNumber' => 'required|string|max:15',
+            'businessName' => 'nullable|string|max:255',
+            'businessType' => 'nullable|string|max:255',
+            'businessAddress' => 'nullable|string|max:255',
+            'profile_image' => 'nullable|file|image|max:2048',
+            'businessWebsite' => 'nullable|url|max:255',
+            'bio' => 'nullable|string|max:255',
         ]);
 
         // Update user details
