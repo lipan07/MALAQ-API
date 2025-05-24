@@ -25,9 +25,8 @@ class StoreReportRequest extends FormRequest
     {
         return [
             'post_id' => 'required|exists:posts,id',
-            'reporting_user_id' => 'required|exists:users,id',
             'type' => ['required', Rule::in(ReportType::allTypes())],
-            'description' => 'required_if:type,' . ReportType::OTHER,
+            'description' => 'required_if:type,' . ReportType::OTHER->value,
         ];
     }
 }
