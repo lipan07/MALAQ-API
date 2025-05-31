@@ -10,6 +10,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SmsController;
+use App\Http\Controllers\SupportRequestController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -80,6 +81,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/settings/change-password', [SettingsController::class, 'changePassword']);
     Route::post('/settings/logout-all-devices', [SettingsController::class, 'logoutAllDevices']);
     Route::delete('/settings/delete-account', [SettingsController::class, 'deleteAccount']);
+
+    //Support
+    Route::post('/support-request', [SupportRequestController::class, 'store']);
 });
 
 Route::get('test', function () {
