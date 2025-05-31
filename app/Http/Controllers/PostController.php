@@ -91,12 +91,7 @@ class PostController extends Controller
         $userId = Auth::id();
 
         // Query posts with relationships
-        $postsQuery = Post::with([
-            'user',
-            'category',
-            'images',
-            'follower' => fn($query) => $query->where('user_id', $userId), // Only include followers for the authenticated user
-        ]);
+        $postsQuery = Post::query();
 
         // Filter by category if provided
         if ($request->filled('category')) {
@@ -126,6 +121,14 @@ class PostController extends Controller
 
         // Paginate and order results
         $posts = $postsQuery->orderByDesc('created_at')->simplePaginate(15);
+
+        // Manually eager load only for paginated models
+        $posts->load([
+            'user',
+            'category',
+            'images',
+            'follower' => fn($query) => $query->where('user_id', $userId),
+        ]);
 
         // Fetch additional data for posts
         $posts = ServicesPostService::fetchPostData($posts);

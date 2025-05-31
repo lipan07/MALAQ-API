@@ -76,7 +76,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/post/following', [FollowerController::class, 'postFollowing']);
     Route::get('/post/followers', [FollowerController::class, 'postFollowers']);
 
-
     //Settings
     Route::post('/settings/change-password', [SettingsController::class, 'changePassword']);
     Route::post('/settings/logout-all-devices', [SettingsController::class, 'logoutAllDevices']);
