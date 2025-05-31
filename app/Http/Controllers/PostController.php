@@ -140,7 +140,12 @@ class PostController extends Controller
     public function myPost()
     {
         $user = auth()->user();
-        $posts = Post::with('user', 'category', 'images')->where(['user_id' => $user->id])->orderBy('created_at', 'DESC')->simplePaginate(10);
+        $posts = Post::where(['user_id' => $user->id])->orderBy('created_at', 'DESC')->simplePaginate(10);
+        $posts->load([
+            'user',
+            'category',
+            'images',
+        ]);
 
         $posts = ServicesPostService::fetchPostData($posts);
         // Return the restructured paginated result
