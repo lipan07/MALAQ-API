@@ -33,9 +33,10 @@ class ReportController extends Controller
      */
     public function store(StoreReportRequest $request)
     {
+        $user = auth()->user();
         $report = Report::create([
+            'reporting_user_id' => $user->id,
             'post_id' => $request->post_id,
-            'reporting_user_id' => $request->reporting_user_id,
             'type' => $request->type,
             'description' => $request->description,
         ]);
