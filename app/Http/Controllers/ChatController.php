@@ -134,18 +134,29 @@ class ChatController extends Controller
         $chatId = $request->input('chat_id');
         $messageText = $request->input('message');
 
+        // Validate input
+        $request->validate([
+            'chat_id' => 'required|exists:chats,id',
+            'message' => 'required|string|max:1000',
+        ]);
+
         // Store the message
         $message = Message::create([
             'user_id' => $user->id,
             'chat_id' => $chatId,
             'message' => $messageText,
         ]);
+
+        // Update chat timestamp
         Chat::where('id', $chatId)->update(['updated_at' => now()]);
 
-        // Broadcast the message using Laravel Broadcasting (Pusher)
+        // Broadcast the message
         broadcast(new MessageSent($message))->toOthers();
 
-        return response()->json(['message' => $message]);
+        return response()->json([
+            'status' => 'success',
+            'message' => $message,
+        ]);
     }
 
     public function markMessagesAsSeen(Request $request, $messageId)
