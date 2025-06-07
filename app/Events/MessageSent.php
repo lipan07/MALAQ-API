@@ -34,4 +34,9 @@ class MessageSent implements ShouldBroadcast
             'is_seen' => $this->message->is_seen,
         ];
     }
+
+    public function broadcastAs(): string
+    {
+        return 'MessageSent';
+    }
 }
