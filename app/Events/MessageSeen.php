@@ -30,4 +30,9 @@ class MessageSeen  implements ShouldBroadcast
             'is_seen' => true,
         ];
     }
+
+    public function broadcastAs(): string
+    {
+        return 'MessageSeen';
+    }
 }
