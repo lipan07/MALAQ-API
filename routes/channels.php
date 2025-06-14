@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Broadcast::channel('chat.{chatId}', function ($user, $chatId) {
-    // You can add any authorization logic here
+Broadcast::channel('chat.{id}', function ($user, $id) {
     return true;
 });
