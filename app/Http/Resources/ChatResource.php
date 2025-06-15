@@ -19,10 +19,10 @@ class ChatResource extends JsonResource
             'post_id' => $this->post_id,
             'buyer_id' => $this->buyer_id,
             'seller_id' => $this->seller_id,
-            'created_at' => $this->created_at,
+            // 'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'buyer' => $this->buyer,
-            'post' => new PostResource($this->post), // Format post using PostResource
+            'post' => $this->post, // Format post using PostResource
         ];
     }
 }
