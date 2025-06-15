@@ -24,7 +24,9 @@ class ChatResource extends JsonResource
             'buyer' => $this->buyer,
             'post' => $this->post ? array_merge(
                 $this->post->toArray(),
-                ['images' => $this->post->images]
+                [
+                    'image' => $this->post->images->first() // Only the first image
+                ]
             ) : null,
         ];
     }
