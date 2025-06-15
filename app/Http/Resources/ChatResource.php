@@ -22,7 +22,10 @@ class ChatResource extends JsonResource
             // 'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'buyer' => $this->buyer,
-            'post' => $this->post, // Format post using PostResource
+            'post' => $this->post ? array_merge(
+                $this->post->toArray(),
+                ['images' => $this->post->images]
+            ) : null,
         ];
     }
 }
