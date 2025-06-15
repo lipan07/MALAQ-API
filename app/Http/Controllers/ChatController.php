@@ -22,13 +22,33 @@ class ChatController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        $chats = Chat::with('post:id,category_id,title,status,post_time', 'buyer:id,name')->where('seller_id', $user->id)->orWhere('buyer_id', $user->id)->orderBy('updated_at', 'DESC')->get();
-        // foreach ($chats as $chat) {
-        //     $chat->post = ServicesPostService::fetchSinglePostData($chat->post);
-        // }
 
-        $chats = ChatResource::collection($chats);
-        return response()->json(['chats' => $chats]);
+        $chats = Chat::with([
+            'post:id,category_id,title,status,post_time',
+            'buyer:id,name',
+            'messages' => function ($query) {
+                $query->latest()->limit(1); // Only fetch the last message
+            }
+        ])
+            ->where(function ($query) use ($user) {
+                $query->where('seller_id', $user->id)
+                    ->orWhere('buyer_id', $user->id);
+            })
+            ->orderBy('updated_at', 'DESC')
+            ->get();
+
+        // Wrap chats in resource and add last_message
+        $data = $chats->map(function ($chat) {
+            $resource = new ChatResource($chat);
+            $array = $resource->toArray(request());
+            $array['last_message'] = $chat->messages->first(); // last message (latest)
+            return $array;
+        });
+
+        return response()->json([
+            'data' => $data,
+            'message' => 'Chats fetched successfully'
+        ]);
     }
 
     /**
