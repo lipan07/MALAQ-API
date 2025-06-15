@@ -23,9 +23,9 @@ class ChatController extends Controller
     {
         $user = auth()->user();
         $chats = Chat::with('post:id,category_id,title,status,post_time', 'buyer:id,name')->where('seller_id', $user->id)->orWhere('buyer_id', $user->id)->orderBy('updated_at', 'DESC')->get();
-        foreach ($chats as $chat) {
-            $chat->post = ServicesPostService::fetchSinglePostData($chat->post);
-        }
+        // foreach ($chats as $chat) {
+        //     $chat->post = ServicesPostService::fetchSinglePostData($chat->post);
+        // }
 
         $chats = ChatResource::collection($chats);
         return response()->json(['chats' => $chats]);
