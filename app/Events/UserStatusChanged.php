@@ -25,7 +25,7 @@ class UserStatusChanged
 
     public function broadcastOn()
     {
-        return new PresenceChannel('user-status.' . $this->userId);
+        return new Channel('user-status.' . $this->userId);
     }
 
     public function broadcastAs()
