@@ -16,3 +16,10 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('chat.{id}', function ($user, $id) {
     return true;
 });
+
+Broadcast::channel('user-status.{userId}', function ($user, $userId) {
+    return [
+        'id' => $user->id,
+        'name' => $user->name
+    ];
+});
