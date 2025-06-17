@@ -13,6 +13,7 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SmsController;
 use App\Http\Controllers\SupportRequestController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserStatusController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -86,29 +87,8 @@ Route::middleware('auth:sanctum')->group(function () {
     //Support
     Route::post('/support-request', [SupportRequestController::class, 'store']);
 
-    Route::post('/user/online', function (Request $request) {
-        $user = $request->user();
-        $user->update([
-            'status' => 'online',
-            'last_activity' => now()
-        ]);
-
-        broadcast(new UserStatusChanged($user->id, 'online'));
-
-        return response()->json(['status' => 'online']);
-    });
-
-    Route::post('/user/offline', function (Request $request) {
-        $user = $request->user();
-        $user->update([
-            'status' => 'offline',
-            'last_activity' => now()
-        ]);
-
-        broadcast(new UserStatusChanged($user->id, 'offline'));
-
-        return response()->json(['status' => 'offline']);
-    });
+    Route::post('/user/online', [UserStatusController::class, 'storeOnlineStatus']);
+    Route::post('/user/offline', [UserStatusController::class, 'storeOfflineStatus']);
 
     Route::get('/user/{id}/status', function ($id) {
         $user = User::findOrFail($id);
