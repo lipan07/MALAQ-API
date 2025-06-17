@@ -25,7 +25,7 @@ class UserStatusChanged implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new Channel('user-status.' . $this->userId);
+        return new Channel('userStatus.' . $this->userId);
     }
 
     public function broadcastWith()
@@ -36,7 +36,7 @@ class UserStatusChanged implements ShouldBroadcast
         ];
     }
 
-    public function broadcastAs()
+    public function broadcastAs(): string
     {
         return 'UserStatusChanged';
     }
