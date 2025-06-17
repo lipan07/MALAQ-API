@@ -28,6 +28,14 @@ class UserStatusChanged
         return new Channel('user-status.' . $this->userId);
     }
 
+    public function broadcastWith()
+    {
+        return [
+            'userId' => $this->userId,
+            'status' => $this->status,
+        ];
+    }
+
     public function broadcastAs()
     {
         return 'UserStatusChanged';
