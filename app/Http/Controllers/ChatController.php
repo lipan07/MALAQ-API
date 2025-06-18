@@ -25,9 +25,12 @@ class ChatController extends Controller
 
         $chats = Chat::with([
             'post:id,category_id,title,status,post_time',
-            'buyer:id,name',
+            'buyer:id,name,status,last_activity',
+            'seller:id,name,status,last_activity',
             'messages' => function ($query) {
-                $query->latest()->limit(1); // Only fetch the last message
+                $query->select('id', 'chat_id', 'user_id', 'message', 'created_at', 'is_seen')
+                    ->latest()
+                    ->limit(1);
             }
         ])
             ->where(function ($query) use ($user) {
@@ -37,11 +40,32 @@ class ChatController extends Controller
             ->orderBy('updated_at', 'DESC')
             ->get();
 
-        // Wrap chats in resource and add last_message
-        $data = $chats->map(function ($chat) {
+        // Wrap chats in resource and add last_message and other_person
+        $data = $chats->map(function ($chat) use ($user) {
             $resource = new ChatResource($chat);
             $array = $resource->toArray(request());
-            $array['last_message'] = $chat->messages->first(); // last message (latest)
+
+            $lastMessage = $chat->messages->first();
+            $array['last_message'] = $lastMessage ? [
+                'id' => $lastMessage->id,
+                'message' => $lastMessage->message,
+                'created_at' => $lastMessage->created_at,
+                'is_seen' => $lastMessage->is_seen,
+            ] : null;
+
+            // Determine other person
+            if ($user->id === $chat->seller_id) {
+                $otherUser = $chat->buyer;
+            } else {
+                $otherUser = $chat->seller;
+            }
+            $array['other_person'] = [
+                'id' => $otherUser->id ?? null,
+                'name' => $otherUser->name ?? null,
+                'status' => $otherUser->status ?? null,
+                'last_activity' => $otherUser->last_activity ?? null,
+            ];
+
             return $array;
         });
 
@@ -87,13 +111,31 @@ class ChatController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, $id)
+    public function show(Request $request, Chat $chat)
     {
-        $chats = Message::where('chat_id', $id)->orderBy('created_at', 'asc')->get();
+        $authUser = auth()->user();
+
+        // Determine the other person's ID
+        if ($authUser->id === $chat->seller_id) {
+            $otherUser = $chat->buyer;
+        } else {
+            $otherUser = $chat->seller;
+        }
+
+        $messages = Message::select('id', 'user_id', 'message', 'created_at', 'updated_at', 'is_seen')
+            ->where('chat_id', $chat->id)
+            ->orderBy('created_at', 'asc')
+            ->get();
 
         return response()->json([
             'message' => 'Chat messages fetched successfully',
-            'chats' => $chats,
+            'chats' => $messages,
+            'other_person' => [
+                'id' => $otherUser->id,
+                'name' => $otherUser->name,
+                'status' => $otherUser->status,
+                'last_activity' => $otherUser->last_activity,
+            ],
         ]);
     }
 
