@@ -15,7 +15,7 @@ class UserStatusController extends Controller
             'last_activity' => now()
         ]);
 
-        broadcast(new UserStatusChanged($user->id, 'online'));
+        broadcast(new UserStatusChanged($user->id, 'online',  $user->last_activity));
 
         return response()->json(['status' => 'online']);
     }
@@ -28,7 +28,7 @@ class UserStatusController extends Controller
             'last_activity' => now()
         ]);
 
-        broadcast(new UserStatusChanged($user->id, 'offline'));
+        broadcast(new UserStatusChanged($user->id, 'offline', $user->last_activity));
 
         return response()->json(['status' => 'offline']);
     }

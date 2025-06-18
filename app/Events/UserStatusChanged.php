@@ -16,11 +16,13 @@ class UserStatusChanged implements ShouldBroadcast
 
     public $userId;
     public $status;
+    public $lastActivity;
 
-    public function __construct($userId, $status)
+    public function __construct($userId, $status = 'offline', $lastActivity = null)
     {
         $this->userId = $userId;
         $this->status = $status;
+        $this->lastActivity = $lastActivity;
     }
 
     public function broadcastOn()
@@ -33,6 +35,7 @@ class UserStatusChanged implements ShouldBroadcast
         return [
             'userId' => $this->userId,
             'status' => $this->status,
+            'lastActivity' => $this->lastActivity,
         ];
     }
 
