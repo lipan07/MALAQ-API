@@ -628,17 +628,6 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        // Delete associated images first
-        $images = $post->images;
-
-        foreach ($images as $image) {
-            // Remove image from storage
-            $relativePath = str_replace(config('app.url') . '/storage/', '', $image->url);
-            Storage::disk('public')->delete($relativePath);
-
-            // Delete image record
-            $image->delete();
-        }
         $post->delete();
         return response()->json(['message' => 'Post deleted successfully'], 200);
     }

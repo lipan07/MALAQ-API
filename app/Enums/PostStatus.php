@@ -11,7 +11,6 @@ enum PostStatus: string
     case Failed = 'failed';
     case Sold = 'sold';
     case Blocked = 'blocked';
-    case Deleted = 'deleted';
 
     /**
      * Returns the default type.
