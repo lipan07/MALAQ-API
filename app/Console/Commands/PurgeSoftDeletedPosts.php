@@ -14,7 +14,9 @@ class PurgeSoftDeletedPosts extends Command
 
     public function handle()
     {
-        $posts = Post::onlyTrashed()->get();
+        $posts = Post::onlyTrashed()
+            ->where('deleted_at', '<=', now()->subDays(15))
+            ->get();
 
         foreach ($posts as $post) {
             // Delete images from storage and DB
