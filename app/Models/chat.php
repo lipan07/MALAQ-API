@@ -35,7 +35,7 @@ class Chat extends Model
     // A Chat belongs to a Product
     public function post()
     {
-        return $this->belongsTo(Post::class, 'post_id', 'id');
+        return $this->belongsTo(Post::class, 'post_id', 'id')->withTrashed();
     }
 
     /**
