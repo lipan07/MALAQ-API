@@ -194,25 +194,36 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        $request->validate([
-            'post_id' => 'required|exists:posts,id',
-            'receiver_id' => 'required|exists:users,id',
+        // Determine if this is an existing chat or a new one
+        $hasChatId = $request->filled('chat_id');
+
+        // Dynamic validation
+        $rules = [
             'message' => 'required|string|max:1000',
-        ]);
+        ];
 
-        $postId = $request->post_id;
-        $receiverId = $request->receiver_id;
+        if ($hasChatId) {
+            $rules['chat_id'] = 'required|exists:chats,id';
+        } else {
+            $rules['post_id'] = 'required|exists:posts,id';
+            $rules['receiver_id'] = 'required|exists:users,id';
+        }
 
-        // Determine roles
-        $buyerId = $user->id;
-        $sellerId = $receiverId;
+        $validated = $request->validate($rules);
 
-        // Check if chat already exists for this post + buyer + seller
-        $chat = Chat::firstOrCreate([
-            'buyer_id' => $buyerId,
-            'seller_id' => $sellerId,
-            'post_id' => $postId,
-        ]);
+        if ($hasChatId) {
+            $chat = Chat::find($request->chat_id);
+        } else {
+            $buyerId = $user->id;
+            $sellerId = $request->receiver_id;
+            $postId = $request->post_id;
+
+            $chat = Chat::firstOrCreate([
+                'buyer_id' => $buyerId,
+                'seller_id' => $sellerId,
+                'post_id' => $postId,
+            ]);
+        }
 
         // Store the message
         $message = $chat->messages()->create([
@@ -220,10 +231,10 @@ class ChatController extends Controller
             'message' => $request->message,
         ]);
 
-        // Optional: update chat timestamp
+        // Update chat updated_at
         $chat->touch();
 
-        // Broadcast the message
+        // Broadcast to others
         broadcast(new MessageSent($message))->toOthers();
 
         return response()->json([
@@ -231,7 +242,6 @@ class ChatController extends Controller
             'message' => $message,
         ]);
     }
-
 
     public function markMessagesAsSeen(Request $request, $messageId)
     {
