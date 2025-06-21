@@ -105,7 +105,7 @@ class ChatController extends Controller
 
         broadcast(new MessageSent($chat->id, $message))->toOthers();
 
-        return response()->json(['status' => 'Message Sent!']);
+        return response()->json(['status' => '200', 'message' => 'Chat created successfully', 'data' => [$chat->id, $message->id]]);
     }
 
     /**
@@ -193,33 +193,45 @@ class ChatController extends Controller
     public function sendMessage(Request $request)
     {
         $user = auth()->user();
-        $chatId = $request->input('chat_id');
-        $messageText = $request->input('message');
 
-        // Validate input
         $request->validate([
-            'chat_id' => 'required|exists:chats,id',
+            'post_id' => 'required|exists:posts,id',
+            'receiver_id' => 'required|exists:users,id',
             'message' => 'required|string|max:1000',
         ]);
 
-        // Store the message
-        $message = Message::create([
-            'user_id' => $user->id,
-            'chat_id' => $chatId,
-            'message' => $messageText,
+        $postId = $request->post_id;
+        $receiverId = $request->receiver_id;
+
+        // Determine roles
+        $buyerId = $user->id;
+        $sellerId = $receiverId;
+
+        // Check if chat already exists for this post + buyer + seller
+        $chat = Chat::firstOrCreate([
+            'buyer_id' => $buyerId,
+            'seller_id' => $sellerId,
+            'post_id' => $postId,
         ]);
 
-        // Update chat timestamp
-        Chat::where('id', $chatId)->update(['updated_at' => now()]);
+        // Store the message
+        $message = $chat->messages()->create([
+            'user_id' => $user->id,
+            'message' => $request->message,
+        ]);
+
+        // Optional: update chat timestamp
+        $chat->touch();
 
         // Broadcast the message
         broadcast(new MessageSent($message))->toOthers();
 
         return response()->json([
-            'status' => 'success',
+            'chat_id' => $chat->id,
             'message' => $message,
         ]);
     }
+
 
     public function markMessagesAsSeen(Request $request, $messageId)
     {
