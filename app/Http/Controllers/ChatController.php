@@ -40,6 +40,11 @@ class ChatController extends Controller
             ->orderBy('updated_at', 'DESC')
             ->get();
 
+        // Filter out chats with no messages
+        $chats = $chats->filter(function ($chat) {
+            return $chat->messages->isNotEmpty();
+        })->values();
+
         // Wrap chats in resource and add last_message and other_person
         $data = $chats->map(function ($chat) use ($user) {
             $resource = new ChatResource($chat);
