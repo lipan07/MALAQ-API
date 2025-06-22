@@ -9,6 +9,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use App\Models\DeviceToken;
+use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
 {
@@ -53,6 +55,31 @@ class AuthController extends Controller
         }
         $user->update(['password' => '']);
 
+        // Save FCM token if present
+        if ($request->has('fcmToken') && $request->has('platform')) {
+            DeviceToken::updateOrCreate(
+                ['user_id' => $user->id, 'token' => $request->fcmToken],
+                ['platform' => $request->platform]
+            );
+        }
+
+
+        if ($request->has('fcmToken')) {
+            $title = 'Login Successful';
+            $message = 'Welcome back!';
+            Http::withHeaders([
+                'Authorization' => 'key=' . env('FCM_SERVER_KEY'),
+                'Content-Type' => 'application/json',
+            ])->post('https://fcm.googleapis.com/fcm/send', [
+                'to' => $request->fcmToken,
+                'notification' => [
+                    'title' => $title,
+                    'body' => $message,
+                    'sound' => 'default',
+                ],
+            ]);
+        }
+
         // Load the images relationship
         $user->load('images');
 
@@ -70,6 +97,10 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
+
+        if ($request->has('fcmToken')) {
+            DeviceToken::where('token', $request->fcmToken)->delete();
+        }
 
         return response()->json([
             'message' => 'Logged out successfully',
