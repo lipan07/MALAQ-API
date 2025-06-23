@@ -64,20 +64,34 @@ class AuthController extends Controller
         }
 
 
+        // Use this updated code instead
         if ($request->has('fcmToken')) {
-            $title = 'Login Successful';
-            $message = 'Welcome back!';
-            Http::withHeaders([
-                'Authorization' => 'key=' . env('FCM_SERVER_KEY'),
+            $token = $request->fcmToken; // Get from request
+
+            // Always use env() securely
+            $serverKey = config('services.fcm.key'); // Better approach
+
+            $response = Http::withHeaders([
+                'Authorization' => 'key=' . $serverKey,
                 'Content-Type' => 'application/json',
             ])->post('https://fcm.googleapis.com/fcm/send', [
-                'to' => $request->fcmToken,
+                'to' => $token,
+                'priority' => 'high', // Add priority for immediate delivery
                 'notification' => [
-                    'title' => $title,
-                    'body' => $message,
+                    'title' => 'Login Successful',
+                    'body' => 'Welcome back!',
                     'sound' => 'default',
                 ],
+                'data' => [ // Add custom data payload
+                    'type' => 'login',
+                    'timestamp' => now()->toDateTimeString()
+                ]
             ]);
+
+            // Handle potential errors
+            if ($response->failed()) {
+                Log::error('FCM failed: ' . $response->body());
+            }
         }
 
         // Load the images relationship
