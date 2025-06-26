@@ -99,4 +99,16 @@ class User extends Authenticatable
     {
         return $this->hasOne(CompanyDetail::class, 'users_id');
     }
+
+    // Add this method to your User model
+    public function routeNotificationForFirebase()
+    {
+        return $this->deviceTokens()->pluck('token')->toArray();
+    }
+
+    // Add this relationship
+    public function deviceTokens()
+    {
+        return $this->hasMany(DeviceToken::class);
+    }
 }

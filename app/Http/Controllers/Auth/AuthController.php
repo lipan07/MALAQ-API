@@ -12,9 +12,13 @@ use Illuminate\Validation\ValidationException;
 use App\Models\DeviceToken;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Traits\HandlesDeviceTokens;
+use App\Notifications\SendPushNotification;
 
 class AuthController extends Controller
 {
+    use HandlesDeviceTokens;
+
     public function register(StoreUserRequest $request)
     {
         $user = User::create([
@@ -67,32 +71,17 @@ class AuthController extends Controller
 
         // Use this updated code instead
         if ($request->has('fcmToken')) {
-            $token = $request->fcmToken; // Get from request
-
-            // Always use env() securely
-            $serverKey = config('services.fcm.key'); // Better approach
-
-            $response = Http::withHeaders([
-                'Authorization' => 'key=' . $serverKey,
-                'Content-Type' => 'application/json',
-            ])->post('https://fcm.googleapis.com/fcm/send', [
-                'to' => $token,
-                'priority' => 'high', // Add priority for immediate delivery
-                'notification' => [
-                    'title' => 'Login Successful',
-                    'body' => 'Welcome back!',
-                    'sound' => 'default',
-                ],
-                'data' => [ // Add custom data payload
-                    'type' => 'login',
-                    'timestamp' => now()->toDateTimeString()
-                ]
-            ]);
-
-            // Handle potential errors
-            if ($response->failed()) {
-                Log::error('FCM failed: ' . $response->body());
+            // Handle FCM token
+            if ($request->fcmToken && $request->platform) {
+                $this->updateDeviceTokens($user, $request->fcmToken, $request->platform);
             }
+
+            // Send login notification to all devices
+            $user->notify(new SendPushNotification(
+                'Login Successful',
+                'Welcome back!',
+                ['type' => 'login', 'timestamp' => now()->toDateTimeString()]
+            ));
         }
 
         // Load the images relationship
