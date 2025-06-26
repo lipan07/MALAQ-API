@@ -23,9 +23,10 @@ class SendPushNotification extends Notification implements ShouldQueue
         $this->data = $data;
     }
 
+    // Change to use the channel class instead of string
     public function via($notifiable)
     {
-        return ['firebase'];
+        return [\App\Channels\FirebaseChannel::class];
     }
 
     public function toFirebase($notifiable)
