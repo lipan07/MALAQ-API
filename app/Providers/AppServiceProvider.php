@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Channels\FirebaseChannel;
+use Illuminate\Support\Facades\Notification;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Notification::extend('firebase', function ($app) {
+            return new FirebaseChannel();
+        });
     }
 }
