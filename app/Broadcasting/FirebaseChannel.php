@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Channels;
+namespace App\Broadcasting;
 
 use Illuminate\Notifications\Notification;
 use Kreait\Firebase\Messaging\CloudMessage;
