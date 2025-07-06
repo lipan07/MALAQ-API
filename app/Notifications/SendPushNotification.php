@@ -6,36 +6,29 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Kreait\Firebase\Messaging\CloudMessage;
-use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
 
-class SendPushNotification extends Notification implements ShouldQueue
+class SendPushNotification extends Notification
 {
     use Queueable;
 
-    protected $title;
-    protected $body;
-    protected $data;
+    public function __construct(
+        public string $title,
+        public string $body,
+        public array $data = []
+    ) {}
 
-    public function __construct($title, $body, $data = [])
-    {
-        $this->title = $title;
-        $this->body = $body;
-        $this->data = $data;
-    }
-
-    // Change to use the channel class instead of string
     public function via($notifiable)
     {
-        return ['firebase'];
+        return [\App\Broadcasting\FirebaseChannel::class];
     }
 
     public function toFirebase($notifiable)
     {
         return CloudMessage::new()
-            ->withNotification(FirebaseNotification::create(
-                $this->title,
-                $this->body
-            ))
+            ->withNotification([
+                'title' => $this->title,
+                'body' => $this->body
+            ])
             ->withData($this->data);
     }
 }
