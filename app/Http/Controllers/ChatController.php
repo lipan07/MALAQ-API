@@ -241,9 +241,6 @@ class ChatController extends Controller
         // Update chat updated_at
         $chat->touch();
 
-        // Broadcast to others
-        broadcast(new MessageSent($message))->toOthers();
-
         // 🔔 Send FCM Push to receiver
         $receiverId = $hasChatId ? ($chat->buyer_id === $user->id ? $chat->seller_id : $chat->buyer_id) : $request->receiver_id;
         \Log::info("Receiver ID: $receiverId");
@@ -261,6 +258,9 @@ class ChatController extends Controller
                 ['chat_id' => $chat->id, 'sender_id' => $user->id]
             );
         }
+
+        // Broadcast to others
+        broadcast(new MessageSent($message))->toOthers();
 
         return response()->json([
             'chat_id' => $chat->id,
