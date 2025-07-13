@@ -12,7 +12,7 @@ class FcmService
 
     public function __construct()
     {
-        $factory = (new Factory)->withServiceAccount(storage_path('app/firebase/malaq-5e80c-98d1db54711f.json'));
+        $factory = (new Factory)->withServiceAccount(storage_path('app/firebase/malaq-5e80c-b7828eeb1a41.json'));
         $this->messaging = $factory->createMessaging();
     }
 
