@@ -77,11 +77,15 @@ class AuthController extends Controller
             }
 
             // Send login notification to all devices
-            $user->notify(new SendPushNotification(
-                'Login Successful',
-                'Welcome back!',
-                ['type' => 'login', 'timestamp' => now()->toDateTimeString()]
-            ));
+            $deviceToken = $request->fcmToken;
+
+            $title = 'Hello 👋';
+            $body = 'This is a test push notification from Laravel 🚀';
+
+            $notification = new SendPushNotification($title, $body, $deviceToken);
+
+            // You can also send to a notifiable model with `notify()`
+            $notification->toFcm();
         }
 
         // Load the images relationship

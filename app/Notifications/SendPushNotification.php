@@ -3,32 +3,48 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
-use Kreait\Firebase\Messaging\CloudMessage;
+use Illuminate\Support\Facades\Http;
 
 class SendPushNotification extends Notification
 {
     use Queueable;
 
-    public function __construct(
-        public string $title,
-        public string $body,
-        public array $data = []
-    ) {}
+    protected $title;
+    protected $body;
+    protected $deviceToken;
+
+    public function __construct($title, $body, $deviceToken)
+    {
+        $this->title = $title;
+        $this->body = $body;
+        $this->deviceToken = $deviceToken;
+    }
 
     public function via($notifiable)
     {
-        return [\App\Broadcasting\FirebaseChannel::class];
+        return ['fcm'];
     }
 
-    public function toFirebase($notifiable)
+    public function toFcm($notifiable = null)
     {
-        return CloudMessage::new()
-            ->withNotification([
-                'title' => $this->title,
-                'body' => $this->body
-            ])
-            ->withData($this->data);
+        $serverKey = config('services.fcm.key'); // store in config/services.php
+
+        $response = Http::withToken($serverKey)
+            ->post('https://fcm.googleapis.com/fcm/send', [
+                'to' => $this->deviceToken,
+                'notification' => [
+                    'title' => $this->title,
+                    'body' => $this->body,
+                    'sound' => 'default',
+                ],
+                'data' => [
+                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                    'status' => 'done'
+                ],
+                'priority' => 'high',
+            ]);
+
+        return $response->json(); // For logging or debugging
     }
 }
