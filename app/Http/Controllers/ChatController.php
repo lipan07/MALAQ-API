@@ -254,7 +254,7 @@ class ChatController extends Controller
             app(FcmService::class)->sendNotification(
                 $token,
                 'New Message',
-                'You have a new message',
+                $request->message,
                 ['chat_id' => $chat->id]
             );
         }
