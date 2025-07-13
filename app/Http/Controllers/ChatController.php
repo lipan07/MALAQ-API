@@ -246,12 +246,14 @@ class ChatController extends Controller
 
         // 🔔 Send FCM Push to receiver
         $receiverId = $hasChatId ? ($chat->buyer_id === $user->id ? $chat->seller_id : $chat->buyer_id) : $request->receiver_id;
+        \Log::info("Receiver ID: $receiverId");
         $deviceTokens = DeviceToken::where('user_id', $receiverId)->pluck('token');
 
         $title = $user->name ?? 'New Message';
         $body = $request->message;
 
         foreach ($deviceTokens as $token) {
+            \Log::info("Sending notification to device token: $token");
             FcmService::sendNotification(
                 $token,
                 'New Message',
