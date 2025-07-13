@@ -10,9 +10,11 @@ use App\Models\Post;
 use App\Events\MessageSent;
 use App\Http\Resources\ChatResource;
 use App\Http\Resources\PostResource;
+use App\Models\DeviceToken;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use App\Services\PostService as ServicesPostService;
+use App\Services\FcmService;
 
 class ChatController extends Controller
 {
@@ -241,6 +243,22 @@ class ChatController extends Controller
 
         // Broadcast to others
         broadcast(new MessageSent($message))->toOthers();
+
+        // 🔔 Send FCM Push to receiver
+        $receiverId = $hasChatId ? ($chat->buyer_id === $user->id ? $chat->seller_id : $chat->buyer_id) : $request->receiver_id;
+        $deviceTokens = DeviceToken::where('user_id', $receiverId)->pluck('token');
+
+        $title = $user->name ?? 'New Message';
+        $body = $request->message;
+
+        foreach ($deviceTokens as $token) {
+            FcmService::sendNotification(
+                $token,
+                'New Message',
+                $request->message,
+                ['chat_id' => $chat->id, 'sender_id' => $user->id]
+            );
+        }
 
         return response()->json([
             'chat_id' => $chat->id,
