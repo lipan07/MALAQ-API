@@ -2,27 +2,33 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 
 class FcmService
 {
-    public static function sendNotification($deviceToken, $title, $body, $data = [])
-    {
-        $serverKey = config('services.fcm.key');
+    protected $messaging;
 
-        return Http::withToken($serverKey)
-            ->post('https://fcm.googleapis.com/fcm/send', [
-                'to' => $deviceToken,
-                'notification' => [
-                    'title' => $title,
-                    'body' => $body,
-                    'sound' => 'default',
-                ],
-                'data' => $data + [
-                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                    'status' => 'done',
-                ],
-                'priority' => 'high',
-            ])->json();
+    public function __construct()
+    {
+        $factory = (new Factory)->withServiceAccount(storage_path('app/firebase/malaq-5e80c-98d1db54711f.json'));
+        $this->messaging = $factory->createMessaging();
+    }
+
+    public function sendNotification($deviceToken, $title, $body, array $data = [])
+    {
+        $notification = Notification::create($title, $body);
+
+        $message = CloudMessage::withTarget('token', $deviceToken)
+            ->withNotification($notification)
+            ->withData($data);
+
+        try {
+            return $this->messaging->send($message);
+        } catch (\Throwable $e) {
+            \Log::error("FCM send error: " . $e->getMessage());
+            return false;
+        }
     }
 }

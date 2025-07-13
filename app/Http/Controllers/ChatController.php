@@ -251,11 +251,11 @@ class ChatController extends Controller
 
         foreach ($deviceTokens as $token) {
             \Log::info("Sending notification to device token: $token");
-            FcmService::sendNotification(
+            app(FcmService::class)->sendNotification(
                 $token,
                 'New Message',
-                $request->message,
-                ['chat_id' => $chat->id, 'sender_id' => $user->id]
+                'You have a new message',
+                ['chat_id' => $chat->id]
             );
         }
 
