@@ -63,18 +63,9 @@ class AuthController extends Controller
         // Save FCM token if present
         if ($request->has('fcmToken') && $request->has('platform')) {
             DeviceToken::updateOrCreate(
-                ['user_id' => $user->id, 'token' => $request->fcmToken],
-                ['platform' => $request->platform]
+                ['token' => $request->fcmToken],
+                ['user_id' => $user->id, 'platform' => $request->platform]
             );
-        }
-
-
-        // Use this updated code instead
-        if ($request->has('fcmToken')) {
-            // Handle FCM token
-            if ($request->fcmToken && $request->platform) {
-                $this->updateDeviceTokens($user, $request->fcmToken, $request->platform);
-            }
         }
 
         // Load the images relationship
