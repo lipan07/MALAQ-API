@@ -11,19 +11,6 @@ use Illuminate\Support\Facades\Auth;
 
 class FollowerController extends Controller
 {
-    // public function followUser(Request $request)
-    // {
-    //     $user = auth()->user(); // Authenticated user
-    //     $targetUserId = $request->user_id; // User to follow
-
-    //     if (!$user->following()->where('user_id', $targetUserId)->exists()) {
-    //         $user->following()->attach($targetUserId);
-    //         return response()->json(['message' => 'Followed successfully'], 201);
-    //     } else {
-    //         $user->following()->detach($targetUserId);
-    //         return response()->json(['message' => 'Unfollowed successfully'], 200);
-    //     }
-    // }
 
     public function followPost(Request $request)
     {
