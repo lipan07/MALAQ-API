@@ -15,7 +15,6 @@ use App\Models\Message;
 use Illuminate\Http\Request;
 use App\Services\PostService as ServicesPostService;
 use App\Services\FcmService;
-use Illuminate\Support\Facades\DB;
 
 class ChatController extends Controller
 {
@@ -220,7 +219,7 @@ class ChatController extends Controller
         $validated = $request->validate($rules);
 
         if ($hasChatId) {
-            $chat = DB::table('chats')->find($request->chat_id);
+            $chat = Chat::find($request->chat_id);
         } else {
             $buyerId = $user->id;
             $sellerId = $request->receiver_id;
@@ -245,7 +244,7 @@ class ChatController extends Controller
         // 🔔 Send FCM Push to receiver
         $receiverId = $hasChatId ? ($chat->buyer_id === $user->id ? $chat->seller_id : $chat->buyer_id) : $request->receiver_id;
         \Log::info("Receiver ID: $receiverId");
-        $deviceTokens = DB::table('device_tokens')->where('user_id', $receiverId)->pluck('token');
+        $deviceTokens = DeviceToken::where('user_id', $receiverId)->pluck('token');
 
         $title = $user->name ?? 'New Message';
         $body = $request->message;
@@ -272,7 +271,7 @@ class ChatController extends Controller
     public function markMessagesAsSeen(Request $request, $messageId)
     {
         $user = auth()->user();
-        $message = DB::table('messages')->find($messageId);
+        $message = Message::find($messageId);
 
         if ($message && $message->user_id !== $user->id) { // Ensure it's not the user's own message
             $message->is_seen = true;
