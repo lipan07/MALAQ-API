@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\PrivacyPolicyController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SmsController;
 /*
@@ -18,4 +19,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::get('/login', [LoginController::class, 'index'])->name('login');
+Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('privacy-policy');
 // Route::get('/send-sms',[SmsController::class,'sendMessage']);
