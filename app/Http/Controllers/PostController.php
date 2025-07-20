@@ -120,9 +120,9 @@ class PostController extends Controller
         }
 
         // Filter by location if coordinates are provided
-        if ($request->filled('location.coordinates')) {
-            $latitude = $request->location['coordinates'][1]; // latitude from request
-            $longitude = $request->location['coordinates'][0]; // longitude from request
+        if ($request->filled('latitude') && $request->filled('longitude')) {
+            $latitude = $request->latitude;
+            $longitude = $request->longitude;
             $distance = $request->distance ?? 5; // default to 5km if not provided
 
             // Haversine formula for distance calculation in km
