@@ -138,7 +138,7 @@ class PostController extends Controller
         }
 
         // Apply sorting
-        if ($request->filled('sortBy')) {
+        /* if ($request->filled('sortBy')) {
             switch ($request->sortBy) {
                 case 'Price: Low to High':
                     $postsQuery->orderBy('price', 'asc');
@@ -153,10 +153,12 @@ class PostController extends Controller
             }
         } else {
             $postsQuery->orderByDesc('created_at');
-        }
+        } */
+
+        $postsQuery->orderByDesc('created_at');
 
         // Filter by price range if provided
-        if ($request->filled('priceRange')) {
+        /* if ($request->filled('priceRange')) {
             $minPrice = $request->priceRange[0];
             $maxPrice = $request->priceRange[1];
 
@@ -166,7 +168,7 @@ class PostController extends Controller
             if (!empty($maxPrice)) {
                 $postsQuery->where('price', '<=', $maxPrice);
             }
-        }
+        } */
 
         // Paginate and order results
         $posts = $postsQuery->simplePaginate(15);
