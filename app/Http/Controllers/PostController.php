@@ -158,7 +158,21 @@ class PostController extends Controller
 
             // Apply category filter if provided
             if ($request->filled('category')) {
-                // ... (same category logic as above)
+                if (!in_array($request->category, [1, 7])) {
+                    $hasSubCategories = Category::where('parent_id', $request->category)->exists();
+
+                    if (!$hasSubCategories) {
+                        return response()->json([
+                            'message' => 'This category does not have any subcategories.',
+                            'sub_category_ids' => [],
+                        ], 404);
+                    }
+
+                    $subCategoryIds = Category::where('parent_id', $request->category)->pluck('id')->toArray();
+                    $postsQuery->whereIn('category_id', $subCategoryIds);
+                } else {
+                    $postsQuery->where('category_id', $request->category);
+                }
             }
 
             // Apply search term filter if provided
