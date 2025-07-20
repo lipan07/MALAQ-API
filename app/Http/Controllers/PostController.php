@@ -119,8 +119,57 @@ class PostController extends Controller
             $postsQuery->where('title', 'LIKE', '%' . $request->search . '%');
         }
 
+        // Filter by location if coordinates are provided
+        if ($request->filled('location.coordinates')) {
+            $latitude = $request->location['coordinates'][1]; // latitude from request
+            $longitude = $request->location['coordinates'][0]; // longitude from request
+            $distance = $request->distance ?? 5; // default to 5km if not provided
+
+            // Haversine formula for distance calculation in km
+            $postsQuery->selectRaw(
+                "*, 
+            (6371 * acos(cos(radians(?)) * cos(radians(latitude)) * 
+            cos(radians(longitude) - radians(?)) + 
+            sin(radians(?)) * sin(radians(latitude)))) AS distance",
+                [$latitude, $longitude, $latitude]
+            )
+                ->having('distance', '<=', $distance)
+                ->orderBy('distance');
+        }
+
+        // Apply sorting
+        if ($request->filled('sortBy')) {
+            switch ($request->sortBy) {
+                case 'Price: Low to High':
+                    $postsQuery->orderBy('price', 'asc');
+                    break;
+                case 'Price: High to Low':
+                    $postsQuery->orderBy('price', 'desc');
+                    break;
+                case 'Recently Added':
+                default:
+                    $postsQuery->orderByDesc('created_at');
+                    break;
+            }
+        } else {
+            $postsQuery->orderByDesc('created_at');
+        }
+
+        // Filter by price range if provided
+        if ($request->filled('priceRange')) {
+            $minPrice = $request->priceRange[0];
+            $maxPrice = $request->priceRange[1];
+
+            if (!empty($minPrice)) {
+                $postsQuery->where('price', '>=', $minPrice);
+            }
+            if (!empty($maxPrice)) {
+                $postsQuery->where('price', '<=', $maxPrice);
+            }
+        }
+
         // Paginate and order results
-        $posts = $postsQuery->orderByDesc('created_at')->simplePaginate(15);
+        $posts = $postsQuery->simplePaginate(15);
 
         // Manually eager load only for paginated models
         $posts->load([
