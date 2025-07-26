@@ -238,6 +238,9 @@ class ChatController extends Controller
             'message' => $request->message,
         ]);
 
+        // Broadcast to others
+        broadcast(new MessageSent($message))->toOthers();
+
         // Update chat updated_at
         $chat->touch();
 
@@ -258,9 +261,6 @@ class ChatController extends Controller
                 ['chat_id' => $chat->id]
             );
         }
-
-        // Broadcast to others
-        broadcast(new MessageSent($message))->toOthers();
 
         return response()->json([
             'chat_id' => $chat->id,

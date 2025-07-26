@@ -2,6 +2,7 @@
 
 use App\Events\UserStatusChanged;
 use App\Http\Controllers\Api\DeviceTokenController;
+use App\Http\Controllers\Api\FeedbackController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChatController;
@@ -102,6 +103,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/store-device-token', [DeviceTokenController::class, 'store']);
     Route::post('/delete-device-token', [DeviceTokenController::class, 'destroy']);
+
+    Route::post('/feedback', [FeedbackController::class, 'store']);
 });
 
 Route::get('test', function () {
