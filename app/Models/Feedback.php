@@ -15,6 +15,10 @@ class Feedback extends Model
         'comment'
     ];
 
+    protected $casts = [
+        'rating' => 'float',  // Explicitly cast to float
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

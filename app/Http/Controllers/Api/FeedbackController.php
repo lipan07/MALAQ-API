@@ -25,7 +25,7 @@ class FeedbackController extends Controller
         // Validate the request
         $validator = Validator::make($request->all(), [
             'userId' => 'required|exists:users,id',
-            'rating' => 'required|integer|between:1,5',
+            'rating' => 'required|numeric|between:1,5',
             'comment' => 'required|string|max:1000',
         ]);
 

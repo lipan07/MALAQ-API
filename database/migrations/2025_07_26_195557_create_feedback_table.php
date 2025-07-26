@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('feedback', function (Blueprint $table) {
             $table->id();
             $table->uuid('user_id');
-            $table->integer('rating');
+            $table->float('rating', 2, 1);
             $table->text('comment');
             $table->timestamps();
 
