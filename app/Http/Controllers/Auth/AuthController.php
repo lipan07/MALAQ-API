@@ -62,9 +62,13 @@ class AuthController extends Controller
 
         // Save FCM token if present
         if ($request->has('fcmToken') && $request->has('platform')) {
+            // DeviceToken::updateOrCreate(
+            //     ['token' => $request->fcmToken],
+            //     ['user_id' => $user->id, 'platform' => $request->platform]
+            // );
             DeviceToken::updateOrCreate(
-                ['token' => $request->fcmToken],
-                ['user_id' => $user->id, 'platform' => $request->platform]
+                ['user_id' => $user->id],
+                ['token' => $request->fcmToken, 'platform' => $request->platform]
             );
         }
 
