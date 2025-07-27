@@ -10,7 +10,6 @@ use App\Models\Post;
 use App\Events\MessageSent;
 use App\Http\Resources\ChatResource;
 use App\Http\Resources\PostResource;
-use App\Jobs\SendFcmNotification;
 use App\Models\DeviceToken;
 use App\Models\Message;
 use Illuminate\Http\Request;
@@ -240,7 +239,7 @@ class ChatController extends Controller
         ]);
 
         // Broadcast to others
-        // broadcast(new MessageSent($message))->toOthers();
+        broadcast(new MessageSent($message))->toOthers();
 
         // Update chat updated_at
         $chat->touch();
@@ -248,17 +247,15 @@ class ChatController extends Controller
         // 🔔 Send FCM Push to receiver
         $receiverId = $hasChatId ? ($chat->buyer_id === $user->id ? $chat->seller_id : $chat->buyer_id) : $request->receiver_id;
         \Log::info("Receiver ID: $receiverId");
+        $deviceToken = DeviceToken::select('token')->where('user_id', $receiverId)->first();
 
-        $deviceToken = DeviceToken::where('user_id', $receiverId)->value('token');
+        app(FcmService::class)->sendNotification(
+            $deviceToken->token,
+            'New Message',
+            $request->message,
+            ['chat_id' => $chat->id]
+        );
 
-        if ($deviceToken) {
-            SendFcmNotification::dispatch(
-                $deviceToken,
-                $user->name ?? 'New Message',
-                $request->message,
-                ['chat_id' => $chat->id]
-            )->onQueue('notifications');
-        }
         return response()->json([
             'chat_id' => $chat->id,
             'message' => $message,
