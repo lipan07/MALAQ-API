@@ -130,6 +130,11 @@ class PostController extends Controller
                     $postsQuery->where('title', 'LIKE', '%' . $request->search . '%');
                 }
 
+                // Apply listing type filter if provided
+                if ($request->filled('listingType')) {
+                    $postsQuery->where('type', $request->listingType ?? PostType::defaultType()->value);
+                }
+
                 // Apply location filter with current distance tier
                 $postsQuery->selectRaw(
                     "*, 
@@ -180,7 +185,7 @@ class PostController extends Controller
                 $postsQuery->where('title', 'LIKE', '%' . $request->search . '%');
             }
 
-            // Apply search term filter if provided
+            // Apply listing type filter if provided
             if ($request->filled('listingType')) {
                 $postsQuery->where('type', $request->listingType ?? PostType::defaultType()->value);
             }
