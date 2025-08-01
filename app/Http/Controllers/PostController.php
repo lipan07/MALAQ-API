@@ -180,6 +180,11 @@ class PostController extends Controller
                 $postsQuery->where('title', 'LIKE', '%' . $request->search . '%');
             }
 
+            // Apply search term filter if provided
+            if ($request->filled('listingType')) {
+                $postsQuery->where('type', $request->listingType ?? PostType::defaultType()->value);
+            }
+
             // Default ordering
             $postsQuery->orderByDesc('created_at');
 
