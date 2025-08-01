@@ -468,7 +468,7 @@ class PostController extends Controller
             default:
                 return [
                     'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
-                    'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
+                    'listingType' => ['nullable', 'string', Rule::in(PostType::allTypes())],
                 ];
         }
     }
@@ -519,7 +519,6 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, Post $post)
     {
-        Log::error('Lipan update');
         if (empty($post)) {
             return response(['status' => 'error', 'message' => 'Could not retrieve data'], 404);
         }
@@ -541,7 +540,7 @@ class PostController extends Controller
             'address' => $request->address,
             'latitude' => $request->latitude, // Fixed typo here from 'lattitude'
             'longitude' => $request->longitude,
-            'type' => $request->post_type,
+            'type' => $request->listingType,
         ]);
 
         // Step 3: Handle the images
@@ -682,7 +681,7 @@ class PostController extends Controller
             default:
                 return [
                     'guard_name' => ['required', 'string', Rule::in(CategoryGuardName::allTypes())],
-                    'post_type' => ['required', 'string', Rule::in(PostType::allTypes())],
+                    'listingType' => ['required', 'string', Rule::in(PostType::allTypes())],
                 ];
         }
     }
