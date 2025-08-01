@@ -263,7 +263,7 @@ class PostController extends Controller
             'address' => $request->address,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
-            'type' => $request->post_type,
+            'type' => $request->listingType,
             'status' => PostStatus::Pending,
         ]);
     }
