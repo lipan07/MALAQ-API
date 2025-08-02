@@ -67,8 +67,8 @@ class AuthController extends Controller
             //     ['user_id' => $user->id, 'platform' => $request->platform]
             // );
             DeviceToken::updateOrCreate(
-                ['user_id' => $user->id],
-                ['token' => $request->fcmToken, 'platform' => $request->platform]
+                ['token' => $request->fcmToken],
+                ['user_id' => $user->id, 'platform' => $request->platform]
             );
         }
 
