@@ -157,45 +157,6 @@ class PostController extends Controller
             }
         }
 
-        // If no location or no posts found in location tiers, fall back to basic query
-        if (!$finalPosts) {
-            $postsQuery = Post::query();
-
-            // Apply category filter if provided
-            if ($request->filled('category')) {
-                if (!in_array($request->category, [1, 7])) {
-                    $hasSubCategories = Category::where('parent_id', $request->category)->exists();
-
-                    if (!$hasSubCategories) {
-                        return response()->json([
-                            'message' => 'This category does not have any subcategories.',
-                            'sub_category_ids' => [],
-                        ], 404);
-                    }
-
-                    $subCategoryIds = Category::where('parent_id', $request->category)->pluck('id')->toArray();
-                    $postsQuery->whereIn('category_id', $subCategoryIds);
-                } else {
-                    $postsQuery->where('category_id', $request->category);
-                }
-            }
-
-            // Apply search term filter if provided
-            if ($request->filled('search')) {
-                $postsQuery->where('title', 'LIKE', '%' . $request->search . '%');
-            }
-
-            // Apply listing type filter if provided
-            if ($request->filled('listingType')) {
-                $postsQuery->where('type', $request->listingType ?? PostType::defaultType()->value);
-            }
-
-            // Default ordering
-            $postsQuery->orderByDesc('created_at');
-
-            $finalPosts = $postsQuery->simplePaginate(15);
-        }
-
         // Eager load relationships
         $finalPosts->load([
             'user',
