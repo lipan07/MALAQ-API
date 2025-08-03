@@ -89,7 +89,6 @@ class PostController extends Controller
     public function index(FetchPostsRequest $request)
     {
         $userId = Auth::id();
-        $distanceTiers = [5, 15, 25]; // Define your distance tiers
         $finalPosts = null;
 
         // Only attempt location-based search if coordinates are provided
@@ -98,62 +97,54 @@ class PostController extends Controller
             $longitude = $request->longitude;
             $requestedDistance = $request->distance ?? 5;
 
-            foreach ($distanceTiers as $distance) {
-                // Skip smaller distances if a specific distance was requested
-                if ($distance < $requestedDistance) {
-                    continue;
-                }
+            $postsQuery = Post::query();
 
-                $postsQuery = Post::query();
+            // Apply category filter if provided
+            if ($request->filled('category')) {
+                if (!in_array($request->category, [1, 7])) {
+                    $hasSubCategories = Category::where('parent_id', $request->category)->exists();
 
-                // Apply category filter if provided
-                if ($request->filled('category')) {
-                    if (!in_array($request->category, [1, 7])) {
-                        $hasSubCategories = Category::where('parent_id', $request->category)->exists();
-
-                        if (!$hasSubCategories) {
-                            return response()->json([
-                                'message' => 'This category does not have any subcategories.',
-                                'sub_category_ids' => [],
-                            ], 404);
-                        }
-
-                        $subCategoryIds = Category::where('parent_id', $request->category)->pluck('id')->toArray();
-                        $postsQuery->whereIn('category_id', $subCategoryIds);
-                    } else {
-                        $postsQuery->where('category_id', $request->category);
+                    if (!$hasSubCategories) {
+                        return response()->json([
+                            'message' => 'This category does not have any subcategories.',
+                            'sub_category_ids' => [],
+                        ], 404);
                     }
-                }
 
-                // Apply search term filter if provided
-                if ($request->filled('search')) {
-                    $postsQuery->where('title', 'LIKE', '%' . $request->search . '%');
+                    $subCategoryIds = Category::where('parent_id', $request->category)->pluck('id')->toArray();
+                    $postsQuery->whereIn('category_id', $subCategoryIds);
+                } else {
+                    $postsQuery->where('category_id', $request->category);
                 }
+            }
 
-                // Apply listing type filter if provided
-                if ($request->filled('listingType')) {
-                    $postsQuery->where('type', $request->listingType ?? PostType::defaultType()->value);
-                }
+            // Apply search term filter if provided
+            if ($request->filled('search')) {
+                $postsQuery->where('title', 'LIKE', '%' . $request->search . '%');
+            }
 
-                // Apply location filter with current distance tier
-                $postsQuery->selectRaw(
-                    "*, 
+            // Apply listing type filter if provided
+            if ($request->filled('listingType')) {
+                $postsQuery->where('type', $request->listingType ?? PostType::defaultType()->value);
+            }
+
+            // Apply location filter with current distance tier
+            $postsQuery->selectRaw(
+                "*, 
                 (6371 * acos(cos(radians(?)) * cos(radians(latitude)) * 
                 cos(radians(longitude) - radians(?)) + 
                 sin(radians(?)) * sin(radians(latitude)))) AS distance",
-                    [$latitude, $longitude, $latitude]
-                )
-                    ->having('distance', '<=', $distance)
-                    ->orderBy('distance')
-                    ->orderByDesc('created_at');
+                [$latitude, $longitude, $latitude]
+            )
+                ->having('distance', '<=', $requestedDistance)
+                ->orderBy('distance')
+                ->orderByDesc('created_at');
 
-                $posts = $postsQuery->simplePaginate(15);
+            $posts = $postsQuery->simplePaginate(15);
 
-                // If we found posts, break out of the loop
-                if ($posts->count() > 0) {
-                    $finalPosts = $posts;
-                    break;
-                }
+            // If we found posts, break out of the loop
+            if ($posts->count() > 0) {
+                $finalPosts = $posts;
             }
         }
 
