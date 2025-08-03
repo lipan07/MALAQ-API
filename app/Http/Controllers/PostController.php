@@ -157,6 +157,11 @@ class PostController extends Controller
             }
         }
 
+        if (!$finalPosts) {
+            // Return an empty collection or a suitable response
+            return PostResource::collection(collect());
+        }
+
         // Eager load relationships
         $finalPosts->load([
             'user',
