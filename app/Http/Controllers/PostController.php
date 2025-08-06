@@ -137,8 +137,11 @@ class PostController extends Controller
                 [$latitude, $longitude, $latitude]
             )
                 ->having('distance', '<=', $requestedDistance)
-                ->orderBy('distance')
-                ->orderByDesc('created_at');
+                ->orderBy('distance');
+
+            if ($request->filled('sortBy') && $request->sortBy == 'createdAt_desc') {
+                $postsQuery->orderByDesc('post_time');
+            }
 
             $posts = $postsQuery->simplePaginate(15);
 
