@@ -17,11 +17,11 @@
             <div class="col-md-3">
                 <select id="statusFilter" class="form-select">
                     <option value="">All</option>
-                    <!-- <option value="pending">Pending</option> -->
+                    <option value="pending">Pending</option>
                     <option value="processing">Processing</option>
-                    <!-- <option value="active">Active</option> -->
-                    <!-- <option value="inactive">Inactive</option> -->
-                    <!-- <option value="failed">Failed</option> -->
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="failed">Failed</option>
                     <option value="sold">Sold</option>
                     <option value="blocked">Blocked</option>
                 </select>
