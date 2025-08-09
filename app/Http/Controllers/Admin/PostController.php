@@ -22,9 +22,6 @@ class PostController extends Controller
             'images',
         ]);
 
-        // $posts = Post::with(['user', 'category', 'images'])->orderBy('created_at', 'desc')->paginate(10);
-
-
         return view('admin.posts.index', compact('posts'));
     }
 

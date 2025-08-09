@@ -45,7 +45,7 @@
                             @if($post->images->count() > 0)
                             <div class="d-flex">
                                 @foreach($post->images->take(3) as $image)
-                                <img src="{{ asset($image->path) }}"
+                                <img src="{{ asset($image->url) }}"
                                     class="img-thumbnail me-1"
                                     style="width: 40px; height: 40px; object-fit: cover; cursor: pointer;"
                                     onclick="showImageModal({{ $post->id }}, {{ $loop->index }})">
