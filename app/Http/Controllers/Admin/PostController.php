@@ -9,28 +9,31 @@ use App\Models\Post;
 
 class PostController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // Fetch posts with related data and paginate
-        $posts = Post::orderBy('created_at', 'desc')
-            ->where('status', PostStatus::Pending)
-            ->paginate(10);
+        $posts = Post::with('user', 'category', 'images')->orderBy('created_at', 'desc');
 
-        $posts->load([
-            'user',
-            'category',
-            'images',
-        ]);
+        if ($request->filled('status')) {
+            $posts->where('status', $request->status);
+        } else {
+            $posts->where('status', PostStatus::Pending);
+        }
+        $posts = $posts->paginate(10);
 
         return view('admin.posts.index', compact('posts'));
     }
 
-    public function approve($id)
+    public function changeStatus(Request $request, Post $post)
     {
-        $post = Post::findOrFail($id);
-        $post->status = PostStatus::Active; // Assuming your PostStatus enum allows this
-        $post->save();
+        $statuses = ['pending', 'processing', 'active', 'inactive', 'failed', 'sold', 'blocked'];
 
-        return redirect()->back()->with('success', 'Post approved successfully.');
+        $request->validate([
+            'status' => 'required|in:' . implode(',', $statuses),
+        ]);
+
+        $post->update(['status' => $request->status]);
+
+        return back()->with('success', "Post status updated to {$request->status}.");
     }
 }

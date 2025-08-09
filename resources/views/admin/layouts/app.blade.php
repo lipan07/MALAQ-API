@@ -153,10 +153,6 @@
             border-color: var(--primary-color);
         }
 
-        .pagination .page-link {
-            color: var(--primary-color);
-        }
-
         /* Mobile Responsive Styles */
         @media (max-width: 768px) {
             .sidebar {
@@ -213,6 +209,15 @@
         .action-buttons .btn {
             margin: 2px;
             white-space: nowrap;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        main,
+        .content {
+            overflow-x: hidden;
         }
     </style>
 </head>

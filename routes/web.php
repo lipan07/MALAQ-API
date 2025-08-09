@@ -38,7 +38,9 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
-    Route::get('/posts/{id}/approve', [PostController::class, 'approve'])->name('posts.approve');
+    // Route::get('/posts/{id}/approve', [PostController::class, 'approve'])->name('posts.approve');
+
+    Route::post('/posts/{post}/status', [PostController::class, 'changeStatus'])->name('posts.changeStatus');
 });
 
 
