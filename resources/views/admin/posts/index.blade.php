@@ -6,13 +6,13 @@
         <h5 class="mb-0">All Posts</h5>
         <div>
             <a href="#" class="btn btn-primary btn-sm">
-                Add New
+                <i class="bi bi-plus"></i> Add New
             </a>
         </div>
     </div>
     <div class="card-body">
         @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show">
             {{ session('success') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
@@ -24,122 +24,95 @@
                     <tr>
                         <th>ID</th>
                         <th>Title</th>
-                        <th>Images</th>
-                        <th>Author</th>
-                        <th>Category</th>
+                        <th class="d-none d-md-table-cell">User</th>
+                        <th class="d-none d-sm-table-cell">Category</th>
                         <th>Status</th>
-                        <th>Post Time</th>
+                        <th class="d-none d-lg-table-cell">Post Time</th>
+                        <th>Images</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($posts as $post)
+                    @foreach($posts as $post)
                     <tr>
                         <td>{{ $post->id }}</td>
-                        <td>
-                            <a href="#" class="text-primary text-decoration-none">
-                                {{ Str::limit($post->title, 40) }}
-                            </a>
-                        </td>
-                        <td>
-                            @if($post->images->count() > 0)
-                            <div class="d-flex">
-                                @foreach($post->images->take(3) as $image)
-                                <img src="{{ asset($image->url) }}"
-                                    class="img-thumbnail me-1"
-                                    style="width: 40px; height: 40px; object-fit: cover; cursor: pointer;"
-                                    onclick="showImageModal({{ $post->id }}, {{ $loop->index }})">
-                                @endforeach
-                                @if($post->images->count() > 3)
-                                <span class="badge bg-primary align-self-center">+{{ $post->images->count() - 3 }}</span>
-                                @endif
-                            </div>
-                            @else
-                            <span class="text-muted">No images</span>
-                            @endif
-                        </td>
-                        <td>{{ $post->user?->name }}</td>
-                        <td>
+                        <td>{{ Str::limit($post->title, 30) }}</td>
+                        <td class="d-none d-md-table-cell">{{ $post->user?->name }}</td>
+                        <td class="d-none d-sm-table-cell">
                             @if($post->category)
-                            <span class="badge bg-light text-dark">
-                                {{ $post->category?->name }}
-                            </span>
+                            <span class="badge bg-light text-dark">{{ $post->category?->name }}</span>
                             @else
-                            <span class="text-muted">Uncategorized</span>
+                            <span class="text-muted">-</span>
                             @endif
                         </td>
                         <td>
                             @php
-                            $status = $post->status->value ?? $post->status;
-                            $statusClass = strtolower($status) === 'pending' ? 'status-pending' : 'status-approved';
+                                $status = $post->status->value ?? $post->status;
+                                $statusClass = strtolower($status) === 'pending' ? 'bg-warning text-dark' : 'bg-success';
                             @endphp
-                            <span class="status-badge {{ $statusClass }}">
-                                {{ ucfirst($status) }}
-                            </span>
+                            <span class="badge {{ $statusClass }}">{{ ucfirst($status) }}</span>
+                        </td>
+                        <td class="d-none d-lg-table-cell">
+                            {{ \Carbon\Carbon::parse($post->post_time)->format('M d, Y H:i') }}
                         </td>
                         <td>
-                            @if($post->post_time instanceof \DateTime)
-                            {{ $post->post_time->format('M d, Y H:i') }}
+                            @if($post->images->count())
+                            <button class="btn btn-sm btn-info view-images-btn"
+                                data-images="{{ json_encode($post->images->pluck('url')) }}">
+                                <i class="bi bi-images d-none d-sm-inline"></i> 
+                                <span class="d-inline d-sm-none">View</span>
+                                <span class="badge bg-white text-dark ms-1">{{ $post->images->count() }}</span>
+                            </button>
                             @else
-                            {{ \Carbon\Carbon::parse($post->post_time)->format('M d, Y H:i') }}
+                            <span class="text-muted">-</span>
                             @endif
                         </td>
                         <td>
-                            <div class="action-buttons d-flex gap-2">
-                                <a href="#" class="btn btn-sm btn-primary">Edit</a>
-                                <a href="{{ route('admin.posts.approve', $post->id) }}" class="btn btn-sm btn-success">Approve</a>
+                            <div class="d-flex gap-1">
+                                <a href="#" class="btn btn-sm btn-primary" title="Edit">
+                                    <i class="bi bi-pencil d-none d-sm-inline"></i>
+                                    <span class="d-inline d-sm-none">Edit</span>
+                                </a>
+                                <a href="{{ route('admin.posts.approve', $post->id) }}" 
+                                   class="btn btn-sm btn-success" title="Approve">
+                                    <i class="bi bi-check-circle d-none d-sm-inline"></i>
+                                    <span class="d-inline d-sm-none">Approve</span>
+                                </a>
                             </div>
                         </td>
                     </tr>
-                    @empty
-                    <tr>
-                        <td colspan="8" class="text-center py-4">
-                            <div class="d-flex flex-column align-items-center">
-                                <i class="bi bi-file-earmark-excel text-muted" style="font-size: 2rem;"></i>
-                                <p class="text-muted mt-2 mb-0">No posts found</p>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
 
-        @if($posts->hasPages())
-        <div class="d-flex justify-content-center mt-4">
-            <nav aria-label="Page navigation">
-                {{ $posts->onEachSide(1)->links() }}
-            </nav>
+        <div class="d-flex justify-content-center mt-3">
+            {{ $posts->links() }}
         </div>
-        @endif
     </div>
 </div>
 
-<!-- Image Gallery Modal -->
-<div class="modal fade" id="imageGalleryModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Post Images</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-0">
                 <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-inner" id="carousel-inner">
-                        <!-- Images will be loaded here dynamically -->
-                    </div>
+                    <div class="carousel-inner ratio ratio-16x9"></div>
                     <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
+                        <span class="carousel-control-prev-icon bg-dark rounded-circle p-3"></span>
                     </button>
                     <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
+                        <span class="carousel-control-next-icon bg-dark rounded-circle p-3"></span>
                     </button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <span id="imageCounter" class="me-auto"></span>
+            <div class="modal-footer justify-content-between">
+                <span id="imageCounter" class="fw-bold">1 of 5</span>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
@@ -150,85 +123,91 @@
 
 @push('scripts')
 <script>
-    // Store all posts images data
-    const postsImages = @json($posts -> keyBy('id') -> map(function($post) {
-        return $post -> images -> map(function($image) {
-            return asset($image -> path);
-        });
-    }));
-
-    function showImageModal(postId, startIndex = 0) {
-        const images = postsImages[postId] || [];
-        const carouselInner = document.getElementById('carousel-inner');
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+        const carouselInner = document.querySelector('#imageCarousel .carousel-inner');
         const imageCounter = document.getElementById('imageCounter');
 
-        // Clear previous items
-        carouselInner.innerHTML = '';
+        document.querySelectorAll('.view-images-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const images = JSON.parse(this.getAttribute('data-images'));
+                carouselInner.innerHTML = '';
 
-        // Add new items
-        images.forEach((image, index) => {
-            const item = document.createElement('div');
-            item.className = `carousel-item ${index === startIndex ? 'active' : ''}`;
-            item.innerHTML = `
-                <img src="${image}" class="d-block w-100" style="max-height: 70vh; object-fit: contain;">
-            `;
-            carouselInner.appendChild(item);
+                images.forEach((img, index) => {
+                    const div = document.createElement('div');
+                    div.classList.add('carousel-item', 'h-100');
+                    if (index === 0) div.classList.add('active');
+
+                    div.innerHTML = `
+                        <img src="${img}" class="d-block w-100 h-100 object-fit-contain" alt="Post Image">
+                    `;
+                    carouselInner.appendChild(div);
+                });
+
+                // Update counter
+                imageCounter.textContent = `1 of ${images.length}`;
+                
+                // Initialize carousel
+                const carousel = new bootstrap.Carousel(document.getElementById('imageCarousel'), {
+                    interval: false
+                });
+                
+                // Update counter when slide changes
+                document.getElementById('imageCarousel').addEventListener('slid.bs.carousel', function(e) {
+                    const activeIndex = e.to;
+                    imageCounter.textContent = `${activeIndex + 1} of ${images.length}`;
+                });
+
+                imageModal.show();
+            });
         });
-
-        // Update counter
-        imageCounter.textContent = `${startIndex + 1} of ${images.length}`;
-
-        // Initialize carousel if not already initialized
-        const carousel = new bootstrap.Carousel(document.getElementById('imageCarousel'), {
-            interval: false
-        });
-
-        // Update counter when slide changes
-        document.getElementById('imageCarousel').addEventListener('slid.bs.carousel', function(e) {
-            const activeIndex = e.to;
-            imageCounter.textContent = `${activeIndex + 1} of ${images.length}`;
-        });
-
-        // Show modal
-        const modal = new bootstrap.Modal(document.getElementById('imageGalleryModal'));
-        modal.show();
-
-        // Go to the clicked image
-        if (images.length > 0) {
-            carousel.to(startIndex);
-        }
-    }
+    });
 </script>
+@endpush
 
+@push('styles')
 <style>
-    .carousel-item img {
-        max-height: 70vh;
-        object-fit: contain;
-        margin: 0 auto;
-    }
-
-    .carousel-control-prev,
-    .carousel-control-next {
-        background-color: rgba(0, 0, 0, 0.2);
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-
-    .carousel-control-prev {
-        left: 15px;
-    }
-
-    .carousel-control-next {
-        right: 15px;
-    }
-
-    @media (max-width: 768px) {
-        .carousel-item img {
-            max-height: 50vh;
+    /* Responsive table adjustments */
+    @media (max-width: 767.98px) {
+        .table-responsive {
+            border: 0;
         }
+        .table thead {
+            display: none;
+        }
+        .table tr {
+            display: block;
+            margin-bottom: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+        }
+        .table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .table td:before {
+            content: attr(data-label);
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+        .table td:last-child {
+            border-bottom: 0;
+        }
+    }
+
+    /* Image modal enhancements */
+    .carousel-control-prev, .carousel-control-next {
+        width: auto;
+        opacity: 0.8;
+    }
+    .carousel-control-prev:hover, .carousel-control-next:hover {
+        opacity: 1;
+    }
+    .object-fit-contain {
+        object-fit: contain;
     }
 </style>
 @endpush
