@@ -35,7 +35,7 @@
             transition: transform 0.3s ease;
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
             position: fixed;
-            height: 100vh;
+            height: 100%;
             z-index: 1000;
         }
 
