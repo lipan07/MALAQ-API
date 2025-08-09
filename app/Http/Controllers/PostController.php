@@ -511,6 +511,7 @@ class PostController extends Controller
             'latitude' => $request->latitude, // Fixed typo here from 'lattitude'
             'longitude' => $request->longitude,
             'type' => $request->listingType,
+            'status' => PostStatus::Pending,
         ]);
 
         // Step 3: Handle the images
