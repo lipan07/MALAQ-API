@@ -120,12 +120,6 @@
                                     'sold' => 'primary',
                                     'blocked' => 'dark',
                                     ];
-
-                                    $statuses = [
-                                    'processing' => 'info',
-                                    'sold' => 'primary',
-                                    'blocked' => 'danger',
-                                    ];
                                     @endphp
 
                                     @foreach($statuses as $status => $color)

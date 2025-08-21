@@ -61,35 +61,46 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $request->validate([
-            'firstName' => 'required|string|max:255',
-            'lastName' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'email' => 'nullable|email|unique:users,email,' . $id,
-            'phoneNumber' => 'required|string|max:15',
-            'businessName' => 'nullable|string|max:255',
-            'businessType' => 'nullable|string|max:255',
-            'businessAddress' => 'nullable|string|max:255',
+            'phone_no' => 'required|string|max:15',
+            'about_me' => 'nullable|string|max:500',
             'profile_image' => 'nullable|file|image|max:2048',
-            'businessWebsite' => 'nullable|url|max:255',
-            'bio' => 'nullable|string|max:255',
+
+            // Company details validation
+            'company_detail.name' => 'nullable|string|max:255',
+            'company_detail.type' => 'nullable|string|max:255',
+            'company_detail.address' => 'nullable|string|max:500',
+            'company_detail.website' => 'nullable|url|max:255',
+
+            // Contact person validation
+            'company_detail.contact_person_name' => 'nullable|string|max:255',
+            'company_detail.contact_person_role' => 'nullable|string|max:255',
+            'company_detail.contact_person_email' => 'nullable|email|max:255',
+            'company_detail.contact_person_phone' => 'nullable|string|max:20',
         ]);
 
         // Update user details
         $user->update([
-            'name' => $request->input('firstName') . ', ' . $request->input('lastName'),
+            'name' => $request->input('first_name') . ', ' . $request->input('last_name'),
             'email' => $request->input('email'),
-            'phone_no' => $request->input('phoneNumber'),
-            'address' => $request->input('businessAddress'),
-            'about_me' => $request->input('bio'),
+            'phone_no' => $request->input('phone_no'),
+            'about_me' => $request->input('about_me'),
         ]);
 
-        // Update or create company details
+        // Update or create company details with contact person information
         $user->companyDetail()->updateOrCreate(
             ['users_id' => $user->id],
             [
-                'name' => $request->input('businessName'),
-                'type' => $request->input('businessType'),
-                'address' => $request->input('businessAddress'),
-                'website' => $request->input('businessWebsite'),
+                'name' => $request->input('company_detail.name'),
+                'type' => $request->input('company_detail.type'),
+                'address' => $request->input('company_detail.address'),
+                'website' => $request->input('company_detail.website'),
+                'contact_person_name' => $request->input('company_detail.contact_person_name'),
+                'contact_person_role' => $request->input('company_detail.contact_person_role'),
+                'contact_person_email' => $request->input('company_detail.contact_person_email'),
+                'contact_person_phone' => $request->input('company_detail.contact_person_phone'),
             ]
         );
 

@@ -19,6 +19,10 @@ class CompanyDetail extends Model
         'type',
         'address',
         'website',
+        'contact_person_name',
+        'contact_person_role',
+        'contact_person_email',
+        'contact_person_phone',
         'users_id',
     ];
 }
