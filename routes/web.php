@@ -44,8 +44,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     Route::post('/posts/{post}/status', [PostController::class, 'changeStatus'])->name('posts.changeStatus');
 
-    // Route::get('/users', [UserController::class, 'index'])->name('users.index');
-
     Route::resource('users', UserController::class);
 });
 
