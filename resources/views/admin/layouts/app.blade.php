@@ -237,7 +237,7 @@
             <a href="#" class="sidebar-link">
                 <i class="bi bi-tags"></i> Categories
             </a>
-            <a href="#" class="sidebar-link">
+            <a href="{{ route('admin.users.index') }}" class="sidebar-link">
                 <i class="bi bi-people"></i> Users
             </a>
         </div>

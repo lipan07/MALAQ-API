@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SmsController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\Admin\UserController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -41,6 +43,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Route::get('/posts/{id}/approve', [PostController::class, 'approve'])->name('posts.approve');
 
     Route::post('/posts/{post}/status', [PostController::class, 'changeStatus'])->name('posts.changeStatus');
+
+    // Route::get('/users', [UserController::class, 'index'])->name('users.index');
+
+    Route::resource('users', UserController::class);
 });
 
 
