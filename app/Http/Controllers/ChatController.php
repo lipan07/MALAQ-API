@@ -220,30 +220,30 @@ class ChatController extends Controller
         $validated = $request->validate($rules);
 
         if ($hasChatId) {
-            $chat = Chat::find($request->chat_id);
+            $chat = Chat::select('id', 'buyer_id', 'seller_id') // select only needed cols
+                ->findOrFail($request->chat_id);
         } else {
-            $buyerId = $user->id;
-            $sellerId = $request->receiver_id;
-            $postId = $request->post_id;
-
-            $chat = Chat::firstOrCreate([
-                'buyer_id' => $buyerId,
-                'seller_id' => $sellerId,
-                'post_id' => $postId,
-            ]);
+            $chat = Chat::firstOrCreate(
+                [
+                    'buyer_id' => $user->id,
+                    'seller_id' => $request->receiver_id,
+                    'post_id'  => $request->post_id,
+                ],
+                ['created_at' => now()] // prevent extra DB write
+            );
         }
 
         // Store the message
         $message = $chat->messages()->create([
             'user_id' => $user->id,
-            'message' => $request->message,
+            'message' => $validated['message'],
         ]);
 
         // Broadcast to others
         broadcast(new MessageSent($message))->toOthers();
 
         // Update chat updated_at
-        $chat->touch();
+        $chat->update(['updated_at' => now()]);
 
         // 🔔 Send FCM Push to receiver
         $receiverId = $hasChatId ? ($chat->buyer_id === $user->id ? $chat->seller_id : $chat->buyer_id) : $request->receiver_id;
