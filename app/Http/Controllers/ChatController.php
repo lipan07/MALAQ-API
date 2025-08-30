@@ -248,11 +248,10 @@ class ChatController extends Controller
         // 🔔 Send FCM Push to receiver
         $receiverId = $hasChatId ? ($chat->buyer_id === $user->id ? $chat->seller_id : $chat->buyer_id) : $request->receiver_id;
         \Log::info("Receiver ID: $receiverId");
-        $deviceToken = DeviceToken::select('token')->where('user_id', $receiverId)->first();
 
         // Dispatch job to queue - returns immediately
         SendFcmNotification::dispatch(
-            $deviceToken->token,
+            $receiverId,
             'New Message',
             $request->message,
             ['chat_id' => $chat->id]
