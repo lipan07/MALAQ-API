@@ -10,6 +10,7 @@ use App\Models\Post;
 use App\Events\MessageSent;
 use App\Http\Resources\ChatResource;
 use App\Http\Resources\PostResource;
+use App\Jobs\SendFcmNotification;
 use App\Models\DeviceToken;
 use App\Models\Message;
 use Illuminate\Http\Request;
@@ -249,12 +250,14 @@ class ChatController extends Controller
         \Log::info("Receiver ID: $receiverId");
         $deviceToken = DeviceToken::select('token')->where('user_id', $receiverId)->first();
 
-        app(FcmService::class)->sendNotification(
+        // Dispatch job to queue - returns immediately
+        SendFcmNotification::dispatch(
             $deviceToken->token,
             'New Message',
             $request->message,
             ['chat_id' => $chat->id]
-        );
+        )->afterResponse(); // This sends the response first, then processes the job
+
 
         return response()->json([
             'chat_id' => $chat->id,
