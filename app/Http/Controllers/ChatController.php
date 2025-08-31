@@ -243,7 +243,7 @@ class ChatController extends Controller
         broadcast(new MessageSent($message))->toOthers();
 
         // Update chat updated_at
-        $chat->update(['updated_at' => now()]);
+        $chat->touch();
 
         // 🔔 Send FCM Push to receiver
         $receiverId = $hasChatId ? ($chat->buyer_id === $user->id ? $chat->seller_id : $chat->buyer_id) : $request->receiver_id;
