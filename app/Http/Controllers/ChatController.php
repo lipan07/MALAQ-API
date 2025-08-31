@@ -40,6 +40,7 @@ class ChatController extends Controller
                 $query->where('seller_id', $user->id)
                     ->orWhere('buyer_id', $user->id);
             })
+            ->where('deleted_at', null)
             ->orderBy('updated_at', 'DESC')
             ->get();
 
