@@ -15,6 +15,7 @@ class Chat extends Model
         'post_id',
         'buyer_id',
         'seller_id',
+        'deleted_at'
     ];
 
     public function messages()
