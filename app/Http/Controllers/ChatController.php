@@ -134,6 +134,7 @@ class ChatController extends Controller
         $perPage = $request->input('per_page', 10);
         $messages = Message::select('id', 'user_id', 'message', 'created_at', 'updated_at', 'is_seen')
             ->where('chat_id', $chat->id)
+            ->where('created_at', '>=', now()->subDays(3))
             ->orderBy('created_at', 'desc')
             ->get();
 
