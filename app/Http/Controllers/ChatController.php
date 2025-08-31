@@ -131,10 +131,11 @@ class ChatController extends Controller
             $otherUser = $chat->seller;
         }
 
+        $perPage = 15;
         $messages = Message::select('id', 'user_id', 'message', 'created_at', 'updated_at', 'is_seen')
             ->where('chat_id', $chat->id)
             ->orderBy('created_at', 'asc')
-            ->get();
+            ->paginate($perPage);
 
         return response()->json([
             'message' => 'Chat messages fetched successfully',

@@ -25,6 +25,7 @@ class Post extends Model
         'title',
         'address',
         'post_time',
+        'show_phone',
         'latitude',
         'longitude',
         'status',
