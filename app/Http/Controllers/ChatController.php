@@ -163,13 +163,6 @@ class ChatController extends Controller
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(chat $chat)
-    {
-        //
-    }
     public function openChat(Request $request)
     {
         \Log::info($request->all());
@@ -280,5 +273,28 @@ class ChatController extends Controller
         }
 
         return response()->json(['message' => 'Message not found or already seen'], 404);
+    }
+
+    public function destroy(Request $request, $chatId)
+    {
+        $user = auth()->user();
+
+        // Validate chat exists
+        $chat = Chat::where('id', $chatId)
+            ->where(function ($query) use ($user) {
+                $query->where('buyer_id', $user->id)
+                    ->orWhere('seller_id', $user->id);
+            })
+            ->firstOrFail();
+
+        // Update deleted_at
+        $chat->update(['deleted_at' => now()]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Chat marked as deleted successfully.',
+            'chat_id' => $chat->id,
+            'deleted_at' => $chat->deleted_at,
+        ]);
     }
 }
