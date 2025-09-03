@@ -146,6 +146,21 @@ class PostController extends Controller
                 $postsQuery->where('type', $request->listingType ?? PostType::defaultType()->value);
             }
 
+            // Apply price range filter if provided
+            if ($request->filled('priceRange') && is_array($request->priceRange) && count($request->priceRange) >= 2) {
+                $minPrice = $request->priceRange[0];
+                $maxPrice = $request->priceRange[1];
+
+                // Only apply filters if values are provided and valid
+                if (!empty($minPrice) && is_numeric($minPrice)) {
+                    $postsQuery->where('amount', '>=', (float)$minPrice);
+                }
+
+                if (!empty($maxPrice) && is_numeric($maxPrice)) {
+                    $postsQuery->where('amount', '<=', (float)$maxPrice);
+                }
+            }
+
             // Apply location filter with current distance tier
             $postsQuery->selectRaw(
                 "*, 
