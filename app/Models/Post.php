@@ -24,6 +24,7 @@ class Post extends Model
         'user_id',
         'title',
         'address',
+        'amount',
         'post_time',
         'show_phone',
         'latitude',

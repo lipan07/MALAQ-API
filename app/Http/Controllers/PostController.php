@@ -83,6 +83,24 @@ use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
+    private array $jobGuardNames = [
+        CategoryGuardName::DataEntryBackOffice->value,
+        CategoryGuardName::SalesMarketing->value,
+        CategoryGuardName::BpoTelecaller->value,
+        CategoryGuardName::Driver->value,
+        CategoryGuardName::OfficeAssistant->value,
+        CategoryGuardName::DeliveryCollection->value,
+        CategoryGuardName::Teacher->value,
+        CategoryGuardName::Cook->value,
+        CategoryGuardName::ReceptionistFrontOffice->value,
+        CategoryGuardName::OperatorTechnician->value,
+        CategoryGuardName::EngineerDeveloper->value,
+        CategoryGuardName::HotelTravelExecutive->value,
+        CategoryGuardName::Accountant->value,
+        CategoryGuardName::Designer->value,
+        CategoryGuardName::OtherJobs->value,
+    ];
+
     /**
      * Display a listing of the resource.
      */
@@ -139,8 +157,22 @@ class PostController extends Controller
                 ->having('distance', '<=', $requestedDistance)
                 ->orderBy('distance');
 
-            if ($request->filled('sortBy') && $request->sortBy == 'createdAt_desc') {
-                $postsQuery->orderByDesc('post_time');
+            if ($request->filled('sortBy')) {
+                switch ($request->sortBy) {
+                    case 'Recently Added':
+                        $postsQuery->orderByDesc('post_time');
+                        break;
+                    case 'Price: Low to High':
+                        $postsQuery->orderBy('amount', 'asc');
+                        break;
+                    case 'Price: High to Low':
+                        $postsQuery->orderBy('amount', 'desc');
+                        break;
+                    case 'Relevance':
+                    default:
+                        // Keep the existing distance-based ordering
+                        break;
+                }
             }
 
             $posts = $postsQuery->where('status', PostStatus::Active)->simplePaginate(15);
@@ -210,6 +242,15 @@ class PostController extends Controller
             ], 422);
         }
 
+        if (in_array($request->guard_name, $this->jobGuardNames)) {
+            $salaryFrom = $request->input('salary_from');
+            $salaryTo = $request->input('salary_to');
+            if (is_numeric($salaryFrom) && is_numeric($salaryTo)) {
+                $average = ($salaryFrom + $salaryTo) / 2;
+                $request->merge(['amount' => $average]);
+            }
+        }
+
         // Step 2: Create the post
         $post = $this->createPost($request);
 
@@ -231,6 +272,7 @@ class PostController extends Controller
             'post_time' => now(),
             'title' => $request->adTitle,
             'address' => $request->address,
+            'amount' => $request->amount,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
             'type' => $request->listingType,
@@ -503,11 +545,21 @@ class PostController extends Controller
             ], 422);
         }
 
+        if (in_array($request->guard_name, $this->jobGuardNames)) {
+            $salaryFrom = $request->input('salary_from');
+            $salaryTo = $request->input('salary_to');
+            if (is_numeric($salaryFrom) && is_numeric($salaryTo)) {
+                $average = ($salaryFrom + $salaryTo) / 2;
+                $request->merge(['amount' => $average]);
+            }
+        }
+
         // Step 2: Create the post
         $post->update([
             'category_id' => Category::getIdByGuardName($request->guard_name),
             'title' => $request->adTitle,
             'address' => $request->address,
+            'amount' => $request->amount,
             'latitude' => $request->latitude, // Fixed typo here from 'lattitude'
             'longitude' => $request->longitude,
             'type' => $request->listingType,
