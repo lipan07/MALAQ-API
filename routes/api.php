@@ -44,6 +44,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
     Route::get('/get-my-profile', [UserController::class, 'getProfile']);
 
+    Route::get('/seller-info/{user}', [UserController::class, 'sellerInfo']);
+    Route::get('/sellers-post/{user}', [PostController::class, 'sellersPost']);
+
     //Post
     Route::get('posts', [PostController::class, 'index'])->name('posts.index');
     Route::get('posts/{post}', [PostController::class, 'show'])->name('posts.show');

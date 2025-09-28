@@ -73,6 +73,7 @@ use App\Models\PostService;
 use App\Models\PostShopOffice;
 use App\Models\PostSportHobby;
 use App\Models\PostVehicleSpareParts;
+use App\Models\User;
 use App\Services\PostService as ServicesPostService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -730,5 +731,27 @@ class PostController extends Controller
     {
         $post->delete();
         return response()->json(['message' => 'Post deleted successfully'], 200);
+    }
+
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function sellersPost(Request $request, User $user)
+    {
+        $posts = Post::where('status', PostStatus::Active)->where('user_id', $user->id)->simplePaginate(15);
+
+        // Eager load relationships
+        $posts->load([
+            'user',
+            'category',
+            'images',
+            'follower' => fn($query) => $query->where('user_id', $user->id),
+        ]);
+
+        // Fetch additional data for posts
+        $finalPosts = ServicesPostService::fetchPostData($posts);
+
+        return PostResource::collection($finalPosts);
     }
 }

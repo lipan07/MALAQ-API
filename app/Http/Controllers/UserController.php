@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -136,6 +137,38 @@ class UserController extends Controller
 
         // Load related data: company details and profile image
         $user->load('companyDetail', 'images');
+
+        return response()->json([
+            'message' => 'Profile details retrieved successfully',
+            'data' => $user,
+        ]);
+    }
+
+    /**
+     * Get the profile details of the authenticated user.
+     */
+    public function sellerInfo(Request $request, User $user)
+    {
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not authenticated',
+            ], 401);
+        }
+
+        // Load related data: company details and profile image
+        $user->load('companyDetail', 'images');
+
+        $authUser = Auth::user();
+        $user->isFollowing = false;
+        if ($authUser) {
+            $user->isFollowing = $authUser->following()->where('following_id', $user->id)->exists();
+        }
+
+        // Count active and sold posts
+        $user->activePostCount = $user->posts()->where('status', \App\Enums\PostStatus::Active)->count();
+        $user->soldPostCount = $user->posts()->where('status', \App\Enums\PostStatus::Sold)->count();
+
+        $user->last_activity = $user->last_activity ? Carbon::parse($user->last_activity)->diffForHumans() : null;
 
         return response()->json([
             'message' => 'Profile details retrieved successfully',
