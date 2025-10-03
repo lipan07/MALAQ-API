@@ -67,19 +67,28 @@ class UserController extends Controller
             'email' => 'nullable|email|unique:users,email,' . $id,
             'phone_no' => 'required|string|max:15',
             'about_me' => 'nullable|string|max:500',
-            'profile_image' => 'nullable|file|image|max:2048',
+            'profile_image' => 'nullable|file|image|mimes:jpeg,png,jpg,gif|max:2048',
 
-            // Company details validation
+            // Company details validation (all optional)
             'company_detail.name' => 'nullable|string|max:255',
             'company_detail.type' => 'nullable|string|max:255',
             'company_detail.address' => 'nullable|string|max:500',
             'company_detail.website' => 'nullable|url|max:255',
 
-            // Contact person validation
+            // Contact person validation (all optional)
             'company_detail.contact_person_name' => 'nullable|string|max:255',
             'company_detail.contact_person_role' => 'nullable|string|max:255',
             'company_detail.contact_person_email' => 'nullable|email|max:255',
             'company_detail.contact_person_phone' => 'nullable|string|max:20',
+        ], [
+            'first_name.required' => 'First name is required',
+            'last_name.required' => 'Last name is required',
+            'phone_no.required' => 'Phone number is required',
+            'email.email' => 'Please enter a valid email address',
+            'email.unique' => 'This email is already taken',
+            'profile_image.image' => 'Profile image must be a valid image file',
+            'profile_image.max' => 'Profile image must be less than 2MB',
+            'company_detail.website.url' => 'Website must be a valid URL',
         ]);
 
         // Update user details
@@ -90,29 +99,40 @@ class UserController extends Controller
             'about_me' => $request->input('about_me'),
         ]);
 
-        // Update or create company details with contact person information
-        $user->companyDetail()->updateOrCreate(
-            ['users_id' => $user->id],
-            [
-                'name' => $request->input('company_detail.name'),
-                'type' => $request->input('company_detail.type'),
-                'address' => $request->input('company_detail.address'),
-                'website' => $request->input('company_detail.website'),
-                'contact_person_name' => $request->input('company_detail.contact_person_name'),
-                'contact_person_role' => $request->input('company_detail.contact_person_role'),
-                'contact_person_email' => $request->input('company_detail.contact_person_email'),
-                'contact_person_phone' => $request->input('company_detail.contact_person_phone'),
-            ]
-        );
+        // Update or create company details only if any company data is provided
+        $companyData = $request->input('company_detail', []);
+        $hasCompanyData = array_filter($companyData); // Remove empty values
+
+        if (!empty($hasCompanyData)) {
+            $user->companyDetail()->updateOrCreate(
+                ['users_id' => $user->id],
+                array_filter([
+                    'name' => $request->input('company_detail.name'),
+                    'type' => $request->input('company_detail.type'),
+                    'address' => $request->input('company_detail.address'),
+                    'website' => $request->input('company_detail.website'),
+                    'contact_person_name' => $request->input('company_detail.contact_person_name'),
+                    'contact_person_role' => $request->input('company_detail.contact_person_role'),
+                    'contact_person_email' => $request->input('company_detail.contact_person_email'),
+                    'contact_person_phone' => $request->input('company_detail.contact_person_phone'),
+                ])
+            );
+        }
 
         // Handle profile image
         if ($request->hasFile('profile_image')) {
+            // Delete old image if exists
+            $oldImage = $user->images;
+            if ($oldImage) {
+                Storage::disk('public')->delete(str_replace(config('app.url') . '/storage/', '', $oldImage->url));
+                $oldImage->delete();
+            }
+
             $imagePath = $request->file('profile_image')->store('profile_images', 'public');
 
-            $user->images()->updateOrCreate(
-                ['imageable_id' => $user->id, 'imageable_type' => User::class],
-                ['url' => config('app.url') . Storage::url($imagePath)]
-            );
+            $user->images()->create([
+                'url' => config('app.url') . '/storage/' . $imagePath
+            ]);
         }
 
         return response()->json([
@@ -167,8 +187,6 @@ class UserController extends Controller
         // Count active and sold posts
         $user->activePostCount = $user->posts()->where('status', \App\Enums\PostStatus::Active)->count();
         $user->soldPostCount = $user->posts()->where('status', \App\Enums\PostStatus::Sold)->count();
-
-        $user->last_activity = $user->last_activity ? Carbon::parse($user->last_activity)->diffForHumans() : null;
 
         return response()->json([
             'message' => 'Profile details retrieved successfully',
