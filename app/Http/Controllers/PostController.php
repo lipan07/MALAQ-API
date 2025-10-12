@@ -120,7 +120,7 @@ class PostController extends Controller
 
             // Apply category filter if provided
             if ($request->filled('category')) {
-                if (!in_array($request->category, [1, 7])) {
+                if (!in_array($request->category, [1, 7, 76])) {
                     $hasSubCategories = Category::where('parent_id', $request->category)->exists();
 
                     if (!$hasSubCategories) {
