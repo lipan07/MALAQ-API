@@ -100,6 +100,7 @@ class CategorySeeder extends Seeder
                 ['name' => 'Packers and Movers', 'guard_name' => 'packers_movers'],
                 ['name' => 'Other Services', 'guard_name' => 'other_services']
             ]],
+            ['name' => 'Others', 'guard_name' => 'others'],
         ];
 
         foreach ($categories as $category) {
