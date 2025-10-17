@@ -75,6 +75,7 @@ use App\Models\PostSportHobby;
 use App\Models\PostVehicleSpareParts;
 use App\Models\User;
 use App\Services\PostService as ServicesPostService;
+use App\Services\CacheService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -109,6 +110,14 @@ class PostController extends Controller
     {
         $userId = Auth::id();
         $finalPosts = null;
+
+        // Check cache first
+        $cacheKey = $request->all();
+        $cachedPosts = CacheService::getCachedPosts($cacheKey);
+        
+        if ($cachedPosts) {
+            return $cachedPosts;
+        }
 
         // Only attempt location-based search if coordinates are provided
         if ($request->filled('latitude') && $request->filled('longitude')) {
@@ -213,18 +222,23 @@ class PostController extends Controller
             return PostResource::collection(collect());
         }
 
-        // Eager load relationships
+        // Optimized eager loading with selective fields
         $finalPosts->load([
-            'user',
-            'category',
-            'images',
-            'follower' => fn($query) => $query->where('user_id', $userId),
+            'user:id,name,status,last_activity',
+            'category:id,name',
+            'images:id,url,imageable_id',
+            'follower' => fn($query) => $query->where('user_id', $userId)->select('id', 'user_id', 'post_id'),
         ]);
 
-        // Fetch additional data for posts
+        // Fetch additional data for posts with optimized queries
         $finalPosts = ServicesPostService::fetchPostData($finalPosts);
 
-        return PostResource::collection($finalPosts);
+        $response = PostResource::collection($finalPosts);
+        
+        // Cache the response
+        CacheService::cachePosts($cacheKey, $response);
+        
+        return $response;
     }
 
     public function myPost()

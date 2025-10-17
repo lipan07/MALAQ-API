@@ -32,26 +32,30 @@ class PostResource extends JsonResource
             'category' => $this->category,
             'images' => $this->images->pluck('url'), // Get only the URL of each image
             'follower' => $this->follower ? true : false,
-            'post_details' => $this->mobile ??
-                $this->car ??
-                $this->housesApartment ??
-                $this->landPlots ??
-                $this->fashion ??
-                $this->bikes ??
-                $this->jobs ??
-                $this->pets ??
-                $this->furnitures ??
-                $this->electronicsAppliances ??
-                $this->others ??
-                $this->shopOffices ??
-                $this->pgGuestHouses ??
-                $this->accessories ??
-                $this->commercialHeavyVehicles ??
-                $this->commercialHeavyMachinery ??
-                $this->books ??
-                $this->sportsInstruments ??
-                $this->services ??
-                $this->vehicleSpareParts ?? []
+            'post_details' => $this->getPostDetails()
         ];
+    }
+
+    /**
+     * Get post details efficiently by checking relationships in order of likelihood
+     */
+    private function getPostDetails()
+    {
+        // Use a more efficient approach with early returns
+        $relationships = [
+            'mobile', 'car', 'housesApartment', 'landPlots', 'fashion', 
+            'bikes', 'jobs', 'pets', 'furnitures', 'electronicsAppliances', 
+            'others', 'shopOffices', 'pgGuestHouses', 'accessories', 
+            'commercialHeavyVehicles', 'commercialHeavyMachinery', 
+            'books', 'sportsInstruments', 'services', 'vehicleSpareParts'
+        ];
+
+        foreach ($relationships as $relation) {
+            if ($this->relationLoaded($relation) && $this->$relation) {
+                return $this->$relation;
+            }
+        }
+
+        return [];
     }
 }
