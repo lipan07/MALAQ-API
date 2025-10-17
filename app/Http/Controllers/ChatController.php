@@ -36,6 +36,7 @@ class ChatController extends Controller
                     ->limit(1);
             }
         ])
+            ->select('id', 'post_id', 'buyer_id', 'seller_id', 'updated_at', 'created_at')
             ->where(function ($query) use ($user) {
                 $query->where('seller_id', $user->id)
                     ->orWhere('buyer_id', $user->id);
