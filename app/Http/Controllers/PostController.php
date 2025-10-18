@@ -281,14 +281,7 @@ class PostController extends Controller
             ], 422);
         }
 
-        if (in_array($request->guard_name, $this->jobGuardNames)) {
-            $salaryFrom = $request->input('salary_from');
-            $salaryTo = $request->input('salary_to');
-            if (is_numeric($salaryFrom) && is_numeric($salaryTo)) {
-                $average = ($salaryFrom + $salaryTo) / 2;
-                $request->merge(['amount' => $average]);
-            }
-        }
+        // Job posts: use single amount directly instead of range
 
         // Step 2: Create the post
         $post = $this->createPost($request);
@@ -584,14 +577,7 @@ class PostController extends Controller
             ], 422);
         }
 
-        if (in_array($request->guard_name, $this->jobGuardNames)) {
-            $salaryFrom = $request->input('salary_from');
-            $salaryTo = $request->input('salary_to');
-            if (is_numeric($salaryFrom) && is_numeric($salaryTo)) {
-                $average = ($salaryFrom + $salaryTo) / 2;
-                $request->merge(['amount' => $average]);
-            }
-        }
+        // Job posts: use single amount directly instead of range
 
         // Step 2: Create the post
         $post->update([
