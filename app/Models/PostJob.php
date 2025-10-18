@@ -16,8 +16,7 @@ class PostJob extends Model
         'post_id',
         'salary_period',
         'position_type',
-        'salary_from',
-        'salary_to',
+        'amount',
         'description',
     ];
 
@@ -31,8 +30,7 @@ class PostJob extends Model
         $restructuredData = [
             'salary_period' => $data['salaryPeriod'] ?? null,
             'position_type' => $data['positionType'] ?? null,
-            'salary_from' => $data['salaryFrom'] ?? null,
-            'salary_to' => $data['salaryTo'] ?? null,
+            'amount' => $data['amount'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

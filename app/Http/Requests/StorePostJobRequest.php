@@ -29,8 +29,7 @@ class StorePostJobRequest extends FormRequest
         return [
             'salaryPeriod' => ['required', 'string', Rule::in(SalaryPeriod::allTypes())],
             'positionType' => ['required', 'string', Rule::in(PositionType::allTypes())],
-            'salaryFrom' => 'required|numeric',
-            'salaryTo' => 'nullable|numeric',
+            'amount' => 'required|numeric',
             'description' => 'required|string',
         ];
     }
