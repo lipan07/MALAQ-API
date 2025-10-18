@@ -183,19 +183,23 @@ class PostController extends Controller
                 ->orderBy('distance');
 
             if ($request->filled('sortBy')) {
-                switch ($request->sortBy) {
+                $sortBy = $request->sortBy;
+                switch ($sortBy) {
                     case 'Recently Added':
+                    case 'createdAt_desc':
                         $postsQuery->orderByDesc('post_time');
                         break;
                     case 'Price: Low to High':
+                    case 'price_asc':
                         $postsQuery->orderBy('amount', 'asc');
                         break;
                     case 'Price: High to Low':
+                    case 'price_desc':
                         $postsQuery->orderBy('amount', 'desc');
                         break;
                     case 'Relevance':
                     default:
-                        // Keep the existing distance-based ordering
+                        // Keep distance ordering
                         break;
                 }
             }
@@ -212,6 +216,77 @@ class PostController extends Controller
             $posts = $postsQuery->where('status', PostStatus::Active)->simplePaginate(15);
 
             // If we found posts, break out of the loop
+            if ($posts->count() > 0) {
+                $finalPosts = $posts;
+            }
+        } else {
+            // Generic filter (no location provided)
+            $postsQuery = Post::query();
+
+            // Category filter
+            if ($request->filled('category')) {
+                if (!in_array($request->category, [1, 7, 76])) {
+                    $hasSubCategories = Category::where('parent_id', $request->category)->exists();
+                    if ($hasSubCategories) {
+                        $subCategoryIds = Category::where('parent_id', $request->category)->pluck('id')->toArray();
+                        $postsQuery->whereIn('category_id', $subCategoryIds);
+                    } else {
+                        $postsQuery->where('category_id', $request->category);
+                    }
+                } else {
+                    $postsQuery->where('category_id', $request->category);
+                }
+            }
+
+            // Search
+            if ($request->filled('search')) {
+                $postsQuery->where('title', 'LIKE', '%' . $request->search . '%');
+            }
+
+            // Listing type
+            if ($request->filled('listingType')) {
+                $postsQuery->where('type', $request->listingType ?? PostType::defaultType()->value);
+            }
+
+            // Price range
+            if ($request->filled('priceRange') && is_array($request->priceRange) && count($request->priceRange) >= 2) {
+                $minPrice = $request->priceRange[0];
+                $maxPrice = $request->priceRange[1];
+                if (!empty($minPrice) && is_numeric($minPrice)) {
+                    $postsQuery->where('amount', '>=', (float)$minPrice);
+                }
+                if (!empty($maxPrice) && is_numeric($maxPrice)) {
+                    $postsQuery->where('amount', '<=', (float)$maxPrice);
+                }
+            }
+
+            // Sorting
+            if ($request->filled('sortBy')) {
+                $sortBy = $request->sortBy;
+                switch ($sortBy) {
+                    case 'Recently Added':
+                    case 'createdAt_desc':
+                        $postsQuery->orderByDesc('post_time');
+                        break;
+                    case 'Price: Low to High':
+                    case 'price_asc':
+                        $postsQuery->orderBy('amount', 'asc');
+                        break;
+                    case 'Price: High to Low':
+                    case 'price_desc':
+                        $postsQuery->orderBy('amount', 'desc');
+                        break;
+                    case 'Relevance':
+                    default:
+                        // Default by latest
+                        $postsQuery->orderByDesc('post_time');
+                        break;
+                }
+            } else {
+                $postsQuery->orderByDesc('post_time');
+            }
+
+            $posts = $postsQuery->where('status', PostStatus::Active)->simplePaginate(15);
             if ($posts->count() > 0) {
                 $finalPosts = $posts;
             }
