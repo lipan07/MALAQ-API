@@ -178,9 +178,7 @@ class PostController extends Controller
                 cos(radians(longitude) - radians(?)) + 
                 sin(radians(?)) * sin(radians(latitude)))) AS distance",
                 [$latitude, $longitude, $latitude]
-            )
-                ->having('distance', '<=', $requestedDistance)
-                ->orderBy('distance');
+            )->having('distance', '<=', $requestedDistance);
 
             if ($request->filled('sortBy')) {
                 $sortBy = $request->sortBy;
@@ -191,20 +189,25 @@ class PostController extends Controller
                         break;
                     case 'Price: Low to High':
                     case 'price_asc':
-                        $postsQuery->orderBy('amount', 'asc');
+                        $postsQuery->orderByRaw('CAST(amount AS DECIMAL(15,2)) asc');
                         break;
                     case 'Price: High to Low':
                     case 'price_desc':
-                        $postsQuery->orderBy('amount', 'desc');
+                        $postsQuery->orderByRaw('CAST(amount AS DECIMAL(15,2)) desc');
                         break;
                     case 'Relevance':
                     default:
-                        // Keep distance ordering
+                        // Default relevance for location-based: nearest first
+                        $postsQuery->orderBy('distance');
                         break;
                 }
+            } else {
+                // No sort provided: nearest first
+                $postsQuery->orderBy('distance');
             }
 
-            $posts = $postsQuery->where('status', PostStatus::Active)->simplePaginate(15);
+            $perPage = (int) ($request->input('limit', 15));
+            $posts = $postsQuery->where('status', PostStatus::Active)->simplePaginate($perPage);
 
             // If we found posts, break out of the loop
             if ($posts->count() > 0) {
@@ -213,7 +216,8 @@ class PostController extends Controller
         } else if ($request->filled('user_id')) {
             $postsQuery = Post::query();
             $postsQuery->where('user_id', $request->user_id);
-            $posts = $postsQuery->where('status', PostStatus::Active)->simplePaginate(15);
+            $perPage = (int) ($request->input('limit', 15));
+            $posts = $postsQuery->where('status', PostStatus::Active)->simplePaginate($perPage);
 
             // If we found posts, break out of the loop
             if ($posts->count() > 0) {
@@ -270,11 +274,11 @@ class PostController extends Controller
                         break;
                     case 'Price: Low to High':
                     case 'price_asc':
-                        $postsQuery->orderBy('amount', 'asc');
+                        $postsQuery->orderByRaw('CAST(amount AS DECIMAL(15,2)) asc');
                         break;
                     case 'Price: High to Low':
                     case 'price_desc':
-                        $postsQuery->orderBy('amount', 'desc');
+                        $postsQuery->orderByRaw('CAST(amount AS DECIMAL(15,2)) desc');
                         break;
                     case 'Relevance':
                     default:
