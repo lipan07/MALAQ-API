@@ -201,6 +201,7 @@ class PostController extends Controller
                         $postsQuery->orderBy('distance');
                         break;
                 }
+                $postsQuery->where('amount', '>', 0);
             } else {
                 // No sort provided: nearest first
                 $postsQuery->orderBy('distance');
