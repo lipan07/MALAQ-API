@@ -60,8 +60,16 @@ class FollowerController extends Controller
                 'post' => function ($query) {
                     $query->with([
                         'images',
-                    'user:id,name,phone_no,created_at',
-                        'category:id,name,parent_id'
+                    'user:id,name,phone_no,status,last_activity,created_at',
+                    'category:id,name,parent_id',
+                    'mobile',
+                    'car',
+                    'housesApartment',
+                    'landPlots',
+                    'fashion',
+                    'bikes',
+                    'jobs',
+                    'pets'
                     ]);
                 }
             ])
