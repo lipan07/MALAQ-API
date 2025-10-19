@@ -22,6 +22,7 @@ class PostResource extends JsonResource
             'address' => $this->address,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
+            'amount' => $this->amount,
             'type' => $this->type,
             'status' => $this->status,
             'show_phone' => $this->show_phone,
