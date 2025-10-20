@@ -12,11 +12,18 @@
             --sidebar-width: 250px;
             --sidebar-bg: #1a237e;
             --sidebar-hover: #303f9f;
-            --content-bg: #f5f7fa;
+            --content-bg: #f8f9fa;
             --navbar-bg: #ffffff;
             --primary-color: #3f51b5;
             --danger-color: #e53935;
             --success-color: #43a047;
+            --warning-color: #ff9800;
+            --info-color: #2196f3;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --border-color: #dee2e6;
+            --shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
         }
 
         body {
@@ -219,6 +226,237 @@
         .content {
             overflow-x: hidden;
         }
+
+        /* Mobile responsive improvements */
+        @media (max-width: 768px) {
+            .table-responsive {
+                font-size: 0.875rem;
+            }
+
+            .btn-sm {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+
+            .d-flex.gap-1 {
+                gap: 0.25rem !important;
+            }
+
+            .d-flex.gap-2 {
+                gap: 0.5rem !important;
+            }
+
+            /* Stack buttons vertically on very small screens */
+            @media (max-width: 576px) {
+                .d-flex.gap-1 {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+
+                .btn-group {
+                    width: 100%;
+                }
+
+                .dropdown-menu {
+                    position: static !important;
+                    transform: none !important;
+                    width: 100%;
+                    border: 1px solid #dee2e6;
+                    box-shadow: none;
+                }
+            }
+
+            /* Improve table readability on mobile */
+            .table th,
+            .table td {
+                padding: 0.5rem 0.25rem;
+                white-space: nowrap;
+            }
+
+            /* Better spacing for action buttons */
+            .table td:last-child {
+                min-width: 120px;
+            }
+
+            /* Responsive card layout */
+            .card-header {
+                padding: 0.75rem;
+            }
+
+            .card-header h5 {
+                font-size: 1rem;
+            }
+
+            /* Better button spacing on mobile */
+            .btn-group .btn {
+                margin: 1px;
+            }
+        }
+
+        /* Professional UI Enhancements */
+        .card {
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            transition: box-shadow 0.15s ease-in-out;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            background-color: var(--light-color);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+        }
+
+        .btn {
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.15s ease-in-out;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .table {
+            border-radius: 0.375rem;
+            overflow: hidden;
+        }
+
+        .table thead th {
+            background-color: var(--light-color);
+            border-bottom: 2px solid var(--border-color);
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .badge {
+            font-weight: 500;
+            padding: 0.375rem 0.75rem;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 0.375rem;
+            border: 1px solid var(--border-color);
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(63, 81, 181, 0.25);
+        }
+
+        .dropdown-menu {
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            border-radius: 0.5rem;
+        }
+
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            transition: background-color 0.15s ease-in-out;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light-color);
+        }
+
+        .pagination .page-link {
+            border-radius: 0.375rem;
+            margin: 0 0.125rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        /* Statistics Cards */
+        .card.bg-primary,
+        .card.bg-success,
+        .card.bg-info,
+        .card.bg-warning {
+            border: none;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Code styling */
+        code {
+            background-color: var(--light-color);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* Professional spacing */
+        .mb-4 {
+            margin-bottom: 2rem !important;
+        }
+
+        .mt-4 {
+            margin-top: 2rem !important;
+        }
+
+        /* Enhanced sidebar */
+        .sidebar-link.active {
+            background-color: var(--sidebar-hover);
+            color: white;
+            font-weight: 600;
+        }
+
+        .sidebar-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: #fff;
+        }
+
+        /* Enhanced navbar */
+        .navbar {
+            background-color: var(--navbar-bg);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        /* Loading states */
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Success/Error states */
+        .text-success {
+            color: var(--success-color) !important;
+        }
+
+        .text-danger {
+            color: var(--danger-color) !important;
+        }
+
+        .text-warning {
+            color: var(--warning-color) !important;
+        }
+
+        .text-info {
+            color: var(--info-color) !important;
+        }
     </style>
 </head>
 
@@ -234,10 +472,10 @@
             <a href="{{ route('admin.posts.index') }}" class="sidebar-link {{ request()->routeIs('admin.posts.*') ? 'active' : '' }}">
                 <i class="bi bi-file-post"></i> All Posts
             </a>
-            <a href="#" class="sidebar-link">
+            <a href="{{ route('admin.categories.index') }}" class="sidebar-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
                 <i class="bi bi-tags"></i> Categories
             </a>
-            <a href="{{ route('admin.users.index') }}" class="sidebar-link">
+            <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                 <i class="bi bi-people"></i> Users
             </a>
         </div>
