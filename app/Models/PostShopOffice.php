@@ -25,7 +25,6 @@ class PostShopOffice extends Model
         'washroom',
         'project_name',
         'description',
-        'amount',
     ];
     protected $casts = [
         'furnishing' => PropertyFurnishing::class,
@@ -45,7 +44,6 @@ class PostShopOffice extends Model
             'car_parking' => $data['carParking'] ?? null,
             'washroom' => $data['washroom'] ?? null,
             'project_name' => $data['projectName'] ?? null,
-            'amount' => $data['amount'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

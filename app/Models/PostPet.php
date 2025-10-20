@@ -13,6 +13,5 @@ class PostPet extends Model
     protected $fillable = [
         'post_id',
         'description',
-        'amount',
     ];
 }

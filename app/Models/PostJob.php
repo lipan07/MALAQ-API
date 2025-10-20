@@ -16,7 +16,6 @@ class PostJob extends Model
         'post_id',
         'salary_period',
         'position_type',
-        'amount',
         'description',
     ];
 

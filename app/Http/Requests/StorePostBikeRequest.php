@@ -29,7 +29,6 @@ class StorePostBikeRequest extends FormRequest
             'year' => 'nullable|string|max:10',
             'km_driven' => 'nullable|string',
             'description' => 'required|string',
-            'amount' => 'required|numeric',
         ];
     }
 }

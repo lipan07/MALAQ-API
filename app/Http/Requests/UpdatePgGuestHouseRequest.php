@@ -35,7 +35,6 @@ class UpdatePgGuestHouseRequest extends FormRequest
             'carpetArea' => 'nullable|integer',
             'isMealIncluded' => ['nullable', 'string', Rule::in(['Yes', 'No'])],
             'description' => 'nullable|string',
-            'amount' => 'nullable|numeric',
         ];
     }
 }

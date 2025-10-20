@@ -26,7 +26,6 @@ class StorePostFurnitureRequest extends FormRequest
     {
         return [
             'description' => 'nullable|string',
-            'amount' => 'nullable|numeric',
         ];
     }
 }

@@ -37,7 +37,6 @@ class UpdateShopOfficeRequest extends FormRequest
             'washroom' => 'nullable|string|max:255',
             'projectName' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'amount' => 'nullable|numeric',
         ];
     }
 }

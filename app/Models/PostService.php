@@ -14,14 +14,12 @@ class PostService extends Model
         'post_id',
         'type',
         'description',
-        'amount',
     ];
 
     public static function restructureStoreData($data)
     {
         $restructuredData = [
             'type' => $data['type'] ?? null,
-            'amount' => $data['amount'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

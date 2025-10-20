@@ -15,7 +15,6 @@ class PostFashion extends Model
         'post_id',
         'gender',
         'description',
-        'amount',
     ];
 
     protected $casts = [

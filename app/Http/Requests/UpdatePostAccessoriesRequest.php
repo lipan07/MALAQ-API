@@ -23,7 +23,6 @@ class UpdatePostAccessoriesRequest extends FormRequest
     {
         return [
             'description' => 'sometimes|nullable|string',
-            'amount' => 'sometimes|nullable|numeric',
         ];
     }
 }

@@ -27,7 +27,6 @@ class StorePostServiceRequest extends FormRequest
         return [
             'type' => 'required|string|max:50',
             'description' => 'required|string',
-            'amount' => 'nullable|numeric',
         ];
     }
 }

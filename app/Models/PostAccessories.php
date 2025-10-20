@@ -13,6 +13,5 @@ class PostAccessories extends Model
     protected $fillable = [
         'post_id',
         'description',
-        'amount',
     ];
 }

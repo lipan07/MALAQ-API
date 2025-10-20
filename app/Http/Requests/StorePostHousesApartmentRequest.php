@@ -46,7 +46,6 @@ class StorePostHousesApartmentRequest extends FormRequest
             'facing' => ['required', 'string', Rule::in(PropertyFacing::allTypes())],
             'projectName' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'amount' => 'required|numeric',
             'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }

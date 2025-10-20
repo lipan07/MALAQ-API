@@ -26,8 +26,7 @@ class PostCar extends Model
         'transmission',
         'km_driven',
         'no_of_owner',
-        'description',
-        'amount'
+        'description'
     ];
     protected $casts = [
         'brand' => CarBrand::class,
@@ -43,7 +42,6 @@ class PostCar extends Model
             'brand' => $data['brand'] ?? null,
             'year' => $data['year'] ?? null,
             'color' => $data['color'] ?? null,
-            'amount' => $data['amount'] ?? null,
             'fuel' => $data['fuelType'] ?? null,
             'transmission' => $data['transmission'] ?? null,
             'km_driven' => $data['kmDriven'] ?? null,

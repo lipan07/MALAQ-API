@@ -34,7 +34,6 @@ class StorePostLandPlotRequest extends FormRequest
             'facing' => ['required', 'string', Rule::in(PropertyFacing::allTypes())],
             'projectName' => 'nullable|string|max:255',
             'description' => 'required|string',
-            'amount' => 'required|numeric',
         ];
     }
 }

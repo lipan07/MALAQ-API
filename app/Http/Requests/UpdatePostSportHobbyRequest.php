@@ -24,7 +24,6 @@ class UpdatePostSportHobbyRequest extends FormRequest
         return [
             'id' => ['required', 'exists:posts,id'],
             'description' => 'sometimes|nullable|string',
-            'amount' => 'sometimes|nullable|numeric',
         ];
     }
 }
