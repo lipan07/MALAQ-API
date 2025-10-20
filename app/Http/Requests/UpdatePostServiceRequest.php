@@ -25,7 +25,6 @@ class UpdatePostServiceRequest extends FormRequest
             'id' => ['required', 'exists:posts,id'],
             'type' => 'required|string|max:50',
             'description' => 'required|string',
-            'amount' => 'nullable|numeric',
         ];
     }
 }

@@ -24,7 +24,6 @@ class PostPgGuestHouse extends Model
         'car_parking',
         'is_meal_included',
         'description',
-        'amount',
     ];
 
     protected $casts = [
@@ -44,7 +43,6 @@ class PostPgGuestHouse extends Model
             'carpet_area' => $data['carpetArea'] ?? null,
             'car_parking' => $data['carParking'] ?? null,
             'is_meal_included' => ($data['isMealIncluded'] == 'Yes' || empty($data['isMealIncluded'])) ? true : false,
-            'amount' => $data['amount'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

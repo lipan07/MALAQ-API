@@ -26,7 +26,6 @@ class UpdatePostFashionRequest extends FormRequest
         return [
             'gender' => ['required', 'string', Rule::in(Gender::allTypes())],
             'description' => 'nullable|string',
-            'amount' => 'nullable|numeric',
         ];
     }
 }

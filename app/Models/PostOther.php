@@ -13,13 +13,11 @@ class PostOther extends Model
     protected $fillable = [
         'post_id',
         'description',
-        'amount',
     ];
 
     public static function restructureStoreData($data)
     {
         $restructuredData = [
-            'amount' => $data['amount'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

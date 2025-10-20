@@ -34,7 +34,6 @@ class UpdatePostHeavyVehicleRequest extends FormRequest
             'listedBy' => 'required|string',
             'fuelType' => ['required', 'string', Rule::in(CarFuelType::allTypes())],
             'kmDriven' => 'required|numeric',
-            'amount' => 'required|numeric',
             'description' => 'nullable|string',
             'contact_name' => 'required|string|max:255',
             'contact_phone' => 'required|string|max:255',

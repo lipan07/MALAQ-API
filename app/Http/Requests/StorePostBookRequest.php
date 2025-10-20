@@ -26,7 +26,6 @@ class StorePostBookRequest extends FormRequest
     {
         return [
             'description' => 'nullable|string',
-            'amount' => 'nullable|numeric',
         ];
     }
 }

@@ -16,7 +16,6 @@ class PostMobile extends Model
         'brand',
         'year',
         'description',
-        'amount',
     ];
     protected $hidden = ['post_id'];
 
@@ -34,7 +33,6 @@ class PostMobile extends Model
         $restructuredData = [
             'brand' => $data['brand'] ?? null,
             'year' => $data['year'] ?? null,
-            'amount' => $data['amount'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

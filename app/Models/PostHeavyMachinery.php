@@ -21,7 +21,6 @@ class PostHeavyMachinery extends Model
         'owner',
         'listed_by',
         'description',
-        'amount',
         'contact_name',
         'contact_phone',
     ];
@@ -40,7 +39,6 @@ class PostHeavyMachinery extends Model
             'fuel_type' => $data['fuelType'] ?? null,
             'owner' => $data['owners'] ?? null,
             'listed_by' => $data['listedBy'] ?? null,
-            'amount' => $data['amount'] ?? null,
             'description' => $data['description'] ?? null,
             'contact_name' => $data['contact_name'] ?? null,
             'contact_phone' => $data['contact_phone'] ?? null,

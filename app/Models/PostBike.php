@@ -16,7 +16,6 @@ class PostBike extends Model
         'year',
         'km_driven',
         'description',
-        'amount',
     ];
 
     protected $casts = [
@@ -30,7 +29,6 @@ class PostBike extends Model
             'brand' => $data['brand'] ?? null,
             'year' => $data['year'] ?? null,
             'km_driven' => $data['km_driven'] ?? null,
-            'amount' => $data['amount'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

@@ -35,7 +35,6 @@ class UpdatePostHeavyMachineryRequest extends FormRequest
             'listedBy' => 'required|string',
             // 'hours_used' => 'required|integer',
             'description' => 'nullable|string',
-            'amount' => 'required|numeric',
             'contact_name' => 'required|string|max:255',
             'contact_phone' => 'required|string|max:255',
         ];

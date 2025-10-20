@@ -28,7 +28,6 @@ class UpdatePostJobRequest extends FormRequest
             'id' => ['required', 'exists:posts,id'],
             'salaryPeriod' => ['required', 'string', Rule::in(SalaryPeriod::allTypes())],
             'positionType' => ['required', 'string', Rule::in(PositionType::allTypes())],
-            'amount' => 'required|numeric',
             'description' => 'required|string',
         ];
     }

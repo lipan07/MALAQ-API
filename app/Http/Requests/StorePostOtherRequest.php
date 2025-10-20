@@ -26,7 +26,6 @@ class StorePostOtherRequest extends FormRequest
     {
         return [
             'description' => 'required|string',
-            'amount' => 'required|numeric',
         ];
     }
 }

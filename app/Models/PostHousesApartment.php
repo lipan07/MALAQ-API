@@ -32,7 +32,6 @@ class PostHousesApartment extends Model
         'facing',
         'project_name',
         'description',
-        'amount',
     ];
 
     protected $casts = [
@@ -61,7 +60,6 @@ class PostHousesApartment extends Model
             'car_parking' => $data['carParking'] ?? null,
             'facing' => $data['facing'] ?? null,
             'project_name' => $data['projectName'] ?? null,
-            'amount' => $data['amount'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

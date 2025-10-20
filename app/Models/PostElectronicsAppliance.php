@@ -13,6 +13,5 @@ class PostElectronicsAppliance extends Model
     protected $fillable = [
         'post_id',
         'description',
-        'amount',
     ];
 }

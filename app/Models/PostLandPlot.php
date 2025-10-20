@@ -21,7 +21,6 @@ class PostLandPlot extends Model
         'facing',
         'project_name',
         'description',
-        'amount',
     ];
 
     protected $casts = [
@@ -38,7 +37,6 @@ class PostLandPlot extends Model
             'length' => $data['length'] ?? null,
             'breadth' => $data['breadth'] ?? null,
             'project_name' => $data['projectName'] ?? null,
-            'amount' => $data['amount'] ?? null,
             'description' => $data['description'] ?? null,
             // Add other fields you need to restructure or process
         ];

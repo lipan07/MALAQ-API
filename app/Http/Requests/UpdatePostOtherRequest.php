@@ -24,7 +24,6 @@ class UpdatePostOtherRequest extends FormRequest
         return [
             'id' => ['required', 'exists:posts,id'],
             'description' => 'required|string',
-            'amount' => 'required|numeric',
         ];
     }
 }
