@@ -55,6 +55,20 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
 
+    public function block(User $user)
+    {
+        $user->update(['status' => 'blocked']);
+
+        return back()->with('success', 'User has been blocked successfully.');
+    }
+
+    public function unblock(User $user)
+    {
+        $user->update(['status' => 'online']);
+
+        return back()->with('success', 'User has been unblocked successfully.');
+    }
+
     public function destroy(User $user)
     {
         $user->delete();

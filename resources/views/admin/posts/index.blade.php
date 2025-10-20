@@ -94,46 +94,111 @@
                             @endif
                         </td>
                         <td>
-                            {{-- Approve button --}}
-                            <form action="{{ route('admin.posts.changeStatus', $post->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                <input type="hidden" name="status" value="active">
-                                <button type="submit" class="btn btn-success btn-sm">
-                                    <i class="bi bi-check-circle"></i> Approve
-                                </button>
-                            </form>
+                            <div class="d-flex gap-1 flex-wrap">
+                                {{-- Approve button --}}
+                                @if($post->status !== 'active')
+                                <form action="{{ route('admin.posts.changeStatus', $post->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <input type="hidden" name="status" value="active">
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="bi bi-check-circle"></i> Approve
+                                    </button>
+                                </form>
+                                @endif
 
-                            {{-- More Actions dropdown --}}
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-three-dots"></i> More Actions
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
+                                {{-- View Details button --}}
+                                <a href="{{ route('admin.posts.show', $post->id) }}" class="btn btn-info btn-sm">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
 
-                                    @php
-                                    $statuses = [
-                                    'pending' => 'warning',
-                                    'processing' => 'info',
-                                    'active' => 'success',
-                                    'inactive' => 'secondary',
-                                    'failed' => 'danger',
-                                    'sold' => 'primary',
-                                    'blocked' => 'dark',
-                                    ];
-                                    @endphp
+                                {{-- Actions dropdown --}}
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-chevron-down"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a href="{{ route('admin.posts.show', $post->id) }}" class="dropdown-item">
+                                                <i class="bi bi-eye"></i> View Details
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
 
-                                    @foreach($statuses as $status => $color)
-                                    <li>
-                                        <form action="{{ route('admin.posts.changeStatus', $post->id) }}" method="POST">
-                                            @csrf
-                                            <input type="hidden" name="status" value="{{ $status }}">
-                                            <button type="submit" class="dropdown-item text-{{ $color }}">
-                                                <i class="bi bi-circle-fill"></i> {{ ucfirst($status) }}
+                                        @php
+                                        $statuses = [
+                                        'pending' => ['warning', 'bi-clock'],
+                                        'processing' => ['info', 'bi-gear'],
+                                        'active' => ['success', 'bi-check-circle'],
+                                        'inactive' => ['secondary', 'bi-pause-circle'],
+                                        'failed' => ['danger', 'bi-x-circle'],
+                                        'sold' => ['primary', 'bi-tag'],
+                                        'blocked' => ['dark', 'bi-ban'],
+                                        ];
+                                        @endphp
+
+                                        @foreach($statuses as $status => $config)
+                                        @if($post->status !== $status)
+                                        <li>
+                                            <form action="{{ route('admin.posts.changeStatus', $post->id) }}" method="POST">
+                                                @csrf
+                                                <input type="hidden" name="status" value="{{ $status }}">
+                                                <button type="submit" class="dropdown-item text-{{ $config[0] }}">
+                                                    <i class="bi {{ $config[1] }}"></i> Mark as {{ ucfirst($status) }}
+                                                </button>
+                                            </form>
+                                        </li>
+                                        @endif
+                                        @endforeach
+
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#reportModal{{ $post->id }}">
+                                                <i class="bi bi-flag"></i> Report Post
                                             </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            {{-- Report Modal --}}
+                            <div class="modal fade" id="reportModal{{ $post->id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form action="{{ route('admin.posts.report', $post->id) }}" method="POST">
+                                            @csrf
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Report Post</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Reason</label>
+                                                    <select name="reason" class="form-select" required>
+                                                        <option value="">Select a reason</option>
+                                                        <option value="Inappropriate Content">Inappropriate Content</option>
+                                                        <option value="Spam">Spam</option>
+                                                        <option value="Fake Information">Fake Information</option>
+                                                        <option value="Duplicate Post">Duplicate Post</option>
+                                                        <option value="Violation of Terms">Violation of Terms</option>
+                                                        <option value="Other">Other</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Description</label>
+                                                    <textarea name="description" class="form-control" rows="3" placeholder="Additional details (optional)"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-danger">Report & Block</button>
+                                            </div>
                                         </form>
-                                    </li>
-                                    @endforeach
-                                </ul>
+                                    </div>
+                                </div>
                             </div>
                         </td>
 

@@ -39,12 +39,19 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    // Posts routes
     Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
-    // Route::get('/posts/{id}/approve', [PostController::class, 'approve'])->name('posts.approve');
-
+    Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
     Route::post('/posts/{post}/status', [PostController::class, 'changeStatus'])->name('posts.changeStatus');
+    Route::post('/posts/{post}/report', [PostController::class, 'report'])->name('posts.report');
 
+    // Users routes
     Route::resource('users', UserController::class);
+    Route::post('/users/{user}/block', [UserController::class, 'block'])->name('users.block');
+    Route::post('/users/{user}/unblock', [UserController::class, 'unblock'])->name('users.unblock');
+
+    // Categories routes
+    Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
 });
 
 

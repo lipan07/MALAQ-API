@@ -62,31 +62,78 @@
                         </td>
                         <td>{{ $user->created_at->format('M d, Y H:i') }}</td>
                         <td>
-                            <div class="dropdown">
-                                <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-three-dots-vertical"></i>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a href="{{ route('admin.users.show', $user->id) }}" class="dropdown-item">
-                                            <i class="bi bi-eye"></i> View
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('admin.users.edit', $user->id) }}" class="dropdown-item">
-                                            <i class="bi bi-pencil"></i> Edit
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-inline delete-user-form">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="dropdown-item text-danger btn-delete-user">
-                                                <i class="bi bi-trash"></i> Delete
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
+                            <div class="d-flex gap-1 flex-wrap">
+                                {{-- Block/Unblock button --}}
+                                @if($user->status === 'blocked')
+                                <form action="{{ route('admin.users.unblock', $user->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="bi bi-unlock"></i> Unblock
+                                    </button>
+                                </form>
+                                @else
+                                <form action="{{ route('admin.users.block', $user->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-warning btn-sm">
+                                        <i class="bi bi-lock"></i> Block
+                                    </button>
+                                </form>
+                                @endif
+
+                                {{-- Actions dropdown --}}
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-chevron-down"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a href="{{ route('admin.users.show', $user->id) }}" class="dropdown-item">
+                                                <i class="bi bi-eye"></i> View Details
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ route('admin.users.edit', $user->id) }}" class="dropdown-item">
+                                                <i class="bi bi-pencil"></i> Edit User
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+
+                                        @if($user->status !== 'blocked')
+                                        <li>
+                                            <form action="{{ route('admin.users.block', $user->id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item text-warning">
+                                                    <i class="bi bi-lock"></i> Block User
+                                                </button>
+                                            </form>
+                                        </li>
+                                        @else
+                                        <li>
+                                            <form action="{{ route('admin.users.unblock', $user->id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item text-success">
+                                                    <i class="bi bi-unlock"></i> Unblock User
+                                                </button>
+                                            </form>
+                                        </li>
+                                        @endif
+
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li>
+                                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-inline delete-user-form">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="dropdown-item text-danger btn-delete-user">
+                                                    <i class="bi bi-trash"></i> Delete User
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </td>
                     </tr>
