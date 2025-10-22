@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use App\Models\PostFollower;
+use App\Models\PostLike;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -23,39 +23,49 @@ class FollowerController extends Controller
                 return response()->json(['message' => 'Post not found'], 404);
             }
 
-            $follow = PostFollower::where('user_id', $user_id)
+            $like = PostLike::where('user_id', $user_id)
                 ->where('post_id', $post_id)
                 ->first();
 
-            if ($follow) {
-                // If already following, unfollow the post
-                $follow->delete();
-                return response()->json(['message' => 'Unfollowed successfully']);
+            if ($like) {
+                // If already liked, unlike the post
+                $like->delete();
+                $post->decrement('like_count');
+                return response()->json([
+                    'message' => 'Unliked successfully',
+                    'like_count' => $post->fresh()->like_count,
+                    'is_liked' => false
+                ]);
             } else {
-                // If not following, follow the post
-                $follow = PostFollower::create([
+                // If not liked, like the post
+                PostLike::create([
                     'user_id' => $user_id,
                     'post_id' => $post_id,
-                    'post_user_id' => $post->user_id
                 ]);
-                return response()->json(['message' => 'Followed successfully', 'follow' => $follow]);
+                $post->increment('like_count');
+                return response()->json([
+                    'message' => 'Liked successfully',
+                    'like_count' => $post->fresh()->like_count,
+                    'is_liked' => true
+                ]);
             }
         } catch (Exception $e) {
             \Log::error($e->getMessage());
+            return response()->json(['message' => 'Error processing request'], 500);
         }
     }
 
 
-    public function postFollowerByPostID($post_id)
+    public function postLikesByPostID($post_id)
     {
-        $followers = PostFollower::where('post_id', $post_id)->with('user', 'user.images')->get();
-        return response()->json($followers);
+        $likes = PostLike::where('post_id', $post_id)->with('user', 'user.images')->get();
+        return response()->json($likes);
     }
 
-    public function postFollowing()
+    public function userLikedPosts()
     {
         $user_id = Auth::id();
-        $posts = PostFollower::where('user_id', $user_id)
+        $posts = PostLike::where('user_id', $user_id)
             ->with([
                 'post' => function ($query) {
                     $query->with([
@@ -77,15 +87,15 @@ class FollowerController extends Controller
         return response()->json($posts);
     }
 
-    public function postFollowers()
+    public function postLikes()
     {
         $user_id = Auth::id(); // Get the ID of the logged-in user
 
-        $followers = PostFollower::whereHas('post', function ($query) use ($user_id) {
+        $likes = PostLike::whereHas('post', function ($query) use ($user_id) {
             $query->where('user_id', $user_id); // Only consider posts created by the user
         })->with('user')->get();
 
-        return response()->json($followers);
+        return response()->json($likes);
     }
 
     /**
