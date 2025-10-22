@@ -10,6 +10,7 @@ use App\Http\Controllers\FollowerController;
 use App\Http\Controllers\MController;
 use App\Http\Controllers\PostCarController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostInteractionController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SmsController;
@@ -81,9 +82,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/following', [FollowerController::class, 'userFollowing']);
 
     Route::post('/follow-post', [FollowerController::class, 'followPost']);
-    Route::get('/post/followers/{post_id}', [FollowerController::class, 'postFollowerByPostID']);
-    Route::get('/post/following', [FollowerController::class, 'postFollowing']);
-    Route::get('/post/followers', [FollowerController::class, 'postFollowers']);
+    Route::get('/post/likes/{post_id}', [FollowerController::class, 'postLikesByPostID']);
+    Route::get('/user/liked-posts', [FollowerController::class, 'userLikedPosts']);
+    Route::get('/post/likes', [FollowerController::class, 'postLikes']);
+
+    // Post interactions (views and likes)
+    Route::post('/post/track-view', [PostInteractionController::class, 'trackView']);
+    Route::post('/post/toggle-like', [PostInteractionController::class, 'toggleLike']);
+    Route::get('/post/{post_id}/stats', [PostInteractionController::class, 'getPostStats']);
 
     //Settings
     Route::post('/settings/change-password', [SettingsController::class, 'changePassword']);

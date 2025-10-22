@@ -307,7 +307,6 @@ class PostController extends Controller
             'user:id,name,status,last_activity',
             'category:id,name',
             'images:id,url,imageable_id',
-            'follower' => fn($query) => $query->where('user_id', $userId)->select('id', 'user_id', 'post_id'),
         ]);
 
         // Fetch additional data for posts with optimized queries
@@ -604,14 +603,16 @@ class PostController extends Controller
     {
         $userId = auth()->id(); // Get the authenticated user ID
 
+        // Track view if user is not the post owner
+        if ($userId && $userId !== $post->user_id) {
+            $this->trackPostView($post->id, $userId);
+        }
+
         // Fetch the post along with required relationships
         $posts = Post::with([
             'category',
             'images',
             'user', // Ensure post owner is fetched
-            'follower' => function ($query) use ($userId) {
-                $query->where('user_id', $userId); // Check if the user follows the post
-            }
         ])->where('id', $post->id)->get();
 
         $posts = ServicesPostService::fetchPostData($posts);
@@ -622,11 +623,47 @@ class PostController extends Controller
         // Check if the logged-in user follows the post owner
         $isFollowingPostUser = auth()->user()?->following()->where('following_id', $postOwnerId)->exists() ?? false;
 
-        // Convert collection to resource and attach `is_following_post_user`
+        // Check if user has liked the post
+        $isLiked = \App\Models\PostLike::where('user_id', $userId)
+            ->where('post_id', $post->id)
+            ->exists();
+
+        // Convert collection to resource and attach additional data
         $postResource = PostResource::collection($posts)[0];
-        $postResource->additional(['is_following_post_user' => $isFollowingPostUser]);
+        $postResource->additional([
+            'is_following_post_user' => $isFollowingPostUser,
+            'is_liked' => $isLiked,
+            'is_post_owner' => $userId === $postOwnerId
+        ]);
 
         return $postResource;
+    }
+
+    /**
+     * Track a post view
+     */
+    private function trackPostView($postId, $userId)
+    {
+        try {
+            // Check if user has already viewed this post
+            $existingView = \App\Models\PostView::where('user_id', $userId)
+                ->where('post_id', $postId)
+                ->first();
+
+            if (!$existingView) {
+                // Create new view record
+                \App\Models\PostView::create([
+                    'user_id' => $userId,
+                    'post_id' => $postId,
+                    'viewed_at' => now(),
+                ]);
+
+                // Increment view count
+                Post::where('id', $postId)->increment('view_count');
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error tracking post view: ' . $e->getMessage());
+        }
     }
 
 
@@ -835,7 +872,6 @@ class PostController extends Controller
             'user',
             'category',
             'images',
-            'follower' => fn($query) => $query->where('user_id', $user->id),
         ]);
 
         // Fetch additional data for posts

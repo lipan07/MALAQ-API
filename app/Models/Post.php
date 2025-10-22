@@ -31,6 +31,8 @@ class Post extends Model
         'longitude',
         'status',
         'type',
+        'view_count',
+        'like_count',
     ];
 
     protected $casts = [
@@ -158,14 +160,20 @@ class Post extends Model
         return $this->hasOne(PostVehicleSpareParts::class, 'post_id');
     }
 
-    public function follower()
+
+    public function views()
     {
-        return $this->hasOne(PostFollower::class, 'post_id');
+        return $this->hasMany(PostView::class);
     }
 
-    public function followers()
+    public function likes()
     {
-        return $this->belongsToMany(User::class, 'post_followers', 'post_id', 'user_id')
+        return $this->hasMany(PostLike::class);
+    }
+
+    public function likedBy()
+    {
+        return $this->belongsToMany(User::class, 'post_likes', 'post_id', 'user_id')
             ->withTimestamps();
     }
 }
