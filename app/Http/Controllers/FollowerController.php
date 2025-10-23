@@ -93,7 +93,7 @@ class FollowerController extends Controller
 
         $likes = PostLike::whereHas('post', function ($query) use ($user_id) {
             $query->where('user_id', $user_id); // Only consider posts created by the user
-        })->with('user')->get();
+        })->with('user', 'post', 'post.images')->get();
 
         return response()->json($likes);
     }
