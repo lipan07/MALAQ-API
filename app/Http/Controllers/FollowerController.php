@@ -70,16 +70,16 @@ class FollowerController extends Controller
                 'post' => function ($query) {
                     $query->with([
                         'images',
-                    'user:id,name,phone_no,status,last_activity,created_at',
-                    'category:id,name,parent_id',
-                    'mobile',
-                    'car',
-                    'housesApartment',
-                    'landPlots',
-                    'fashion',
-                    'bikes',
-                    'jobs',
-                    'pets'
+                        'user:id,name,phone_no,status,last_activity,created_at',
+                        'category:id,name,parent_id',
+                        'mobile',
+                        'car',
+                        'housesApartment',
+                        'landPlots',
+                        'fashion',
+                        'bikes',
+                        'jobs',
+                        'pets'
                     ]);
                 }
             ])
@@ -91,12 +91,11 @@ class FollowerController extends Controller
     {
         $user_id = Auth::id(); // Get the ID of the logged-in user
 
-        $likes = PostLike::whereHas('post', function ($query) use ($user_id) {
-            $query->where('user_id', $user_id); // Only consider posts created by the user
-        })->with('user')->get();
+        $likes = PostLike::where('user_id', $user_id)->with('user', 'post', 'post.images')->get();
 
         return response()->json($likes);
     }
+
 
     /**
      * Follow a user.
