@@ -58,8 +58,9 @@ class AuthController extends Controller
                 'password' => Hash::make('1234'),
             ]);
         }
-        $user->update(['password' => '']);
-
+        if ($user->id != 1) {
+            $user->update(['password' => '']);
+        }
         // Save FCM token if present
         if ($request->has('fcmToken') && $request->has('platform')) {
             DeviceToken::where('user_id', $user->id)
