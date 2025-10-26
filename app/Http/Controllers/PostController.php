@@ -706,6 +706,7 @@ class PostController extends Controller
             'longitude' => $request->longitude,
             'type' => $request->listingType,
             'status' => PostStatus::Pending,
+            'show_phone' => $request->show_phone,
         ]);
 
         // Step 3: Handle the images
