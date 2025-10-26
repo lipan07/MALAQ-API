@@ -114,7 +114,7 @@ class PostController extends Controller
         // Check cache first
         $cacheKey = $request->all();
         $cachedPosts = CacheService::getCachedPosts($cacheKey);
-        
+
         if ($cachedPosts) {
             return $cachedPosts;
         }
@@ -313,10 +313,10 @@ class PostController extends Controller
         $finalPosts = ServicesPostService::fetchPostData($finalPosts);
 
         $response = PostResource::collection($finalPosts);
-        
+
         // Cache the response
         CacheService::cachePosts($cacheKey, $response);
-        
+
         return $response;
     }
 
@@ -388,6 +388,7 @@ class PostController extends Controller
             'longitude' => $request->longitude,
             'type' => $request->listingType,
             'status' => PostStatus::Pending,
+            'show_phone' => $request->show_phone ?? false,
         ]);
     }
 
