@@ -32,7 +32,7 @@ class UpdatePostRequest extends FormRequest
             'latitude' => 'sometimes|nullable|numeric|between:-90,90',
             'longitude' => 'sometimes|nullable|numeric|between:-180,180',
             'new_images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'show_phone' => 'sometimes|nullable|boolean',
+            'show_phone' => 'sometimes|nullable|in:true,false,1,0,"true","false","1","0"',
         ];
     }
 }

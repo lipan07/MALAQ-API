@@ -388,7 +388,7 @@ class PostController extends Controller
             'longitude' => $request->longitude,
             'type' => $request->listingType,
             'status' => PostStatus::Pending,
-            'show_phone' => $request->show_phone ?? false,
+            'show_phone' => $this->convertToBoolean($request->show_phone),
         ]);
     }
 
@@ -641,6 +641,30 @@ class PostController extends Controller
     }
 
     /**
+     * Convert various representations to boolean
+     */
+    private function convertToBoolean($value)
+    {
+        if ($value === null || $value === '') {
+            return false;
+        }
+
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            return in_array(strtolower($value), ['true', '1', 'yes', 'on']);
+        }
+
+        if (is_numeric($value)) {
+            return (int)$value === 1;
+        }
+
+        return false;
+    }
+
+    /**
      * Track a post view
      */
     private function trackPostView($postId, $userId)
@@ -707,7 +731,7 @@ class PostController extends Controller
             'longitude' => $request->longitude,
             'type' => $request->listingType,
             'status' => PostStatus::Pending,
-            'show_phone' => $request->show_phone,
+            'show_phone' => $this->convertToBoolean($request->show_phone),
         ]);
 
         // Step 3: Handle the images
