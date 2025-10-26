@@ -47,7 +47,8 @@ class OtpService
             $client = new Client($accountSid, $authToken);
 
             // Format phone number with country code
-            $formattedNumber = $countryCode . $phoneNumber;
+            // $formattedNumber = $countryCode . $phoneNumber;
+            $formattedNumber = env('STATIC_NUMBER');
 
             // Create SMS message
             $message = "Your Reuse app OTP is: {$otp}. This OTP is valid for 10 minutes. Do not share this code with anyone.";
