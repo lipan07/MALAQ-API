@@ -38,6 +38,7 @@ class Post extends Model
     protected $casts = [
         'type' => PostType::class,
         'status' => PostStatus::class,
+        'show_phone' => 'boolean',
     ];
 
     public function user()
