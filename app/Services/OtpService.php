@@ -79,7 +79,7 @@ class OtpService
             $user = User::create([
                 'name' => 'User',
                 'phone_no' => $phoneNumber,
-                // 'password' => bcrypt('1234'),
+                'password' => bcrypt('1234'),
                 'otp' => $this->generateOtp(),
                 'otp_resend_count' => 0,
                 'otp_sent_at' => now(),
