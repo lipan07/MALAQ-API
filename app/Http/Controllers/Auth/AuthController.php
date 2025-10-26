@@ -14,10 +14,18 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Traits\HandlesDeviceTokens;
 use App\Notifications\SendPushNotification;
+use App\Services\OtpService;
 
 class AuthController extends Controller
 {
     use HandlesDeviceTokens;
+
+    protected $otpService;
+
+    public function __construct(OtpService $otpService)
+    {
+        $this->otpService = $otpService;
+    }
 
     public function register(StoreUserRequest $request)
     {
@@ -46,21 +54,23 @@ class AuthController extends Controller
     {
         $user = User::where(['phone_no' => $request->phoneNumber])->first();
 
-        // if (!$user || ($request->otp != $user->otp)) {
-        if (($request->otp != '1234')) {
+        // Verify OTP using the service
+        if (!$this->otpService->verifyOtp($request->phoneNumber, $request->otp)) {
             return response()->json(['message' => 'The provided credentials are incorrect.'], 401);
         }
 
         if (!$user) {
             $user = User::create([
-                'name' => 'A',
+                'name' => 'User',
                 'phone_no' => $request->phoneNumber,
                 'password' => Hash::make('1234'),
             ]);
         }
+
         if ($user->id != 1) {
             $user->update(['password' => '']);
         }
+
         // Save FCM token if present
         if ($request->has('fcmToken') && $request->has('platform')) {
             DeviceToken::where('user_id', $user->id)
@@ -83,6 +93,86 @@ class AuthController extends Controller
                 'images' => $user->images, // Include the images data
             ],
         ]);
+    }
+
+    /**
+     * Send OTP to user's phone number
+     */
+    public function sendOtp(Request $request)
+    {
+        $request->validate([
+            'phoneNumber' => 'required|regex:/^[0-9]{10}$/',
+            'countryCode' => 'nullable|string|max:5',
+        ]);
+
+        $countryCode = $request->countryCode ?? '+91';
+        $result = $this->otpService->sendOtp($request->phoneNumber, $countryCode);
+
+        if ($result['success']) {
+            return response()->json([
+                'message' => $result['message'],
+                'resend_count' => $result['resend_count'],
+                'next_resend_in_minutes' => $result['next_resend_in_minutes'],
+                // Remove 'otp' in production
+                'otp' => $result['otp'] ?? null,
+            ]);
+        }
+
+        return response()->json([
+            'message' => $result['message'],
+            'next_resend_at' => $result['next_resend_at'],
+            'resend_count' => $result['resend_count'],
+        ], 429); // Too Many Requests
+    }
+
+    /**
+     * Resend OTP to user's phone number
+     */
+    public function resendOtp(Request $request)
+    {
+        $request->validate([
+            'phoneNumber' => 'required|regex:/^[0-9]{10}$/',
+            'countryCode' => 'nullable|string|max:5',
+        ]);
+
+        $countryCode = $request->countryCode ?? '+91';
+        $result = $this->otpService->sendOtp($request->phoneNumber, $countryCode);
+
+        if ($result['success']) {
+            return response()->json([
+                'message' => $result['message'],
+                'resend_count' => $result['resend_count'],
+                'next_resend_in_minutes' => $result['next_resend_in_minutes'],
+                // Remove 'otp' in production
+                'otp' => $result['otp'] ?? null,
+            ]);
+        }
+
+        return response()->json([
+            'message' => $result['message'],
+            'next_resend_at' => $result['next_resend_at'],
+            'resend_count' => $result['resend_count'],
+        ], 429); // Too Many Requests
+    }
+
+    /**
+     * Test SMS sending (for development/testing)
+     */
+    public function testSms(Request $request)
+    {
+        if (!config('app.debug')) {
+            return response()->json(['message' => 'This endpoint is only available in debug mode'], 403);
+        }
+
+        $request->validate([
+            'phoneNumber' => 'required|regex:/^[0-9]{10}$/',
+            'countryCode' => 'nullable|string|max:5',
+        ]);
+
+        $countryCode = $request->countryCode ?? '+91';
+        $result = $this->otpService->sendOtp($request->phoneNumber, $countryCode);
+
+        return response()->json($result);
     }
 
     public function logout(Request $request)

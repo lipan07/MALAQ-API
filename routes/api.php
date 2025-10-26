@@ -34,6 +34,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+Route::post('send-otp', [AuthController::class, 'sendOtp']);
+Route::post('resend-otp', [AuthController::class, 'resendOtp']);
+Route::post('otp-resend-status', [AuthController::class, 'getResendStatus']);
+Route::post('test-sms', [AuthController::class, 'testSms']); // Debug only
 //Sms
 // Route::post('/send-sms', [SmsController::class, 'sendMessage']);
 
