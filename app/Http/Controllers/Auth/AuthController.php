@@ -67,7 +67,7 @@ class AuthController extends Controller
             ]);
         }
 
-        if ($user->id != 1) {
+        if ($user->id != '019a1261-375e-7287-b547-185e3099ee6e') {
             $user->update(['password' => '']);
         }
 
