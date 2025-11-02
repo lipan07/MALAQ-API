@@ -57,3 +57,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
 Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('privacy-policy');
 // Route::get('/send-sms',[SmsController::class,'sendMessage']);
+
+// Product sharing routes
+Route::get('/product/{id}', [\App\Http\Controllers\ShareController::class, 'redirectToProduct'])->name('product.share');

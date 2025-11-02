@@ -13,6 +13,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostInteractionController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\ShareController;
 use App\Http\Controllers\SmsController;
 use App\Http\Controllers\SupportRequestController;
 use App\Http\Controllers\UserController;
@@ -40,6 +41,9 @@ Route::post('otp-resend-status', [AuthController::class, 'getResendStatus']);
 Route::post('test-sms', [AuthController::class, 'testSms']); // Debug only
 //Sms
 // Route::post('/send-sms', [SmsController::class, 'sendMessage']);
+
+// Product sharing (public route - no auth required)
+Route::post('product/{id}/track-share', [ShareController::class, 'trackShare'])->name('product.track-share');
 
 Route::middleware('auth:sanctum')->group(function () {
     //User
