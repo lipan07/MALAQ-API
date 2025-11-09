@@ -82,6 +82,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Pagination\Paginator;
 
 class PostController extends Controller
 {
@@ -308,6 +309,50 @@ class PostController extends Controller
             'category:id,name',
             'images:id,url,imageable_id',
         ]);
+
+        // Check if it's page 1 and user is logged in, then merge pending posts at the top
+        $currentPage = $request->input('page', 1);
+        if ($currentPage == 1 && $userId) {
+            // Fetch logged-in user's pending posts
+            $pendingPostsQuery = Post::where('user_id', $userId)
+                ->where('status', PostStatus::Pending)
+                ->orderByDesc('post_time');
+
+            $pendingPosts = $pendingPostsQuery->get();
+
+            if ($pendingPosts->count() > 0) {
+                // Eager load relationships for pending posts
+                $pendingPosts->load([
+                    'user:id,name,status,last_activity',
+                    'category:id,name',
+                    'images:id,url,imageable_id',
+                ]);
+
+                // Get current active posts items
+                $activePostsItems = collect($finalPosts->items());
+
+                // Merge pending posts at the top
+                $mergedItems = $pendingPosts->merge($activePostsItems);
+
+                // Create a new paginator with merged items
+                $perPage = $finalPosts->perPage();
+                $currentPath = $request->url();
+                $queryParams = $request->query();
+
+                $finalPosts = new Paginator(
+                    $mergedItems,
+                    $perPage,
+                    $currentPage,
+                    [
+                        'path' => $currentPath,
+                        'pageName' => 'page',
+                    ]
+                );
+
+                // Set query parameters for pagination links
+                $finalPosts->appends($queryParams);
+            }
+        }
 
         // Fetch additional data for posts with optimized queries
         $finalPosts = ServicesPostService::fetchPostData($finalPosts);
