@@ -173,13 +173,13 @@ class PostController extends Controller
             }
 
             // Apply location filter with current distance tier
-            $postsQuery->selectRaw(
-                "*, 
-                (6371 * acos(cos(radians(?)) * cos(radians(latitude)) * 
-                cos(radians(longitude) - radians(?)) + 
-                sin(radians(?)) * sin(radians(latitude)))) AS distance",
-                [$latitude, $longitude, $latitude]
-            )->having('distance', '<=', $requestedDistance);
+            // $postsQuery->selectRaw(
+            //     "*, 
+            //     (6371 * acos(cos(radians(?)) * cos(radians(latitude)) * 
+            //     cos(radians(longitude) - radians(?)) + 
+            //     sin(radians(?)) * sin(radians(latitude)))) AS distance",
+            //     [$latitude, $longitude, $latitude]
+            // )->having('distance', '<=', $requestedDistance);
 
             if ($request->filled('sortBy')) {
                 $sortBy = $request->sortBy;
@@ -199,13 +199,15 @@ class PostController extends Controller
                     case 'Relevance':
                     default:
                         // Default relevance for location-based: nearest first
-                        $postsQuery->orderBy('distance');
+                        // $postsQuery->orderBy('distance');
+                        $postsQuery->orderByDesc('post_time');
                         break;
                 }
                 $postsQuery->where('amount', '>', 0);
             } else {
                 // No sort provided: nearest first
-                $postsQuery->orderBy('distance');
+                // $postsQuery->orderBy('distance');
+                $postsQuery->orderByDesc('post_time');
             }
 
             $perPage = (int) ($request->input('limit', 15));
