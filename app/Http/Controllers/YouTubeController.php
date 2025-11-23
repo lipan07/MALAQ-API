@@ -45,8 +45,9 @@ class YouTubeController extends Controller
             ]);
 
             // Validate request
+            // Note: max is in kilobytes. 512000 = 500MB, 1024000 = 1GB
             $validator = Validator::make($request->all(), [
-                'video' => 'required|file|mimes:mp4,mov,avi,mkv|max:102400', // Max 100MB
+                'video' => 'required|file|mimes:mp4,mov,avi,mkv|max:1024000', // Max 1GB (in KB)
                 'title' => 'nullable|string|max:100',
                 'description' => 'nullable|string|max:5000',
                 'privacy' => 'nullable|in:private,public,unlisted',
