@@ -17,7 +17,18 @@ class YouTubeService
 
     public function __construct()
     {
-        $this->initializeClient();
+        // Don't initialize in constructor - initialize on first use
+        // This allows the service to be instantiated even if credentials are missing
+    }
+
+    /**
+     * Ensure client is initialized
+     */
+    private function ensureInitialized()
+    {
+        if (!$this->client) {
+            $this->initializeClient();
+        }
     }
 
     /**
@@ -25,36 +36,58 @@ class YouTubeService
      */
     private function initializeClient()
     {
-        $this->client = new Google_Client();
-        
-        // Set OAuth 2.0 credentials
-        $this->client->setClientId(env('YOUTUBE_CLIENT_ID'));
-        $this->client->setClientSecret(env('YOUTUBE_CLIENT_SECRET'));
-        $this->client->setAccessType('offline');
-        $this->client->setApprovalPrompt('force');
-        
-        // Set scopes
-        $this->client->setScopes([
-            'https://www.googleapis.com/auth/youtube.upload',
-            'https://www.googleapis.com/auth/youtube',
-        ]);
+        try {
+            $this->client = new Google_Client();
 
-        // Set refresh token (stored in .env)
-        $refreshToken = env('YOUTUBE_REFRESH_TOKEN');
-        if ($refreshToken) {
-            try {
-                $accessToken = $this->client->refreshToken($refreshToken);
-                if ($accessToken) {
-                    $this->client->setAccessToken($accessToken);
-                }
-            } catch (\Exception $e) {
-                Log::error('Failed to refresh YouTube token', [
-                    'error' => $e->getMessage(),
-                ]);
+            // Set OAuth 2.0 credentials
+            $clientId = env('YOUTUBE_CLIENT_ID');
+            $clientSecret = env('YOUTUBE_CLIENT_SECRET');
+
+            if (!$clientId || !$clientSecret) {
+                throw new \Exception('YOUTUBE_CLIENT_ID and YOUTUBE_CLIENT_SECRET must be set in .env file');
             }
-        }
 
-        $this->youtube = new Google_Service_YouTube($this->client);
+            $this->client->setClientId($clientId);
+            $this->client->setClientSecret($clientSecret);
+            $this->client->setAccessType('offline');
+            $this->client->setApprovalPrompt('force');
+
+            // Set scopes
+            $this->client->setScopes([
+                'https://www.googleapis.com/auth/youtube.upload',
+                'https://www.googleapis.com/auth/youtube',
+            ]);
+
+            // Set refresh token (stored in .env)
+            $refreshToken = env('YOUTUBE_REFRESH_TOKEN');
+            if ($refreshToken) {
+                try {
+                    $accessToken = $this->client->refreshToken($refreshToken);
+                    if ($accessToken && !isset($accessToken['error'])) {
+                        $this->client->setAccessToken($accessToken);
+                    } else {
+                        Log::warning('Failed to refresh YouTube token', [
+                            'error' => $accessToken['error'] ?? 'Unknown error',
+                        ]);
+                        throw new \Exception('Invalid or expired refresh token. Please get a new one.');
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to refresh YouTube token', [
+                        'error' => $e->getMessage(),
+                    ]);
+                    throw new \Exception('Failed to authenticate with YouTube: ' . $e->getMessage());
+                }
+            } else {
+                throw new \Exception('YOUTUBE_REFRESH_TOKEN must be set in .env file. See GET_REFRESH_TOKEN.md for instructions.');
+            }
+
+            $this->youtube = new Google_Service_YouTube($this->client);
+        } catch (\Exception $e) {
+            Log::error('Failed to initialize YouTube client', [
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
     }
 
     /**
@@ -68,6 +101,8 @@ class YouTubeService
      */
     public function uploadVideo($videoPath, $title = 'Property Video', $description = '', $privacy = 'unlisted')
     {
+        $this->ensureInitialized();
+
         try {
             // Check if file exists
             if (!file_exists($videoPath)) {
@@ -141,6 +176,7 @@ class YouTubeService
      */
     public function getAuthUrl()
     {
+        $this->ensureInitialized();
         $this->client->setRedirectUri(env('YOUTUBE_REDIRECT_URI', env('APP_URL') . '/api/youtube/callback'));
         return $this->client->createAuthUrl();
     }
@@ -150,6 +186,8 @@ class YouTubeService
      */
     public function exchangeCodeForToken($code)
     {
+        $this->ensureInitialized();
+
         try {
             $this->client->setRedirectUri(env('YOUTUBE_REDIRECT_URI', env('APP_URL') . '/api/youtube/callback'));
             $accessToken = $this->client->fetchAccessTokenWithAuthCode($code);

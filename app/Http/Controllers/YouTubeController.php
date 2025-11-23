@@ -12,9 +12,10 @@ class YouTubeController extends Controller
 {
     private $youtubeService;
 
-    public function __construct(YouTubeService $youtubeService)
+    public function __construct()
     {
-        $this->youtubeService = $youtubeService;
+        // Don't initialize YouTubeService in constructor to avoid errors if credentials are missing
+        // Initialize it in the method instead
     }
 
     /**
@@ -24,6 +25,25 @@ class YouTubeController extends Controller
     public function uploadVideo(Request $request)
     {
         try {
+            // Initialize YouTubeService here to catch initialization errors
+            try {
+                $youtubeService = app(YouTubeService::class);
+            } catch (\Exception $e) {
+                Log::error('Failed to initialize YouTubeService', [
+                    'error' => $e->getMessage(),
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'error' => 'YouTube service not configured: ' . $e->getMessage(),
+                    'hint' => 'Please check your .env file has YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET, and YOUTUBE_REFRESH_TOKEN',
+                ], 500);
+            }
+
+            Log::info('YouTube upload request received', [
+                'has_video' => $request->hasFile('video'),
+                'all_inputs' => array_keys($request->all()),
+            ]);
+
             // Validate request
             $validator = Validator::make($request->all(), [
                 'video' => 'required|file|mimes:mp4,mov,avi,mkv|max:102400', // Max 100MB
@@ -33,6 +53,9 @@ class YouTubeController extends Controller
             ]);
 
             if ($validator->fails()) {
+                Log::warning('YouTube upload validation failed', [
+                    'errors' => $validator->errors()->all(),
+                ]);
                 return response()->json([
                     'success' => false,
                     'error' => $validator->errors()->first(),
@@ -56,7 +79,7 @@ class YouTubeController extends Controller
             ]);
 
             // Upload to YouTube
-            $result = $this->youtubeService->uploadVideo($fullPath, $title, $description, $privacy);
+            $result = $youtubeService->uploadVideo($fullPath, $title, $description, $privacy);
 
             // Delete temporary file
             Storage::delete($tempPath);
@@ -95,7 +118,8 @@ class YouTubeController extends Controller
     public function getAuthUrl()
     {
         try {
-            $authUrl = $this->youtubeService->getAuthUrl();
+            $youtubeService = app(YouTubeService::class);
+            $authUrl = $youtubeService->getAuthUrl();
             return response()->json([
                 'success' => true,
                 'auth_url' => $authUrl,
@@ -123,7 +147,8 @@ class YouTubeController extends Controller
                 ], 400);
             }
 
-            $result = $this->youtubeService->exchangeCodeForToken($code);
+            $youtubeService = app(YouTubeService::class);
+            $result = $youtubeService->exchangeCodeForToken($code);
 
             if ($result['success']) {
                 return response()->json([
