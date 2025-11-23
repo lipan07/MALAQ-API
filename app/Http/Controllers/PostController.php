@@ -199,15 +199,15 @@ class PostController extends Controller
                     case 'Relevance':
                     default:
                         // Default relevance for location-based: nearest first
-                        // $postsQuery->orderBy('distance');
-                        $postsQuery->orderByDesc('post_time');
+                        // $postsQuery->orderBy('distance'); // put this line if you want to use location-based search
+                        $postsQuery->orderByDesc('post_time'); // remove this line if you want to use location-based search
                         break;
                 }
                 $postsQuery->where('amount', '>', 0);
             } else {
                 // No sort provided: nearest first
-                // $postsQuery->orderBy('distance');
-                $postsQuery->orderByDesc('post_time');
+                // $postsQuery->orderBy('distance'); // put this line if you want to use location-based search
+                $postsQuery->orderByDesc('post_time'); // remove this line if you want to use location-based search
             }
 
             $perPage = (int) ($request->input('limit', 15));

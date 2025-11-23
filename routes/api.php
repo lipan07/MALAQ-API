@@ -18,6 +18,7 @@ use App\Http\Controllers\SmsController;
 use App\Http\Controllers\SupportRequestController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserStatusController;
+use App\Http\Controllers\YouTubeController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -83,6 +84,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/open-chat', [ChatController::class, 'openChat']);
     Route::post('/send-message', [ChatController::class, 'sendMessage']);
     Route::post('/messages/{message}/seen', [ChatController::class, 'markMessagesAsSeen']);
+
+    // YouTube Video Upload
+    Route::post('/youtube/upload', [YouTubeController::class, 'uploadVideo']);
 
     //Follower
     Route::post('/follow-user', [FollowerController::class, 'followUser']);
