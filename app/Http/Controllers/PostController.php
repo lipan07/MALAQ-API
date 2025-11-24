@@ -294,7 +294,8 @@ class PostController extends Controller
                 $postsQuery->orderByDesc('post_time');
             }
 
-            $posts = $postsQuery->where('status', PostStatus::Active)->simplePaginate(15);
+            // $posts = $postsQuery->where('status', PostStatus::Active)->simplePaginate(15);
+            $posts = $postsQuery->simplePaginate(15);
             if ($posts->count() > 0) {
                 $finalPosts = $posts;
             }
