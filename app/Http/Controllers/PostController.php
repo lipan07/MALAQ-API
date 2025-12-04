@@ -399,6 +399,16 @@ class PostController extends Controller
     {
         $rules = $this->getValidationRulesForStore($request->guard_name);
 
+        // Make amount optional for donate posts
+        if ($request->listingType === 'donate') {
+            $rules['amount'] = 'nullable|numeric|min:0';
+        } else {
+            // For non-donate posts, add amount validation if not already present
+            if (!isset($rules['amount'])) {
+                $rules['amount'] = 'nullable|numeric|min:0';
+            }
+        }
+
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
@@ -431,7 +441,7 @@ class PostController extends Controller
             'post_time' => now(),
             'title' => $request->adTitle,
             'address' => $request->address,
-            'amount' => $request->amount,
+            'amount' => $request->listingType === 'donate' ? null : $request->amount,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
             'type' => $request->listingType,
@@ -758,6 +768,16 @@ class PostController extends Controller
         }
         $rules = $this->getValidationRulesForUpdate($request->guard_name);
 
+        // Make amount optional for donate posts
+        if ($request->listingType === 'donate' || $post->type === 'donate') {
+            $rules['amount'] = 'nullable|numeric|min:0';
+        } else {
+            // For non-donate posts, add amount validation if not already present
+            if (!isset($rules['amount'])) {
+                $rules['amount'] = 'nullable|numeric|min:0';
+            }
+        }
+
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
@@ -774,7 +794,7 @@ class PostController extends Controller
             'category_id' => Category::getIdByGuardName($request->guard_name),
             'title' => $request->adTitle,
             'address' => $request->address,
-            'amount' => $request->amount,
+            'amount' => ($request->listingType === 'donate' || $post->type === 'donate') ? null : $request->amount,
             'latitude' => $request->latitude, // Fixed typo here from 'lattitude'
             'longitude' => $request->longitude,
             'type' => $request->listingType,
