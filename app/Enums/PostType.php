@@ -7,6 +7,7 @@ enum PostType: string
     case Rent = 'rent';
     case Sell = 'sell';
     case Donate = 'donate';
+    case Requirement = 'post_requirement';
 
     /**
      * Returns the default type.
