@@ -22,10 +22,15 @@ class OtpService
 
     /**
      * Generate a random OTP
+     * TEMPORARY: Returns "1234" for testing purposes
      */
     public function generateOtp(): string
     {
-        return str_pad(random_int(1000, 9999), 4, '0', STR_PAD_LEFT);
+        // TEMPORARY: Return fixed OTP for testing
+        return '1234';
+
+        // Original random OTP generation (commented for now)
+        // return str_pad(random_int(1000, 9999), 4, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -102,9 +107,23 @@ class OtpService
             ]);
         }
 
+        // TEMPORARY: Skip email sending and return success with OTP "1234"
         // Send OTP via Email
         $emailSent = $this->sendEmailOtp($email, $user->otp);
 
+        // TEMPORARY: Always return success with OTP for testing (bypass email check)
+        Log::info("OTP generated for {$email}: {$user->otp} (Email sending skipped for testing)");
+
+        return [
+            'success' => true,
+            'message' => 'OTP sent successfully. Use OTP: 1234',
+            'otp' => $user->otp, // Returns "1234" for testing
+            'resend_count' => $user->otp_resend_count,
+            'next_resend_in_minutes' => $this->getNextResendInterval($user->otp_resend_count),
+        ];
+
+        // Original email sending logic (commented for testing)
+        /*
         if (!$emailSent) {
             // Fallback: Log the OTP for development/testing
             Log::warning("Email sending failed for {$email}. OTP: {$user->otp}");
@@ -135,6 +154,7 @@ class OtpService
             'resend_count' => $user->otp_resend_count,
             'next_resend_in_minutes' => $this->getNextResendInterval($user->otp_resend_count),
         ];
+        */
     }
 
     /**
