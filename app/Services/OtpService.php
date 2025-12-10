@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Config;
-use Twilio\Rest\Client;
 use Exception;
 
 class OtpService
@@ -29,64 +29,58 @@ class OtpService
     }
 
     /**
-     * Send SMS via Twilio
+     * Send OTP via Email
      */
-    private function sendSms(string $phoneNumber, string $otp, string $countryCode = '+91'): bool
+    private function sendEmailOtp(string $email, string $otp): bool
     {
         try {
-            $accountSid = Config::get("credentials.twilio.sid");
-            $authToken = Config::get("credentials.twilio.auth_token");
-            $twilioNumber = Config::get("credentials.twilio.number");
+            $subject = 'Your OTP for nearX App';
+            $message = "Your nearX app OTP is: {$otp}. This OTP is valid for 10 minutes. Do not share this code with anyone.";
 
-            // Validate Twilio configuration
-            if (!$accountSid || !$authToken || !$twilioNumber) {
-                Log::error('Twilio configuration missing');
-                return false;
-            }
+            Mail::raw($message, function ($mail) use ($email, $subject) {
+                $mail->to($email)
+                    ->subject($subject);
+            });
 
-            $client = new Client($accountSid, $authToken);
-
-            // Format phone number with country code
-            // $formattedNumber = $countryCode . $phoneNumber;
-            $formattedNumber = env('STATIC_NUMBER');
-
-            // Create SMS message
-            $message = "Your Reuse app OTP is: {$otp}. This OTP is valid for 10 minutes. Do not share this code with anyone.";
-
-            $client->messages->create(
-                $formattedNumber,
-                [
-                    'from' => $twilioNumber,
-                    'body' => $message
-                ]
-            );
-
-            Log::info("SMS sent successfully to {$formattedNumber}");
+            Log::info("OTP email sent successfully to {$email}");
             return true;
         } catch (Exception $e) {
-            Log::error("Failed to send SMS to {$phoneNumber}: " . $e->getMessage());
+            Log::error("Failed to send OTP email to {$email}: " . $e->getMessage());
             return false;
         }
     }
 
     /**
-     * Send OTP to user
+     * Send OTP to user via email
      */
-    public function sendOtp(string $phoneNumber, string $countryCode = '+91'): array
+    public function sendOtp(string $email, ?string $phoneNumber = null, ?string $countryCode = null): array
     {
-        $user = User::where('phone_no', $phoneNumber)->first();
+        $user = User::where('email', $email)->first();
 
         if (!$user) {
-            $user = User::create([
+            // Create new user with email
+            $userData = [
                 'name' => 'User',
-                'phone_no' => $phoneNumber,
+                'email' => $email,
                 'password' => bcrypt('1234'),
                 'otp' => $this->generateOtp(),
                 'otp_resend_count' => 0,
                 'otp_sent_at' => now(),
                 'last_otp_resend_at' => now(),
-            ]);
+            ];
+
+            // Add phone number if provided
+            if ($phoneNumber) {
+                $userData['phone_no'] = $phoneNumber;
+            }
+
+            $user = User::create($userData);
         } else {
+            // Update phone number if provided and not set
+            if ($phoneNumber && !$user->phone_no) {
+                $user->update(['phone_no' => $phoneNumber]);
+            }
+
             // Check if user can resend OTP
             $canResend = $this->canResendOtp($user);
 
@@ -108,19 +102,19 @@ class OtpService
             ]);
         }
 
-        // Send SMS via Twilio
-        $smsSent = $this->sendSms($phoneNumber, $user->otp, $countryCode);
+        // Send OTP via Email
+        $emailSent = $this->sendEmailOtp($email, $user->otp);
 
-        if (!$smsSent) {
+        if (!$emailSent) {
             // Fallback: Log the OTP for development/testing
-            Log::warning("SMS sending failed for {$phoneNumber}. OTP: {$user->otp}");
+            Log::warning("Email sending failed for {$email}. OTP: {$user->otp}");
 
             // In development, we can still return success with the OTP
             // In production, you might want to return failure
             if (config('app.debug')) {
                 return [
                     'success' => true,
-                    'message' => 'OTP generated (SMS failed - check logs)',
+                    'message' => 'OTP generated (Email failed - check logs)',
                     'otp' => $user->otp, // Only in debug mode
                     'resend_count' => $user->otp_resend_count,
                     'next_resend_in_minutes' => $this->getNextResendInterval($user->otp_resend_count),
@@ -136,7 +130,7 @@ class OtpService
 
         return [
             'success' => true,
-            'message' => 'OTP sent successfully',
+            'message' => 'OTP sent successfully to your email',
             'otp' => $user->otp, // Remove this in production
             'resend_count' => $user->otp_resend_count,
             'next_resend_in_minutes' => $this->getNextResendInterval($user->otp_resend_count),
@@ -146,9 +140,9 @@ class OtpService
     /**
      * Verify OTP
      */
-    public function verifyOtp(string $phoneNumber, string $otp): bool
+    public function verifyOtp(string $email, string $otp): bool
     {
-        $user = User::where('phone_no', $phoneNumber)->first();
+        $user = User::where('email', $email)->first();
 
         if (!$user || $user->otp !== $otp) {
             return false;
@@ -217,9 +211,9 @@ class OtpService
     /**
      * Get resend status for frontend
      */
-    public function getResendStatus(string $phoneNumber): array
+    public function getResendStatus(string $email): array
     {
-        $user = User::where('phone_no', $phoneNumber)->first();
+        $user = User::where('email', $email)->first();
 
         if (!$user) {
             return [

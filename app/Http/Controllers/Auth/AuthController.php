@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\SignupUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -38,6 +39,35 @@ class AuthController extends Controller
         return response()->json(['user' => $user->makeHidden(['id'])->toArray()]);
     }
 
+    /**
+     * Signup new user with name, email, and phone number
+     */
+    public function signup(SignupUserRequest $request)
+    {
+        $userData = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make('1234'), // Default password, not used for OTP login
+        ];
+
+        // Add phone number if provided
+        if ($request->has('phoneNumber') && $request->phoneNumber) {
+            $userData['phone_no'] = $request->phoneNumber;
+        }
+
+        $user = User::create($userData);
+
+        return response()->json([
+            'message' => 'Account created successfully. Please login with your email.',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone_no' => $user->phone_no,
+            ],
+        ], 201);
+    }
+
     // public function login(LoginUserRequest $request)
     // {
     //     $user = User::where(['phone_no' => $request->phoneNumber])->first();
@@ -52,19 +82,31 @@ class AuthController extends Controller
 
     public function login(LoginUserRequest $request)
     {
-        $user = User::where(['phone_no' => $request->phoneNumber])->first();
+        $user = User::where('email', $request->email)->first();
 
         // Verify OTP using the service
-        if (!$this->otpService->verifyOtp($request->phoneNumber, $request->otp)) {
-            return response()->json(['message' => 'The provided credentials are incorrect.'], 401);
+        if (!$this->otpService->verifyOtp($request->email, $request->otp)) {
+            return response()->json(['message' => 'Invalid OTP. Please try again.'], 401);
         }
 
         if (!$user) {
-            $user = User::create([
+            $userData = [
                 'name' => 'User',
-                'phone_no' => $request->phoneNumber,
+                'email' => $request->email,
                 'password' => Hash::make('1234'),
-            ]);
+            ];
+
+            // Add phone number if provided
+            if ($request->has('phoneNumber') && $request->phoneNumber) {
+                $userData['phone_no'] = $request->phoneNumber;
+            }
+
+            $user = User::create($userData);
+        } else {
+            // Update phone number if provided and not set
+            if ($request->has('phoneNumber') && $request->phoneNumber && !$user->phone_no) {
+                $user->update(['phone_no' => $request->phoneNumber]);
+            }
         }
 
         if ($user->id != '019a1261-375e-7287-b547-185e3099ee6e') {
@@ -89,6 +131,7 @@ class AuthController extends Controller
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
+                'email' => $user->email,
                 'phone_no' => $user->phone_no,
                 'images' => $user->images, // Include the images data
             ],
@@ -96,17 +139,21 @@ class AuthController extends Controller
     }
 
     /**
-     * Send OTP to user's phone number
+     * Send OTP to user's email
      */
     public function sendOtp(Request $request)
     {
         $request->validate([
-            'phoneNumber' => 'required|regex:/^[0-9]{10}$/',
+            'email' => 'required|email',
+            'phoneNumber' => 'nullable|string',
             'countryCode' => 'nullable|string|max:5',
         ]);
 
-        $countryCode = $request->countryCode ?? '+91';
-        $result = $this->otpService->sendOtp($request->phoneNumber, $countryCode);
+        $email = $request->email;
+        $phoneNumber = $request->phoneNumber ?? null;
+        $countryCode = $request->countryCode ?? null;
+
+        $result = $this->otpService->sendOtp($email, $phoneNumber, $countryCode);
 
         if ($result['success']) {
             return response()->json([
@@ -126,17 +173,21 @@ class AuthController extends Controller
     }
 
     /**
-     * Resend OTP to user's phone number
+     * Resend OTP to user's email
      */
     public function resendOtp(Request $request)
     {
         $request->validate([
-            'phoneNumber' => 'required|regex:/^[0-9]{10}$/',
+            'email' => 'required|email',
+            'phoneNumber' => 'nullable|string',
             'countryCode' => 'nullable|string|max:5',
         ]);
 
-        $countryCode = $request->countryCode ?? '+91';
-        $result = $this->otpService->sendOtp($request->phoneNumber, $countryCode);
+        $email = $request->email;
+        $phoneNumber = $request->phoneNumber ?? null;
+        $countryCode = $request->countryCode ?? null;
+
+        $result = $this->otpService->sendOtp($email, $phoneNumber, $countryCode);
 
         if ($result['success']) {
             return response()->json([
@@ -156,7 +207,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Test SMS sending (for development/testing)
+     * Test OTP sending (for development/testing)
      */
     public function testSms(Request $request)
     {
@@ -165,12 +216,16 @@ class AuthController extends Controller
         }
 
         $request->validate([
-            'phoneNumber' => 'required|regex:/^[0-9]{10}$/',
+            'email' => 'required|email',
+            'phoneNumber' => 'nullable|string',
             'countryCode' => 'nullable|string|max:5',
         ]);
 
-        $countryCode = $request->countryCode ?? '+91';
-        $result = $this->otpService->sendOtp($request->phoneNumber, $countryCode);
+        $email = $request->email;
+        $phoneNumber = $request->phoneNumber ?? null;
+        $countryCode = $request->countryCode ?? null;
+
+        $result = $this->otpService->sendOtp($email, $phoneNumber, $countryCode);
 
         return response()->json($result);
     }

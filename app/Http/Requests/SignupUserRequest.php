@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class LoginUserRequest extends FormRequest
+class SignupUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,22 +24,26 @@ class LoginUserRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
             'email' => [
                 'required',
                 'email',
-            ],
-            'otp' => [
-                'required',
-                'string',
-                'regex:/^[A-Za-z0-9]{4}$/' // exactly 4 alphanumeric characters
+                'max:255',
+                'unique:users,email',
             ],
             'phoneNumber' => [
                 'nullable',
                 'string',
+                'max:15',
             ],
             'countryCode' => [
                 'nullable',
                 'string',
+                'max:5',
             ],
         ];
     }
@@ -50,10 +54,12 @@ class LoginUserRequest extends FormRequest
     public function messages()
     {
         return [
+            'name.required' => 'Name is required.',
+            'name.string' => 'Name must be a valid string.',
             'email.required' => 'Email is required.',
             'email.email' => 'Please provide a valid email address.',
-            'otp.required' => 'OTP is required.',
-            'otp.regex' => 'The OTP must be exactly 4 characters long and alphanumeric.'
+            'email.unique' => 'This email is already registered. Please use login instead.',
+            'phoneNumber.string' => 'Phone number must be a valid string.',
         ];
     }
 
@@ -73,3 +79,4 @@ class LoginUserRequest extends FormRequest
         ], 422));
     }
 }
+
