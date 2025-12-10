@@ -54,6 +54,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'otp_sent_at' => 'datetime',
+        'last_otp_resend_at' => 'datetime',
+        'last_activity' => 'datetime',
     ];
 
     public function posts()

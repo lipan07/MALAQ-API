@@ -180,7 +180,7 @@ class OtpService
         }
 
         $resendInterval = $this->getNextResendInterval($user->otp_resend_count);
-        $nextResendAt = $user->last_otp_resend_at->addMinutes($resendInterval);
+        $nextResendAt = $user->last_otp_resend_at->copy()->addMinutes($resendInterval);
 
         if (now()->lt($nextResendAt)) {
             $remainingMinutes = now()->diffInMinutes($nextResendAt, false);
