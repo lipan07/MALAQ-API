@@ -37,10 +37,22 @@ class OtpService
     {
         try {
             $subject = 'Your Verification Code - nearX';
+            $fromAddress = config('mail.from.address');
+            $fromName = config('mail.from.name', 'nearX');
 
-            Mail::send('emails.otp', ['otp' => $otp], function ($mail) use ($email, $subject) {
-                $mail->to($email)
-                    ->subject($subject);
+            Mail::send('emails.otp', ['otp' => $otp], function ($message) use ($email, $subject, $fromAddress, $fromName) {
+                $message->to($email)
+                    ->subject($subject)
+                    ->from($fromAddress, $fromName)
+                    ->replyTo($fromAddress, $fromName);
+
+                // Add headers to improve deliverability
+                $headers = $message->getHeaders();
+                $headers->addTextHeader('X-Mailer', 'Laravel');
+                $headers->addTextHeader('X-Priority', '1');
+                $headers->addTextHeader('Precedence', 'bulk');
+                $headers->addTextHeader('List-Unsubscribe', '<mailto:' . $fromAddress . '?subject=unsubscribe>');
+                $headers->addTextHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
             });
 
             Log::info("OTP email sent successfully to {$email}");

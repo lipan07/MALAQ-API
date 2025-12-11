@@ -62,9 +62,22 @@ class AuthController extends Controller
         // Send welcome email
         try {
             $subject = 'Welcome to nearX - Your Account is Ready!';
-            Mail::send('emails.welcome', ['userName' => $user->name], function ($mail) use ($user, $subject) {
-                $mail->to($user->email)
-                    ->subject($subject);
+            $fromAddress = config('mail.from.address');
+            $fromName = config('mail.from.name', 'nearX');
+
+            Mail::send('emails.welcome', ['userName' => $user->name], function ($message) use ($user, $subject, $fromAddress, $fromName) {
+                $message->to($user->email)
+                    ->subject($subject)
+                    ->from($fromAddress, $fromName)
+                    ->replyTo($fromAddress, $fromName);
+
+                // Add headers to improve deliverability
+                $headers = $message->getHeaders();
+                $headers->addTextHeader('X-Mailer', 'Laravel');
+                $headers->addTextHeader('X-Priority', '1');
+                $headers->addTextHeader('Precedence', 'bulk');
+                $headers->addTextHeader('List-Unsubscribe', '<mailto:' . $fromAddress . '?subject=unsubscribe>');
+                $headers->addTextHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
             });
             Log::info("Welcome email sent successfully to {$user->email}");
         } catch (\Exception $e) {
