@@ -58,52 +58,42 @@ class OtpService
     {
         $user = User::where('email', $email)->first();
 
+        // Return error if user doesn't exist
+        if (!$user) {
+            return [
+                'success' => false,
+                'message' => 'User not found. Please sign up first.',
+                'resend_count' => 0,
+            ];
+        }
+
         // Generate dynamic OTP
         $otp = $this->generateOtp();
 
-        if (!$user) {
-            // Create new user with email
-            $userData = [
-                'name' => 'User',
-                'email' => $email,
-                'password' => Hash::make($otp), // Store OTP encrypted in password field
-                'otp_resend_count' => 0,
-                'otp_sent_at' => now(),
-                'last_otp_resend_at' => now(),
-            ];
-
-            // Add phone number if provided
-            if ($phoneNumber) {
-                $userData['phone_no'] = $phoneNumber;
-            }
-
-            $user = User::create($userData);
-        } else {
-            // Update phone number if provided and not set
-            if ($phoneNumber && !$user->phone_no) {
-                $user->update(['phone_no' => $phoneNumber]);
-            }
-
-            // Check if user can resend OTP
-            $canResend = $this->canResendOtp($user);
-
-            if (!$canResend['can_resend']) {
-                return [
-                    'success' => false,
-                    'message' => $canResend['message'],
-                    'next_resend_at' => $canResend['next_resend_at'],
-                    'resend_count' => $user->otp_resend_count,
-                ];
-            }
-
-            // Update user with new OTP stored encrypted in password field
-            $user->update([
-                'password' => Hash::make($otp), // Store OTP encrypted in password field
-                'otp_resend_count' => $user->otp_resend_count + 1,
-                'otp_sent_at' => now(),
-                'last_otp_resend_at' => now(),
-            ]);
+        // Update phone number if provided and not set
+        if ($phoneNumber && !$user->phone_no) {
+            $user->update(['phone_no' => $phoneNumber]);
         }
+
+        // Check if user can resend OTP
+        $canResend = $this->canResendOtp($user);
+
+        if (!$canResend['can_resend']) {
+            return [
+                'success' => false,
+                'message' => $canResend['message'],
+                'next_resend_at' => $canResend['next_resend_at'],
+                'resend_count' => $user->otp_resend_count,
+            ];
+        }
+
+        // Update user with new OTP stored encrypted in password field
+        $user->update([
+            'password' => Hash::make($otp), // Store OTP encrypted in password field
+            'otp_resend_count' => $user->otp_resend_count + 1,
+            'otp_sent_at' => now(),
+            'last_otp_resend_at' => now(),
+        ]);
 
         // Send OTP via Email
         $emailSent = $this->sendEmailOtp($email, $otp);

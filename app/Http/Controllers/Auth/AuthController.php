@@ -9,11 +9,12 @@ use App\Http\Requests\SignupUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use App\Models\DeviceToken;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use App\Traits\HandlesDeviceTokens;
 use App\Notifications\SendPushNotification;
 use App\Services\OtpService;
@@ -57,6 +58,19 @@ class AuthController extends Controller
         }
 
         $user = User::create($userData);
+
+        // Send welcome email
+        try {
+            $subject = 'Welcome to nearX - Your Account is Ready!';
+            Mail::send('emails.welcome', ['userName' => $user->name], function ($mail) use ($user, $subject) {
+                $mail->to($user->email)
+                    ->subject($subject);
+            });
+            Log::info("Welcome email sent successfully to {$user->email}");
+        } catch (\Exception $e) {
+            // Log error but don't fail the signup process
+            Log::error("Failed to send welcome email to {$user->email}: " . $e->getMessage());
+        }
 
         return response()->json([
             'message' => 'Account created successfully. Please login with your email.',
