@@ -183,11 +183,18 @@ class AuthController extends Controller
             ]);
         }
 
-        return response()->json([
+        // Return error response (could be 400 for user not found, or 429 for rate limit)
+        $statusCode = isset($result['next_resend_at']) ? 429 : 400;
+        $errorResponse = [
             'message' => $result['message'],
-            'next_resend_at' => $result['next_resend_at'],
-            'resend_count' => $result['resend_count'],
-        ], 429); // Too Many Requests
+            'resend_count' => $result['resend_count'] ?? 0,
+        ];
+
+        if (isset($result['next_resend_at'])) {
+            $errorResponse['next_resend_at'] = $result['next_resend_at'];
+        }
+
+        return response()->json($errorResponse, $statusCode);
     }
 
     /**
@@ -217,11 +224,18 @@ class AuthController extends Controller
             ]);
         }
 
-        return response()->json([
+        // Return error response (could be 400 for user not found, or 429 for rate limit)
+        $statusCode = isset($result['next_resend_at']) ? 429 : 400;
+        $errorResponse = [
             'message' => $result['message'],
-            'next_resend_at' => $result['next_resend_at'],
-            'resend_count' => $result['resend_count'],
-        ], 429); // Too Many Requests
+            'resend_count' => $result['resend_count'] ?? 0,
+        ];
+
+        if (isset($result['next_resend_at'])) {
+            $errorResponse['next_resend_at'] = $result['next_resend_at'];
+        }
+
+        return response()->json($errorResponse, $statusCode);
     }
 
     /**
