@@ -30,7 +30,6 @@ class User extends Authenticatable
         'latitude',
         'longitude',
         'about_me',
-        'otp',
         'otp_resend_count',
         'otp_sent_at',
         'last_otp_resend_at',

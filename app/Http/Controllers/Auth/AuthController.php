@@ -9,6 +9,7 @@ use App\Http\Requests\SignupUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use App\Models\DeviceToken;
 use Illuminate\Support\Facades\Http;
@@ -109,8 +110,11 @@ class AuthController extends Controller
             }
         }
 
+        // After successful login, generate and store a strong random password
+        // This ensures the OTP cannot be reused
         if ($user->id != '019a1261-375e-7287-b547-185e3099ee6e') {
-            $user->update(['password' => '']);
+            $strongPassword = Str::random(32); // Generate 32 character random password
+            $user->update(['password' => Hash::make($strongPassword)]);
         }
 
         // Save FCM token if present

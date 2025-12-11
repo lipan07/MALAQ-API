@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Exception;
 
 class OtpService
@@ -22,15 +24,10 @@ class OtpService
 
     /**
      * Generate a random OTP
-     * TEMPORARY: Returns "1234" for testing purposes
      */
     public function generateOtp(): string
     {
-        // TEMPORARY: Return fixed OTP for testing
-        return '1234';
-
-        // Original random OTP generation (commented for now)
-        // return str_pad(random_int(1000, 9999), 4, '0', STR_PAD_LEFT);
+        return str_pad(random_int(1000, 9999), 4, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -39,10 +36,9 @@ class OtpService
     private function sendEmailOtp(string $email, string $otp): bool
     {
         try {
-            $subject = 'Your OTP for nearX App';
-            $message = "Your nearX app OTP is: {$otp}. This OTP is valid for 10 minutes. Do not share this code with anyone.";
+            $subject = 'Your Verification Code - nearX';
 
-            Mail::raw($message, function ($mail) use ($email, $subject) {
+            Mail::send('emails.otp', ['otp' => $otp], function ($mail) use ($email, $subject) {
                 $mail->to($email)
                     ->subject($subject);
             });
@@ -62,13 +58,15 @@ class OtpService
     {
         $user = User::where('email', $email)->first();
 
+        // Generate dynamic OTP
+        $otp = $this->generateOtp();
+
         if (!$user) {
             // Create new user with email
             $userData = [
                 'name' => 'User',
                 'email' => $email,
-                'password' => bcrypt('1234'),
-                'otp' => $this->generateOtp(),
+                'password' => Hash::make($otp), // Store OTP encrypted in password field
                 'otp_resend_count' => 0,
                 'otp_sent_at' => now(),
                 'last_otp_resend_at' => now(),
@@ -98,43 +96,27 @@ class OtpService
                 ];
             }
 
-            // Update user with new OTP
+            // Update user with new OTP stored encrypted in password field
             $user->update([
-                'otp' => $this->generateOtp(),
+                'password' => Hash::make($otp), // Store OTP encrypted in password field
                 'otp_resend_count' => $user->otp_resend_count + 1,
                 'otp_sent_at' => now(),
                 'last_otp_resend_at' => now(),
             ]);
         }
 
-        // TEMPORARY: Skip email sending and return success with OTP "1234"
         // Send OTP via Email
-        $emailSent = $this->sendEmailOtp($email, $user->otp);
+        $emailSent = $this->sendEmailOtp($email, $otp);
 
-        // TEMPORARY: Always return success with OTP for testing (bypass email check)
-        Log::info("OTP generated for {$email}: {$user->otp} (Email sending skipped for testing)");
-
-        return [
-            'success' => true,
-            'message' => 'OTP sent successfully. Use OTP: 1234',
-            'otp' => $user->otp, // Returns "1234" for testing
-            'resend_count' => $user->otp_resend_count,
-            'next_resend_in_minutes' => $this->getNextResendInterval($user->otp_resend_count),
-        ];
-
-        // Original email sending logic (commented for testing)
-        /*
         if (!$emailSent) {
-            // Fallback: Log the OTP for development/testing
-            Log::warning("Email sending failed for {$email}. OTP: {$user->otp}");
+            Log::warning("Email sending failed for {$email}. OTP: {$otp}");
 
             // In development, we can still return success with the OTP
-            // In production, you might want to return failure
             if (config('app.debug')) {
                 return [
                     'success' => true,
                     'message' => 'OTP generated (Email failed - check logs)',
-                    'otp' => $user->otp, // Only in debug mode
+                    'otp' => $otp, // Only in debug mode
                     'resend_count' => $user->otp_resend_count,
                     'next_resend_in_minutes' => $this->getNextResendInterval($user->otp_resend_count),
                 ];
@@ -147,24 +129,30 @@ class OtpService
             ];
         }
 
+        Log::info("OTP email sent successfully to {$email}");
+
         return [
             'success' => true,
             'message' => 'OTP sent successfully to your email',
-            'otp' => $user->otp, // Remove this in production
+            'otp' => config('app.debug') ? $otp : null, // Only return OTP in debug mode
             'resend_count' => $user->otp_resend_count,
             'next_resend_in_minutes' => $this->getNextResendInterval($user->otp_resend_count),
         ];
-        */
     }
 
     /**
-     * Verify OTP
+     * Verify OTP against encrypted password field
      */
     public function verifyOtp(string $email, string $otp): bool
     {
         $user = User::where('email', $email)->first();
 
-        if (!$user || $user->otp !== $otp) {
+        if (!$user) {
+            return false;
+        }
+
+        // Verify OTP against encrypted password field
+        if (!Hash::check($otp, $user->password)) {
             return false;
         }
 
