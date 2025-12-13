@@ -19,6 +19,7 @@ use App\Http\Controllers\SupportRequestController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserStatusController;
 use App\Http\Controllers\YouTubeController;
+use App\Http\Controllers\BackblazeController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -88,6 +89,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // YouTube Video Upload
     Route::post('/youtube/upload', [YouTubeController::class, 'uploadVideo']);
+
+    // Backblaze B2 Direct Upload
+    Route::get('/backblaze/credentials', [BackblazeController::class, 'getCredentials']);
 
     //Follower
     Route::post('/follow-user', [FollowerController::class, 'followUser']);
