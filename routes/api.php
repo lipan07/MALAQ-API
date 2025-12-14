@@ -18,7 +18,6 @@ use App\Http\Controllers\SmsController;
 use App\Http\Controllers\SupportRequestController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserStatusController;
-use App\Http\Controllers\YouTubeController;
 use App\Http\Controllers\BackblazeController;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -86,9 +85,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/open-chat', [ChatController::class, 'openChat']);
     Route::post('/send-message', [ChatController::class, 'sendMessage']);
     Route::post('/messages/{message}/seen', [ChatController::class, 'markMessagesAsSeen']);
-
-    // YouTube Video Upload
-    Route::post('/youtube/upload', [YouTubeController::class, 'uploadVideo']);
 
     // Backblaze B2 Direct Upload
     Route::get('/backblaze/credentials', [BackblazeController::class, 'getCredentials']);
