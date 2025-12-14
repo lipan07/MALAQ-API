@@ -6,7 +6,7 @@ use App\Http\Requests\StorePgGuestHouseRequest;
 use App\Http\Requests\UpdatePgGuestHouseRequest;
 use App\Models\PostPgGuestHouse;
 
-class PostPostPgGuestHouseController extends Controller
+class PostPgGuestHouseController extends Controller
 {
     /**
      * Display a listing of the resource.
