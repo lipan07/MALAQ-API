@@ -56,6 +56,11 @@ class Post extends Model
         return $this->morphMany(Image::class, 'imageable');
     }
 
+    public function videos(): MorphMany
+    {
+        return $this->morphMany(Video::class, 'videoable');
+    }
+
     public function chats()
     {
         return $this->hasMany(Chat::class, 'post_id', 'id');

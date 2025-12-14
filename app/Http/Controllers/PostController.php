@@ -426,6 +426,9 @@ class PostController extends Controller
         // Step 3: Handle the images
         $this->handlePostImages($request, $post);
 
+        // Step 3.5: Handle the videos
+        $this->handlePostVideos($request, $post);
+
         // Step 4: Handle category-specific models
         $this->handleCategorySpecificModels($request, $post);
 
@@ -461,6 +464,20 @@ class PostController extends Controller
                     'url' => config('app.url') . Storage::url($path)
                 ]);
             }
+        }
+    }
+
+    private function handlePostVideos(Request $request, Post $post)
+    {
+        // Handle new video URL
+        if ($request->has('videoUrl') && $request->videoUrl) {
+            // Delete existing videos for this post
+            $post->videos()->delete();
+            
+            // Create new video record
+            $post->videos()->create([
+                'url' => $request->videoUrl
+            ]);
         }
     }
 
@@ -806,6 +823,9 @@ class PostController extends Controller
 
         // Step 3: Handle the images
         $this->handlePostUpdateImages($request, $post);
+
+        // Step 3.5: Handle the videos
+        $this->handlePostVideos($request, $post);
 
         // Step 4: Handle category-specific models
         $this->handleCategorySpecificModels($request, $post);

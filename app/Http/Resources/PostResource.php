@@ -34,6 +34,7 @@ class PostResource extends JsonResource
             'user' => $this->user,
             'category' => $this->category,
             'images' => $this->images->pluck('url'), // Get only the URL of each image
+            'videos' => $this->videos->pluck('url'), // Get only the URL of each video
             'post_details' => $this->mobile ??
                 $this->car ??
                 $this->housesApartment ??
