@@ -92,6 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Backblaze B2 Direct Upload
     Route::get('/backblaze/credentials', [BackblazeController::class, 'getCredentials']);
+    Route::post('/backblaze/upload-video', [BackblazeController::class, 'uploadVideo']);
 
     //Follower
     Route::post('/follow-user', [FollowerController::class, 'followUser']);
