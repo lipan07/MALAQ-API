@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('videos', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('url');
-            $table->morphs('videoable');
+            $table->uuidMorphs('videoable'); // Use uuidMorphs for UUID foreign keys
             $table->timestamps();
         });
     }

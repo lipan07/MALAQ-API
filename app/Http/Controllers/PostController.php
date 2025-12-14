@@ -469,15 +469,31 @@ class PostController extends Controller
 
     private function handlePostVideos(Request $request, Post $post)
     {
-        // Handle new video URL
-        if ($request->has('videoUrl') && $request->videoUrl) {
-            // Delete existing videos for this post
-            $post->videos()->delete();
-            
-            // Create new video record
-            $post->videos()->create([
-                'url' => $request->videoUrl
+        try {
+            // Handle new video URL
+            if ($request->has('videoUrl')) {
+                $videoUrl = $request->input('videoUrl');
+                
+                if (!empty($videoUrl) && filter_var($videoUrl, FILTER_VALIDATE_URL)) {
+                    // Delete existing videos for this post
+                    $post->videos()->delete();
+                    
+                    // Create new video record
+                    $post->videos()->create([
+                        'url' => $videoUrl
+                    ]);
+                } elseif (empty($videoUrl) || $videoUrl === null) {
+                    // If videoUrl is explicitly empty/null, delete all videos
+                    $post->videos()->delete();
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error handling post videos: ' . $e->getMessage(), [
+                'post_id' => $post->id,
+                'video_url' => $request->input('videoUrl'),
+                'trace' => $e->getTraceAsString()
             ]);
+            // Don't throw - allow post creation/update to continue even if video handling fails
         }
     }
 
