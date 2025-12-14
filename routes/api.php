@@ -88,6 +88,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Backblaze B2 Direct Upload
     Route::get('/backblaze/credentials', [BackblazeController::class, 'getCredentials']);
+    Route::get('/backblaze/signed-url', [BackblazeController::class, 'getSignedUrl']);
     Route::post('/backblaze/upload-video', [BackblazeController::class, 'uploadVideo'])
         ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidatePostSize::class])
         ->middleware(['allow.large.uploads', 'custom.validate.post.size']);

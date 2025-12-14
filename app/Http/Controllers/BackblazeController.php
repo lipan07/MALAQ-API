@@ -207,4 +207,92 @@ class BackblazeController extends Controller
             'authorizationToken' => $data['authorizationToken'],
         ];
     }
+
+    /**
+     * Generate signed download URL for private Backblaze files
+     * GET /api/backblaze/signed-url?fileId={fileId}&fileName={fileName}
+     */
+    public function getSignedUrl(Request $request)
+    {
+        try {
+            $request->validate([
+                'fileId' => 'required|string',
+                'fileName' => 'required|string',
+            ]);
+
+            $fileId = $request->input('fileId');
+            $fileName = $request->input('fileName');
+
+            $accountId = env('BACKBLAZE_ACCOUNT_ID');
+            $applicationKey = env('BACKBLAZE_APPLICATION_KEY');
+            $bucketName = env('BACKBLAZE_BUCKET_NAME');
+
+            if (!$accountId || !$applicationKey || !$bucketName) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Backblaze credentials not configured',
+                ], 500);
+            }
+
+            // Authorize with Backblaze
+            $authResponse = $this->authorizeAccount($accountId, $applicationKey);
+            if (!$authResponse['success']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to authorize with Backblaze',
+                ], 500);
+            }
+
+            $authToken = $authResponse['authorizationToken'];
+            $apiUrl = $authResponse['apiUrl'];
+            $downloadUrl = $authResponse['downloadUrl'];
+
+            // Get download authorization (valid for 1 hour)
+            $ch = curl_init($apiUrl . '/b2api/v2/b2_get_download_authorization');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: ' . $authToken,
+                'Content-Type: application/json',
+            ]);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                'bucketId' => env('BACKBLAZE_BUCKET_ID'),
+                'fileNamePrefix' => $fileName,
+                'validDurationInSeconds' => 3600, // 1 hour
+            ]));
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode !== 200) {
+                // If download authorization fails, try direct download with auth token
+                $signedUrl = $downloadUrl . '/file/' . $bucketName . '/' . urlencode($fileName) . '?Authorization=' . urlencode($authToken);
+
+                return response()->json([
+                    'success' => true,
+                    'signedUrl' => $signedUrl,
+                    'expiresIn' => 3600,
+                ]);
+            }
+
+            $data = json_decode($response, true);
+            $downloadAuthToken = $data['authorizationToken'];
+
+            // Construct signed URL
+            $signedUrl = $downloadUrl . '/file/' . $bucketName . '/' . urlencode($fileName) . '?Authorization=' . urlencode($downloadAuthToken);
+
+            return response()->json([
+                'success' => true,
+                'signedUrl' => $signedUrl,
+                'expiresIn' => 3600,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Backblaze signed URL error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate signed URL: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }

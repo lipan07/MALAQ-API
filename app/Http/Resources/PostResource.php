@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Services\BackblazeService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,6 +15,20 @@ class PostResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        // Generate signed URLs for videos (if they're from Backblaze)
+        $videoUrls = [];
+        if ($this->videos && $this->videos->count() > 0) {
+            $backblazeService = app(BackblazeService::class);
+            $videoUrls = $this->videos->map(function ($video) use ($backblazeService) {
+                $url = $video->url;
+                // Check if URL is from Backblaze (contains backblazeb2.com)
+                if ($url && strpos($url, 'backblazeb2.com') !== false) {
+                    return $backblazeService->getSignedUrl($url);
+                }
+                return $url;
+            })->filter()->values()->toArray();
+        }
+
         return [
             'id' => $this->id,
             'category_id' => $this->category_id,
@@ -34,7 +49,7 @@ class PostResource extends JsonResource
             'user' => $this->user,
             'category' => $this->category,
             'images' => $this->images->pluck('url'), // Get only the URL of each image
-            'videos' => $this->videos->pluck('url'), // Get only the URL of each video
+            'videos' => $videoUrls, // Get signed URLs for videos
             'post_details' => $this->mobile ??
                 $this->car ??
                 $this->housesApartment ??
