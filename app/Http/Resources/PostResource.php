@@ -15,18 +15,19 @@ class PostResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // Generate signed URLs for videos (if they're from Backblaze)
+        // Get images from posts table (JSON column)
+        $imageUrls = $this->images ?? [];
+        
+        // Get videos from posts table (JSON column) and generate signed URLs for Backblaze videos
         $videoUrls = [];
-        if ($this->videos && $this->videos->count() > 0) {
+        if ($this->videos && is_array($this->videos) && count($this->videos) > 0) {
             $backblazeService = app(BackblazeService::class);
-            $videoUrls = $this->videos->map(function ($video) use ($backblazeService) {
-                $url = $video->url;
-                // Check if URL is from Backblaze (contains backblazeb2.com)
+            $videoUrls = array_map(function ($url) use ($backblazeService) {
                 if ($url && strpos($url, 'backblazeb2.com') !== false) {
                     return $backblazeService->getSignedUrl($url);
                 }
                 return $url;
-            })->filter()->values()->toArray();
+            }, array_filter($this->videos));
         }
 
         return [
@@ -48,8 +49,8 @@ class PostResource extends JsonResource
             'updated_at' => $this->updated_at,
             'user' => $this->user,
             'category' => $this->category,
-            'images' => $this->images->pluck('url'), // Get only the URL of each image
-            'videos' => $videoUrls, // Get signed URLs for videos
+            'images' => $imageUrls, // Get images from posts table JSON column
+            'videos' => $videoUrls, // Get signed URLs for videos from posts table JSON column
             'post_details' => $this->mobile ??
                 $this->car ??
                 $this->housesApartment ??

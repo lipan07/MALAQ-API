@@ -33,12 +33,16 @@ class Post extends Model
         'type',
         'view_count',
         'like_count',
+        'images',
+        'videos',
     ];
 
     protected $casts = [
         'type' => PostType::class,
         'status' => PostStatus::class,
         'show_phone' => 'boolean',
+        'images' => 'array',
+        'videos' => 'array',
     ];
 
     public function user()

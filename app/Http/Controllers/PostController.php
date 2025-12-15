@@ -310,7 +310,6 @@ class PostController extends Controller
         $finalPosts->load([
             'user:id,name,status,last_activity',
             'category:id,name',
-            'images:id,url,imageable_id',
         ]);
 
         // Check if it's page 1 and user is logged in, then merge pending posts at the top
@@ -328,7 +327,6 @@ class PostController extends Controller
                 $pendingPosts->load([
                     'user:id,name,status,last_activity',
                     'category:id,name',
-                    'images:id,url,imageable_id',
                 ]);
 
                 // Get current active posts items
@@ -375,7 +373,6 @@ class PostController extends Controller
         $posts->load([
             'user',
             'category',
-            'images',
         ]);
 
         $posts = ServicesPostService::fetchPostData($posts);
@@ -456,14 +453,15 @@ class PostController extends Controller
     private function handlePostImages(Request $request, Post $post)
     {
         if ($request->hasFile('new_images')) {
+            $imageUrls = $post->images ?? [];
             foreach ($request->file('new_images') as $imageFile) {
                 // Store the image
                 $path = $imageFile->store($request->guard_name . '/images', 'public');
-                // Save image record in the database
-                $post->images()->create([
-                    'url' => config('app.url') . Storage::url($path)
-                ]);
+                // Add image URL to the array
+                $imageUrls[] = config('app.url') . Storage::url($path);
             }
+            // Update post with new images array
+            $post->update(['images' => $imageUrls]);
         }
     }
 
@@ -475,16 +473,11 @@ class PostController extends Controller
                 $videoUrl = $request->input('videoUrl');
                 
                 if (!empty($videoUrl) && filter_var($videoUrl, FILTER_VALIDATE_URL)) {
-                    // Delete existing videos for this post
-                    $post->videos()->delete();
-                    
-                    // Create new video record
-                    $post->videos()->create([
-                        'url' => $videoUrl
-                    ]);
+                    // Store video URL in posts table
+                    $post->update(['videos' => [$videoUrl]]);
                 } elseif (empty($videoUrl) || $videoUrl === null) {
-                    // If videoUrl is explicitly empty/null, delete all videos
-                    $post->videos()->delete();
+                    // If videoUrl is explicitly empty/null, remove all videos
+                    $post->update(['videos' => null]);
                 }
             }
         } catch (\Exception $e) {
@@ -703,7 +696,6 @@ class PostController extends Controller
         // Fetch the post along with required relationships
         $posts = Post::with([
             'category',
-            'images',
             'user', // Ensure post owner is fetched
         ])->where('id', $post->id)->get();
 
@@ -854,37 +846,45 @@ class PostController extends Controller
     {
         // Handle case when no image parameters are passed
         if (!$request->hasAny(['existing_images', 'new_images', 'deleted_images'])) {
-            // Remove all existing images
-            $post->images()->each(function ($image) {
-                $relativePath = str_replace(config('app.url') . '/storage/', '', $image->url);
+            // Delete all image files from storage
+            $currentImages = $post->images ?? [];
+            foreach ($currentImages as $imageUrl) {
+                $relativePath = str_replace(config('app.url') . '/storage/', '', $imageUrl);
                 Storage::disk('public')->delete($relativePath);
-                $image->delete();
-            });
+            }
+            // Remove all images from posts table
+            $post->update(['images' => null]);
             return;
         }
 
+        // Start with existing images if provided, otherwise use current images
+        $currentImages = $request->has('existing_images') 
+            ? $request->existing_images 
+            : ($post->images ?? []);
+
         // Handle deleted images
         if ($request->has('deleted_images')) {
-            $imagesToDelete = $post->images()
-                ->whereIn('url', $request->deleted_images)
-                ->get();
-
-            foreach ($imagesToDelete as $image) {
-                $relativePath = str_replace(config('app.url') . '/storage/', '', $image->url);
+            $deletedUrls = $request->deleted_images;
+            foreach ($deletedUrls as $imageUrl) {
+                // Delete file from storage
+                $relativePath = str_replace(config('app.url') . '/storage/', '', $imageUrl);
                 Storage::disk('public')->delete($relativePath);
-                $image->delete();
             }
+            // Remove deleted images from array
+            $currentImages = array_values(array_diff($currentImages, $deletedUrls));
         }
 
         // Handle new images
         if ($request->hasFile('new_images')) {
+            $guardName = $request->guard_name ?? Category::getGuardNameById($post->category_id) ?? 'default';
             foreach ($request->file('new_images') as $imageFile) {
-                $path = $imageFile->store($post->guard_name . '/images', 'public');
-                $post->images()->create([
-                    'url' => config('app.url') . Storage::url($path)
-                ]);
+                $path = $imageFile->store($guardName . '/images', 'public');
+                $currentImages[] = config('app.url') . Storage::url($path);
             }
         }
+
+        // Update post with final images array
+        $post->update(['images' => !empty($currentImages) ? $currentImages : null]);
     }
 
     protected function getValidationRulesForUpdate($guardName)
