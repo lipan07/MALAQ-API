@@ -55,12 +55,13 @@ class Post extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function images(): MorphMany
+    // Legacy relationships - use $this->images (JSON column) instead
+    public function imageRelations(): MorphMany
     {
         return $this->morphMany(Image::class, 'imageable');
     }
 
-    public function videos(): MorphMany
+    public function videoRelations(): MorphMany
     {
         return $this->morphMany(Video::class, 'videoable');
     }
