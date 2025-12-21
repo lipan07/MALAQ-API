@@ -13,21 +13,96 @@ class PostResource extends JsonResource
      *
      * @return array<string, mixed>
      */
+    /**
+     * Static flag to indicate if we're in list/collection mode
+     * This is set before creating the collection
+     */
+    public static $isListMode = false;
+
+    /**
+     * Check if this is a list/collection context (index method)
+     * vs single resource context (show method)
+     */
+    private function isListContext(Request $request): bool
+    {
+        // First check static flag (set by collection method)
+        if (self::$isListMode) {
+            return true;
+        }
+
+        // Fallback: check route name
+        $route = $request->route();
+        if ($route) {
+            $routeName = $route->getName();
+            $routeAction = $route->getAction();
+
+            // Check route name
+            if ($routeName) {
+                // Index routes
+                if (
+                    strpos($routeName, 'index') !== false ||
+                    strpos($routeName, 'posts.index') !== false ||
+                    strpos($routeName, 'myPost') !== false ||
+                    strpos($routeName, 'sellersPost') !== false
+                ) {
+                    return true;
+                }
+                // Show/detail routes
+                if (
+                    strpos($routeName, 'show') !== false ||
+                    strpos($routeName, 'posts.show') !== false
+                ) {
+                    return false;
+                }
+            }
+
+            // Check controller action
+            if (isset($routeAction['controller'])) {
+                $controller = $routeAction['controller'];
+                if (
+                    strpos($controller, '@index') !== false ||
+                    strpos($controller, '@myPost') !== false ||
+                    strpos($controller, '@sellersPost') !== false
+                ) {
+                    return true;
+                }
+                if (strpos($controller, '@show') !== false) {
+                    return false;
+                }
+            }
+        }
+
+        // Default: assume it's a list for performance (no signed URLs)
+        return true;
+    }
+
     public function toArray(Request $request): array
     {
         // Get images from posts table (JSON column)
         $imageUrls = $this->images ?? [];
-        
-        // Get videos from posts table (JSON column) and generate signed URLs for Backblaze videos
-        $videoUrls = [];
-        if ($this->videos && is_array($this->videos) && count($this->videos) > 0) {
-            $backblazeService = app(BackblazeService::class);
-            $videoUrls = array_map(function ($url) use ($backblazeService) {
-                if ($url && strpos($url, 'backblazeb2.com') !== false) {
-                    return $backblazeService->getSignedUrl($url);
-                }
-                return $url;
-            }, array_filter($this->videos));
+
+        // For list/index context: just return boolean for video existence (no signed URLs)
+        // For show/detail context: return full video URLs with signed URLs
+        $isListContext = $this->isListContext($request);
+
+        if ($isListContext) {
+            // List context: return empty array for videos, boolean for has_video - much faster!
+            // No signed URL generation needed - saves significant time
+            $hasVideo = !empty($this->videos) && is_array($this->videos) && count($this->videos) > 0;
+            $videoData = []; // Empty array for list context
+        } else {
+            // Detail context: return full video URLs with signed URLs
+            $videoUrls = [];
+            if ($this->videos && is_array($this->videos) && count($this->videos) > 0) {
+                $backblazeService = app(BackblazeService::class);
+                $videoUrls = array_map(function ($url) use ($backblazeService) {
+                    if ($url && strpos($url, 'backblazeb2.com') !== false) {
+                        return $backblazeService->getSignedUrl($url);
+                    }
+                    return $url;
+                }, array_filter($this->videos));
+            }
+            $videoData = $videoUrls;
         }
 
         return [
@@ -50,7 +125,8 @@ class PostResource extends JsonResource
             'user' => $this->user,
             'category' => $this->category,
             'images' => $imageUrls, // Get images from posts table JSON column
-            'videos' => $videoUrls, // Get signed URLs for videos from posts table JSON column
+            'videos' => $videoData, // Empty array for list, full URLs for detail
+            'has_video' => $isListContext ? (!empty($this->videos) && is_array($this->videos) && count($this->videos) > 0) : null, // Boolean for list context only
             'post_details' => $this->mobile ??
                 $this->car ??
                 $this->housesApartment ??

@@ -358,7 +358,10 @@ class PostController extends Controller
         // Fetch additional data for posts with optimized queries
         $finalPosts = ServicesPostService::fetchPostData($finalPosts);
 
+        // Set list mode flag for performance (skip signed URL generation)
+        PostResource::$isListMode = true;
         $response = PostResource::collection($finalPosts);
+        PostResource::$isListMode = false; // Reset after collection
 
         // Cache the response
         CacheService::cachePosts($cacheKey, $response);
@@ -378,7 +381,11 @@ class PostController extends Controller
         $posts = ServicesPostService::fetchPostData($posts);
         // Return the restructured paginated result
 
-        return PostResource::collection($posts);
+        // Set list mode flag for performance (skip signed URL generation)
+        PostResource::$isListMode = true;
+        $response = PostResource::collection($posts);
+        PostResource::$isListMode = false; // Reset after collection
+        return $response;
     }
 
     /**
@@ -468,6 +475,33 @@ class PostController extends Controller
     private function handlePostVideos(Request $request, Post $post)
     {
         try {
+            // Handle deleted video - delete from Backblaze
+            if ($request->has('deleted_video_url') || $request->has('deleted_video_id')) {
+                $deletedVideoUrl = $request->input('deleted_video_url');
+                $deletedVideoId = $request->input('deleted_video_id');
+
+                try {
+                    // Call Backblaze service to delete video
+                    $backblazeService = app(\App\Services\BackblazeService::class);
+                    if ($deletedVideoId) {
+                        $backblazeService->deleteVideo($deletedVideoId);
+                    } elseif ($deletedVideoUrl) {
+                        $backblazeService->deleteVideoByUrl($deletedVideoUrl);
+                    }
+                    \Log::info('Video deleted from Backblaze', [
+                        'post_id' => $post->id,
+                        'video_id' => $deletedVideoId,
+                        'video_url' => $deletedVideoUrl,
+                    ]);
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to delete video from Backblaze', [
+                        'post_id' => $post->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                    // Continue even if Backblaze deletion fails
+                }
+            }
+
             // Handle new video URL
             if ($request->has('videoUrl')) {
                 $videoUrl = $request->input('videoUrl');
@@ -479,6 +513,9 @@ class PostController extends Controller
                     // If videoUrl is explicitly empty/null, remove all videos
                     $post->update(['videos' => null]);
                 }
+            } elseif ($request->has('deleted_video_url') || $request->has('deleted_video_id')) {
+                // If video was deleted but no new video provided, remove videos
+                $post->update(['videos' => null]);
             }
         } catch (\Exception $e) {
             \Log::error('Error handling post videos: ' . $e->getMessage(), [
@@ -713,6 +750,8 @@ class PostController extends Controller
             ->exists();
 
         // Convert collection to resource and attach additional data
+        // Don't set list mode for show method - we want full video URLs with signed URLs
+        PostResource::$isListMode = false;
         $postResource = PostResource::collection($posts)[0];
         $postResource->additional([
             'is_following_post_user' => $isFollowingPostUser,
@@ -1009,6 +1048,10 @@ class PostController extends Controller
         // Fetch additional data for posts
         $finalPosts = ServicesPostService::fetchPostData($posts);
 
-        return PostResource::collection($finalPosts);
+        // Set list mode flag for performance (skip signed URL generation)
+        PostResource::$isListMode = true;
+        $response = PostResource::collection($finalPosts);
+        PostResource::$isListMode = false; // Reset after collection
+        return $response;
     }
 }

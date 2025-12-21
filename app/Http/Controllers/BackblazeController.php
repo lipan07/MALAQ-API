@@ -154,6 +154,186 @@ class BackblazeController extends Controller
         }
     }
 
+    /**
+     * Delete video from Backblaze B2
+     * POST /api/backblaze/delete-video
+     */
+    public function deleteVideo(Request $request)
+    {
+        try {
+            $request->validate([
+                'filePath' => 'nullable|string',
+                'videoUrl' => 'nullable|string',
+                'fileId' => 'nullable|string',
+            ]);
+
+            $filePath = $request->input('filePath');
+            $videoUrl = $request->input('videoUrl');
+            $fileId = $request->input('fileId');
+
+            if (!$fileId && !$filePath && !$videoUrl) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'File ID, file path, or video URL is required',
+                ], 400);
+            }
+
+            // Get Backblaze credentials
+            $accountId = env('BACKBLAZE_ACCOUNT_ID');
+            $applicationKey = env('BACKBLAZE_APPLICATION_KEY');
+            $bucketId = env('BACKBLAZE_BUCKET_ID');
+
+            if (!$accountId || !$applicationKey || !$bucketId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Backblaze credentials not configured',
+                ], 500);
+            }
+
+            // Authorize with Backblaze
+            $authResponse = $this->authorizeAccount($accountId, $applicationKey);
+            if (!$authResponse['success']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to authorize with Backblaze',
+                ], 500);
+            }
+
+            $authToken = $authResponse['authorizationToken'];
+            $apiUrl = $authResponse['apiUrl'];
+
+            // If we have fileId, use it directly
+            if ($fileId) {
+                $deleteResponse = $this->deleteFileVersion($apiUrl, $authToken, $fileId, $filePath);
+                if ($deleteResponse['success']) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Video deleted successfully',
+                        'fileId' => $fileId,
+                    ]);
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $deleteResponse['message'],
+                    ], 500);
+                }
+            }
+
+            // If we have filePath, try to get file info first
+            if ($filePath) {
+                // List files to find the file ID
+                $listResponse = $this->listFileVersions($apiUrl, $authToken, $bucketId, $filePath);
+                if ($listResponse['success'] && !empty($listResponse['files'])) {
+                    // Get the latest version
+                    $file = $listResponse['files'][0];
+                    $deleteResponse = $this->deleteFileVersion($apiUrl, $authToken, $file['fileId'], $filePath);
+                    if ($deleteResponse['success']) {
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Video deleted successfully',
+                            'fileId' => $file['fileId'],
+                        ]);
+                    }
+                }
+            }
+
+            // If we have videoUrl, extract file path
+            if ($videoUrl) {
+                // Extract file path from URL (format: /file/bucketName/filePath)
+                if (preg_match('/\/file\/[^\/]+\/(.+)$/', $videoUrl, $matches)) {
+                    $extractedPath = $matches[1];
+                    $listResponse = $this->listFileVersions($apiUrl, $authToken, $bucketId, $extractedPath);
+                    if ($listResponse['success'] && !empty($listResponse['files'])) {
+                        $file = $listResponse['files'][0];
+                        $deleteResponse = $this->deleteFileVersion($apiUrl, $authToken, $file['fileId'], $extractedPath);
+                        if ($deleteResponse['success']) {
+                            return response()->json([
+                                'success' => true,
+                                'message' => 'Video deleted successfully',
+                                'fileId' => $file['fileId'],
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Could not find video to delete',
+            ], 404);
+        } catch (\Exception $e) {
+            Log::error('Backblaze video delete error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Delete failed: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    private function deleteFileVersion($apiUrl, $authToken, $fileId, $fileName)
+    {
+        try {
+            $ch = curl_init($apiUrl . '/b2api/v2/b2_delete_file_version');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: ' . $authToken,
+                'Content-Type: application/json',
+            ]);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                'fileId' => $fileId,
+                'fileName' => $fileName,
+            ]));
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode === 200) {
+                return ['success' => true];
+            } else {
+                return ['success' => false, 'message' => $response];
+            }
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    private function listFileVersions($apiUrl, $authToken, $bucketId, $fileName, $maxFileCount = 1)
+    {
+        try {
+            $ch = curl_init($apiUrl . '/b2api/v2/b2_list_file_versions');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: ' . $authToken,
+                'Content-Type: application/json',
+            ]);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                'bucketId' => $bucketId,
+                'startFileName' => $fileName,
+                'maxFileCount' => $maxFileCount,
+            ]));
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode === 200) {
+                $data = json_decode($response, true);
+                // Filter files that match the exact fileName
+                $matchingFiles = array_filter($data['files'] ?? [], function($file) use ($fileName) {
+                    return $file['fileName'] === $fileName;
+                });
+                return ['success' => true, 'files' => array_values($matchingFiles)];
+            } else {
+                return ['success' => false, 'files' => []];
+            }
+        } catch (\Exception $e) {
+            return ['success' => false, 'files' => []];
+        }
+    }
+
     private function authorizeAccount($accountId, $applicationKey)
     {
         $credentials = base64_encode($accountId . ':' . $applicationKey);

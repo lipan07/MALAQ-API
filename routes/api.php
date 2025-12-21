@@ -92,6 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/backblaze/upload-video', [BackblazeController::class, 'uploadVideo'])
         ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidatePostSize::class])
         ->middleware(['allow.large.uploads', 'custom.validate.post.size']);
+    Route::post('/backblaze/delete-video', [BackblazeController::class, 'deleteVideo']);
 
     //Follower
     Route::post('/follow-user', [FollowerController::class, 'followUser']);
