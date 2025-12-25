@@ -1042,7 +1042,6 @@ class PostController extends Controller
         $posts->load([
             'user',
             'category',
-            'images',
         ]);
 
         // Fetch additional data for posts

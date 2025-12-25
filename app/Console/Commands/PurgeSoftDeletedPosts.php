@@ -19,11 +19,17 @@ class PurgeSoftDeletedPosts extends Command
             ->get();
 
         foreach ($posts as $post) {
-            // Delete images from storage and DB
-            foreach ($post->images as $image) {
-                $relativePath = str_replace(config('app.url') . '/storage/', '', $image->url);
-                Storage::disk('public')->delete($relativePath);
-                $image->delete();
+            // Delete images from storage (images are now stored as JSON array in posts table)
+            $images = $post->images ?? [];
+            if (!empty($images) && is_array($images)) {
+                foreach ($images as $imageUrl) {
+                    // Handle both string URLs and object URLs
+                    $url = is_string($imageUrl) ? $imageUrl : (is_object($imageUrl) && isset($imageUrl->url) ? $imageUrl->url : null);
+                    if ($url) {
+                        $relativePath = str_replace(config('app.url') . '/storage/', '', $url);
+                        Storage::disk('public')->delete($relativePath);
+                    }
+                }
             }
 
             // Delete related chats and messages

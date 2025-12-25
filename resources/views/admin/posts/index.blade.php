@@ -83,11 +83,19 @@
                         </td>
                         <td>{{ \Carbon\Carbon::parse($post->post_time)->format('M d, Y H:i') }}</td>
                         <td>
-                            @if($post->images->count())
+                            @php
+                            $images = is_array($post->images) ? $post->images : [];
+                            $imageCount = count($images);
+                            $imageUrls = array_map(function($img) {
+                            return is_string($img) ? $img : (is_object($img) && isset($img->url) ? $img->url : null);
+                            }, $images);
+                            $imageUrls = array_filter($imageUrls);
+                            @endphp
+                            @if($imageCount > 0)
                             <button class="btn btn-sm btn-info view-images-btn"
-                                data-images="{{ json_encode($post->images->pluck('url')) }}">
+                                data-images="{{ json_encode(array_values($imageUrls)) }}">
                                 <i class="bi bi-images"></i>
-                                <span class="badge bg-white text-dark ms-1">{{ $post->images->count() }}</span>
+                                <span class="badge bg-white text-dark ms-1">{{ $imageCount }}</span>
                             </button>
                             @else
                             <span class="text-muted">-</span>

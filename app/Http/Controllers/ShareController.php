@@ -15,7 +15,7 @@ class ShareController extends Controller
     public function redirectToProduct($id)
     {
         try {
-            $post = Post::with(['category', 'images'])->find($id);
+            $post = Post::with(['category'])->find($id);
 
             if (!$post) {
                 return $this->renderNotFoundPage();
@@ -287,13 +287,29 @@ HTML;
      */
     private function getProductImageUrl($post)
     {
-        if ($post->images && $post->images->count() > 0) {
-            $firstImage = $post->images->first();
+        // Images are now stored as JSON array in posts table
+        $images = $post->images ?? [];
+        if (!empty($images) && is_array($images) && count($images) > 0) {
+            $firstImage = $images[0];
             // Ensure full URL
-            if (strpos($firstImage->url, 'http') === 0) {
-                return $firstImage->url;
+            if (is_string($firstImage) && strpos($firstImage, 'http') === 0) {
+                return $firstImage;
             }
-            return config('app.url') . '/storage/' . $firstImage->url;
+            // If it's an object with url property (legacy format)
+            if (is_object($firstImage) && isset($firstImage->url)) {
+                $imageUrl = $firstImage->url;
+                if (strpos($imageUrl, 'http') === 0) {
+                    return $imageUrl;
+                }
+                return config('app.url') . '/storage/' . $imageUrl;
+            }
+            // If it's just a string URL
+            if (is_string($firstImage)) {
+                if (strpos($firstImage, 'http') === 0) {
+                    return $firstImage;
+                }
+                return config('app.url') . '/storage/' . $firstImage;
+            }
         }
         
         // Default image or placeholder

@@ -58,7 +58,7 @@ class FollowerController extends Controller
 
     public function postLikesByPostID($post_id)
     {
-        $likes = PostLike::where('post_id', $post_id)->with('user', 'user.images')->get();
+        $likes = PostLike::where('post_id', $post_id)->with('user')->get();
         return response()->json($likes);
     }
 
@@ -91,7 +91,7 @@ class FollowerController extends Controller
     {
         $user_id = Auth::id(); // Get the ID of the logged-in user
 
-        $likes = PostLike::where('user_id', $user_id)->with('user', 'post', 'post.images')->get();
+        $likes = PostLike::where('user_id', $user_id)->with('user', 'post')->get();
 
         return response()->json($likes);
     }

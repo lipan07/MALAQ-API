@@ -42,11 +42,11 @@ class CategoryController extends Controller
 
     public function show(Category $category)
     {
-        $category->load(['children', 'posts.user', 'posts.category', 'posts.images']);
+        $category->load(['children', 'posts.user', 'posts.category']);
 
         // Get posts for this category
         $posts = $category->posts()
-            ->with(['user', 'images'])
+            ->with(['user'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 

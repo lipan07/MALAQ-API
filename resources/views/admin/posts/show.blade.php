@@ -217,19 +217,28 @@
                 </div>
 
                 <!-- Images Section -->
-                @if($post->images->count() > 0)
+                @php
+                    $images = is_array($post->images) ? $post->images : [];
+                    $imageCount = count($images);
+                @endphp
+                @if($imageCount > 0)
                 <div class="mt-4">
                     <h6 class="text-muted">Post Images</h6>
                     <div class="row">
-                        @foreach($post->images as $image)
+                        @foreach($images as $imageUrl)
+                        @php
+                            $url = is_string($imageUrl) ? $imageUrl : (is_object($imageUrl) && isset($imageUrl->url) ? $imageUrl->url : null);
+                        @endphp
+                        @if($url)
                         <div class="col-md-3 col-sm-4 col-6 mb-3">
                             <div class="card">
-                                <img src="{{ $image->url }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Post Image">
+                                <img src="{{ $url }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Post Image">
                                 <div class="card-body p-2">
-                                    <small class="text-muted">{{ $loop->iteration }} of {{ $post->images->count() }}</small>
+                                    <small class="text-muted">{{ $loop->iteration }} of {{ $imageCount }}</small>
                                 </div>
                             </div>
                         </div>
+                        @endif
                         @endforeach
                     </div>
                 </div>

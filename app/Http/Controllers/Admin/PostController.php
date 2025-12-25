@@ -12,7 +12,7 @@ class PostController extends Controller
     public function index(Request $request)
     {
         // Fetch posts with related data and paginate
-        $posts = Post::with('user', 'category', 'images')->orderBy('created_at', 'desc');
+        $posts = Post::with('user', 'category')->orderBy('created_at', 'desc');
 
         if ($request->filled('status')) {
             $posts->where('status', $request->status);
@@ -26,7 +26,7 @@ class PostController extends Controller
 
     public function show(Post $post)
     {
-        $post->load(['user', 'category', 'images']);
+        $post->load(['user', 'category']);
 
         // Load post details based on category
         $postDetails = null;
