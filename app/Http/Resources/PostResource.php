@@ -85,10 +85,12 @@ class PostResource extends JsonResource
         // For show/detail context: return full video URLs with signed URLs
         $isListContext = $this->isListContext($request);
 
+        // Calculate has_video boolean - should be consistent for both list and show contexts
+        $hasVideo = !empty($this->videos) && is_array($this->videos) && count($this->videos) > 0;
+
         if ($isListContext) {
             // List context: return empty array for videos, boolean for has_video - much faster!
             // No signed URL generation needed - saves significant time
-            $hasVideo = !empty($this->videos) && is_array($this->videos) && count($this->videos) > 0;
             $videoData = []; // Empty array for list context
         } else {
             // Detail context: return full video URLs with signed URLs
@@ -126,7 +128,7 @@ class PostResource extends JsonResource
             'category' => $this->category,
             'images' => $imageUrls, // Get images from posts table JSON column
             'videos' => $videoData, // Empty array for list, full URLs for detail
-            'has_video' => $isListContext ? (!empty($this->videos) && is_array($this->videos) && count($this->videos) > 0) : null, // Boolean for list context only
+            'has_video' => $hasVideo, // Boolean indicating if post has videos (consistent for both list and show contexts)
             'post_details' => $this->mobile ??
                 $this->car ??
                 $this->housesApartment ??
