@@ -16,12 +16,25 @@ class AssetLinksController extends Controller
      */
     public function index(): JsonResponse
     {
-        // Get SHA-256 fingerprints from environment or config
-        // You need to add these from Google Play Console
+        // Try to read from static file first (if it exists and has been updated)
+        $staticFilePath = public_path('.well-known/assetlinks.json');
+
+        if (file_exists($staticFilePath)) {
+            $fileContent = file_get_contents($staticFilePath);
+            $jsonData = json_decode($fileContent, true);
+
+            // Validate JSON
+            if (json_last_error() === JSON_ERROR_NONE && is_array($jsonData)) {
+                // Return the static file content with proper headers
+                return response()->json($jsonData, 200, [
+                    'Content-Type' => 'application/json',
+                    'Cache-Control' => 'public, max-age=3600', // Cache for 1 hour
+                ]);
+            }
+        }
+
+        // Fallback: Get SHA-256 fingerprints from environment or config
         $sha256Fingerprints = [
-            // Add your SHA-256 certificate fingerprints here
-            // You can get these from Google Play Console > Your App > Release > Setup > App signing
-            // Or from: keytool -list -v -keystore your-keystore.jks -alias your-alias
             env('ANDROID_SHA256_FINGERPRINT_1', ''),
             // Add additional fingerprints if you have multiple signing keys
             // env('ANDROID_SHA256_FINGERPRINT_2', ''),

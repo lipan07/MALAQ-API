@@ -63,4 +63,5 @@ Route::get('/product/{id}', [\App\Http\Controllers\ShareController::class, 'redi
 
 // Digital Asset Links for Android App Links verification
 // Must be accessible at: https://nearx.co/.well-known/assetlinks.json
-Route::get('/.well-known/assetlinks.json', [\App\Http\Controllers\AssetLinksController::class, 'index']);
+// This route ensures proper Content-Type header (application/json)
+Route::get('/.well-known/assetlinks.json', [\App\Http\Controllers\AssetLinksController::class, 'index'])->middleware('web');

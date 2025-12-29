@@ -43,3 +43,15 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Ensure .well-known/assetlinks.json is served with correct Content-Type
+<IfModule mod_headers.c>
+    <FilesMatch "\.well-known/assetlinks\.json$">
+        Header set Content-Type "application/json"
+    </FilesMatch>
+</IfModule>
+
+# Set Content-Type for JSON files in .well-known directory
+<IfModule mod_mime.c>
+    AddType application/json .json
+</IfModule>
