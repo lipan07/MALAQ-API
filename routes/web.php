@@ -60,3 +60,7 @@ Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('
 
 // Product sharing routes
 Route::get('/product/{id}', [\App\Http\Controllers\ShareController::class, 'redirectToProduct'])->name('product.share');
+
+// Digital Asset Links for Android App Links verification
+// Must be accessible at: https://nearx.co/.well-known/assetlinks.json
+Route::get('/.well-known/assetlinks.json', [\App\Http\Controllers\AssetLinksController::class, 'index']);
