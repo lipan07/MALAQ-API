@@ -10,7 +10,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::query();
+        $users = User::with('inviteTokens');
 
         // Advanced filter: status
         if ($request->filled('status')) {
@@ -33,6 +33,7 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        $user->load('inviteTokens.usedBy');
         return view('admin.users.show', compact('user'));
     }
 

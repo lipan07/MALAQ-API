@@ -120,6 +120,77 @@
                             </div>
                         </div>
 
+                        <!-- Invite Tokens Section -->
+                        <div class="mt-4">
+                            <h6 class="text-muted">Invite Tokens</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Token</th>
+                                            <th>Status</th>
+                                            <th>Expires At</th>
+                                            <th>Used By</th>
+                                            <th>Used At</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($user->inviteTokens as $token)
+                                        <tr>
+                                            <td>
+                                                <code class="token-code">{{ $token->token }}</code>
+                                            </td>
+                                            <td>
+                                                @if($token->is_used)
+                                                    <span class="badge bg-secondary">Used</span>
+                                                @elseif($token->expires_at->isPast())
+                                                    <span class="badge bg-danger">Expired</span>
+                                                @else
+                                                    <span class="badge bg-success">Active</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <small>{{ $token->expires_at->format('M d, Y H:i') }}</small>
+                                            </td>
+                                            <td>
+                                                @if($token->usedBy)
+                                                    <small>
+                                                        <strong>{{ $token->usedBy->name }}</strong><br>
+                                                        {{ $token->usedBy->email }}
+                                                    </small>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($token->used_at)
+                                                    <small>{{ $token->used_at->format('M d, Y H:i') }}</small>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <button type="button" class="btn btn-outline-primary copy-token-btn" data-token="{{ $token->token }}" title="Copy Token">
+                                                        <i class="bi bi-copy"></i> Copy Token
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-info copy-url-btn" data-token="{{ $token->token }}" title="Copy URL">
+                                                        <i class="bi bi-link-45deg"></i> Copy URL
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted">No invite tokens found</td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
                         <!-- User Posts -->
                         <div class="mt-4">
                             <h6 class="text-muted">User Posts</h6>
@@ -204,6 +275,61 @@
                 }
             });
         });
+
+        // Copy token functionality
+        document.querySelectorAll('.copy-token-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const token = this.getAttribute('data-token');
+                navigator.clipboard.writeText(token).then(function() {
+                    // Show feedback
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<i class="bi bi-check"></i> Copied!';
+                    btn.classList.remove('btn-outline-primary');
+                    btn.classList.add('btn-success');
+                    setTimeout(function() {
+                        btn.innerHTML = originalHTML;
+                        btn.classList.remove('btn-success');
+                        btn.classList.add('btn-outline-primary');
+                    }, 2000);
+                }).catch(function(err) {
+                    alert('Failed to copy token');
+                });
+            });
+        });
+
+        // Copy URL functionality
+        document.querySelectorAll('.copy-url-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const token = this.getAttribute('data-token');
+                const baseUrl = '{{ config("app.url", "https://big-brain.co.in") }}';
+                const inviteUrl = baseUrl + '/invite/' + token;
+                navigator.clipboard.writeText(inviteUrl).then(function() {
+                    // Show feedback
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<i class="bi bi-check"></i> Copied!';
+                    btn.classList.remove('btn-outline-info');
+                    btn.classList.add('btn-success');
+                    setTimeout(function() {
+                        btn.innerHTML = originalHTML;
+                        btn.classList.remove('btn-success');
+                        btn.classList.add('btn-outline-info');
+                    }, 2000);
+                }).catch(function(err) {
+                    alert('Failed to copy URL');
+                });
+            });
+        });
     });
 </script>
+<style>
+    .token-code {
+        background-color: #f8f9fa;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        color: #495057;
+        border: 1px solid #dee2e6;
+    }
+</style>
 @endpush

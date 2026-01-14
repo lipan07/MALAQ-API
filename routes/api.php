@@ -19,6 +19,7 @@ use App\Http\Controllers\SupportRequestController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserStatusController;
 use App\Http\Controllers\BackblazeController;
+use App\Http\Controllers\InviteTokenController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -46,6 +47,9 @@ Route::post('test-sms', [AuthController::class, 'testSms']); // Debug only
 
 // Product sharing (public route - no auth required)
 Route::post('product/{id}/track-share', [ShareController::class, 'trackShare'])->name('product.track-share');
+
+// Invite token validation (public route - no auth required)
+Route::post('invite-token/validate', [InviteTokenController::class, 'validateToken']);
 
 Route::middleware('auth:sanctum')->group(function () {
     //User
@@ -133,6 +137,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/delete-device-token', [DeviceTokenController::class, 'destroy']);
 
     Route::post('/feedback', [FeedbackController::class, 'store']);
+
+    // Invite Tokens
+    Route::get('/invite-tokens', [InviteTokenController::class, 'index']);
+    Route::get('/invite-tokens/{token}/url', [InviteTokenController::class, 'getInviteUrl']);
 });
 
 Route::get('test', function () {

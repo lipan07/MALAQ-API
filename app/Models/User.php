@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Str;
+use App\Models\InviteToken;
 
 class User extends Authenticatable
 {
@@ -116,5 +117,21 @@ class User extends Authenticatable
     public function routeNotificationForFirebase($notification)
     {
         return $this->deviceTokens()->pluck('token')->toArray();
+    }
+
+    /**
+     * Get invite tokens owned by this user
+     */
+    public function inviteTokens()
+    {
+        return $this->hasMany(InviteToken::class, 'user_id');
+    }
+
+    /**
+     * Get invite tokens used by this user
+     */
+    public function usedInviteTokens()
+    {
+        return $this->hasMany(InviteToken::class, 'used_by_user_id');
     }
 }

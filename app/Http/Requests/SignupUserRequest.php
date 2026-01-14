@@ -45,6 +45,11 @@ class SignupUserRequest extends FormRequest
                 'string',
                 'max:5',
             ],
+            'invite_token' => [
+                'nullable',
+                'string',
+                'size:7',
+            ],
         ];
     }
 

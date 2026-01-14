@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Http;
 use App\Traits\HandlesDeviceTokens;
 use App\Notifications\SendPushNotification;
 use App\Services\OtpService;
+use App\Models\InviteToken;
 
 class AuthController extends Controller
 {
@@ -58,6 +59,14 @@ class AuthController extends Controller
         }
 
         $user = User::create($userData);
+
+        // Generate 2 invite tokens for the new user
+        $this->generateInviteTokens($user);
+
+        // Handle invite token if provided
+        if ($request->has('invite_token') && $request->invite_token) {
+            $this->processInviteToken($request->invite_token, $user);
+        }
 
         // Send welcome email
         try {
@@ -286,5 +295,51 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Logged out successfully',
         ]);
+    }
+
+    /**
+     * Generate 2 invite tokens for a user
+     */
+    private function generateInviteTokens(User $user)
+    {
+        for ($i = 0; $i < 2; $i++) {
+            InviteToken::create([
+                'user_id' => $user->id,
+                'token' => InviteToken::generateUniqueToken(),
+                'expires_at' => now()->addHours(24),
+            ]);
+        }
+    }
+
+    /**
+     * Process invite token when a user registers with one
+     */
+    private function processInviteToken(string $token, User $newUser)
+    {
+        $inviteToken = InviteToken::where('token', $token)->first();
+
+        if (!$inviteToken) {
+            Log::warning("Invalid invite token used: {$token}");
+            return;
+        }
+
+        if ($inviteToken->is_used) {
+            Log::warning("Already used invite token attempted: {$token}");
+            return;
+        }
+
+        if ($inviteToken->expires_at->isPast()) {
+            Log::warning("Expired invite token used: {$token}");
+            return;
+        }
+
+        // Mark token as used
+        $inviteToken->update([
+            'is_used' => true,
+            'used_by_user_id' => $newUser->id,
+            'used_at' => now(),
+        ]);
+
+        Log::info("Invite token used: {$token} by user {$newUser->id} (invited by {$inviteToken->user_id})");
     }
 }

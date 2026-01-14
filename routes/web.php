@@ -61,6 +61,16 @@ Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('
 // Product sharing routes
 Route::get('/product/{id}', [\App\Http\Controllers\ShareController::class, 'redirectToProduct'])->name('product.share');
 
+// Invite token routes
+Route::get('/invite/{token}', function ($token) {
+    // Redirect to app with invite token
+    $appUrl = 'reuseapp://invite/' . $token;
+    $fallbackUrl = config('app.url', 'https://big-brain.co.in');
+    
+    // Try to open app, fallback to website
+    return redirect()->away($appUrl);
+})->name('invite.share');
+
 // Digital Asset Links for Android App Links verification
 // Must be accessible at: https://nearx.co/.well-known/assetlinks.json
 // This route ensures proper Content-Type header (application/json)
