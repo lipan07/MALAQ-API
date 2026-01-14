@@ -93,6 +93,18 @@
                                             </span>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td><strong>Joined Via Invite:</strong></td>
+                                        <td>
+                                            @if($user->joined_via_invite)
+                                                <span class="badge bg-info">
+                                                    <i class="bi bi-gift"></i> Yes
+                                                </span>
+                                            @else
+                                                <span class="badge bg-secondary">No</span>
+                                            @endif
+                                        </td>
+                                    </tr>
                                 </table>
                             </div>
                             <div class="col-md-6">

@@ -51,11 +51,17 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make('1234'), // Default password, not used for OTP login
+            'joined_via_invite' => false, // Default to false
         ];
 
         // Add phone number if provided
         if ($request->has('phoneNumber') && $request->phoneNumber) {
             $userData['phone_no'] = $request->phoneNumber;
+        }
+
+        // Check if user is joining via invite token
+        if ($request->has('invite_token') && $request->invite_token) {
+            $userData['joined_via_invite'] = true;
         }
 
         $user = User::create($userData);

@@ -34,6 +34,7 @@ class User extends Authenticatable
         'otp_resend_count',
         'otp_sent_at',
         'last_otp_resend_at',
+        'joined_via_invite',
     ];
 
     /**
@@ -57,6 +58,7 @@ class User extends Authenticatable
         'otp_sent_at' => 'datetime',
         'last_otp_resend_at' => 'datetime',
         'last_activity' => 'datetime',
+        'joined_via_invite' => 'boolean',
     ];
 
     public function posts()

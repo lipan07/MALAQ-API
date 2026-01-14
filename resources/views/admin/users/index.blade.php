@@ -40,6 +40,7 @@
                         <th>Email</th>
                         <th>Phone No</th>
                         <th>Status</th>
+                        <th>Joined Via Invite</th>
                         <th>Last Activity</th>
                         <th>Created At</th>
                         <th>Invite Tokens</th>
@@ -57,6 +58,15 @@
                             <span class="badge {{ $user->status === 'online' ? 'bg-success' : 'bg-secondary' }}">
                                 {{ ucfirst($user->status) }}
                             </span>
+                        </td>
+                        <td>
+                            @if($user->joined_via_invite)
+                                <span class="badge bg-info" title="User joined via invitation">
+                                    <i class="bi bi-gift"></i> Yes
+                                </span>
+                            @else
+                                <span class="badge bg-secondary">No</span>
+                            @endif
                         </td>
                         <td>
                             {{ $user->last_activity ? \Carbon\Carbon::parse($user->last_activity)->diffForHumans() : '-' }}
