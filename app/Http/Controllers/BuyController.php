@@ -38,7 +38,10 @@ class BuyController extends Controller
     public function processPayment(Request $request, $id)
     {
         $request->validate([
-            'address' => 'required|string|max:500',
+            'street_address' => 'required|string|max:255',
+            'city' => 'required|string|max:100',
+            'pin_code' => 'required|string|size:6|regex:/^[0-9]{6}$/',
+            'country' => 'required|string|max:100',
             'payment_method' => 'required|in:google_pay,other',
         ]);
 
@@ -46,12 +49,20 @@ class BuyController extends Controller
             $post = Post::findOrFail($id);
             $price = $post->amount ?? (is_object($post->post_details) ? ($post->post_details->amount ?? 0) : 0);
 
+            // Combine address fields
+            $address = [
+                'street_address' => $request->street_address,
+                'city' => $request->city,
+                'pin_code' => $request->pin_code,
+                'country' => $request->country,
+            ];
+
             // Here you would integrate with Google Pay API
             // For now, we'll just log the payment request
             Log::info('Payment request', [
                 'post_id' => $id,
                 'price' => $price,
-                'address' => $request->address,
+                'address' => $address,
                 'payment_method' => $request->payment_method,
             ]);
 

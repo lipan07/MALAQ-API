@@ -165,7 +165,17 @@
         }
 
         .form-group {
-            margin-bottom: 32px;
+            margin-bottom: 24px;
+        }
+
+        .row {
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .row > [class*="col-"] {
+            padding-left: 12px;
+            padding-right: 12px;
         }
 
         .form-label {
@@ -518,7 +528,7 @@
                             <i class="bi bi-geo-alt"></i>
                             Location
                         </span>
-                        <span class="info-value">{{ $post->address ?? 'Not specified' }}</span>
+                        <span class="info-value">{{ !empty($post->address) ? $post->address : 'Not specified' }}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">
@@ -534,22 +544,77 @@
                     <i class="bi bi-truck"></i>
                     Delivery Information
                 </div>
+                
                 <div class="form-group">
-                    <label for="address" class="form-label">
-                        <i class="bi bi-geo-alt-fill"></i>
-                        Delivery Address
+                    <label for="street_address" class="form-label">
+                        <i class="bi bi-house-door"></i>
+                        Street Address
                     </label>
-                    <textarea
+                    <input
+                        type="text"
                         class="form-control"
-                        id="address"
-                        name="address"
-                        rows="5"
-                        placeholder="Enter your complete delivery address including street, city, state, and PIN code"
-                        required></textarea>
-                    <small class="form-text">
-                        <i class="bi bi-info-circle"></i>
-                        Please provide your complete address for accurate delivery
-                    </small>
+                        id="street_address"
+                        name="street_address"
+                        placeholder="Enter your street address, building name, apartment number"
+                        required>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="city" class="form-label">
+                                <i class="bi bi-building"></i>
+                                City
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="city"
+                                name="city"
+                                placeholder="Enter your city"
+                                required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="pin_code" class="form-label">
+                                <i class="bi bi-mailbox"></i>
+                                PIN Code
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="pin_code"
+                                name="pin_code"
+                                placeholder="PIN Code"
+                                pattern="[0-9]{6}"
+                                maxlength="6"
+                                required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="country" class="form-label">
+                        <i class="bi bi-globe"></i>
+                        Country
+                    </label>
+                    <select
+                        class="form-control form-select"
+                        id="country"
+                        name="country"
+                        required>
+                        <option value="India" selected>India</option>
+                        <option value="United States">United States</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="Canada">Canada</option>
+                        <option value="Australia">Australia</option>
+                        <option value="Germany">Germany</option>
+                        <option value="France">France</option>
+                        <option value="Japan">Japan</option>
+                        <option value="China">China</option>
+                        <option value="Other">Other</option>
+                    </select>
                 </div>
 
                 <!-- Payment Method -->
@@ -630,13 +695,24 @@
             e.preventDefault();
 
             const formData = new FormData(this);
-            const address = formData.get('address');
+            const streetAddress = formData.get('street_address');
+            const city = formData.get('city');
+            const pinCode = formData.get('pin_code');
+            const country = formData.get('country');
             const paymentMethod = formData.get('payment_method');
 
-            if (!address || !paymentMethod) {
+            if (!streetAddress || !city || !pinCode || !country || !paymentMethod) {
                 showAlert('Please fill in all required fields', 'danger');
                 return;
             }
+
+            // Combine address fields
+            const address = {
+                street_address: streetAddress,
+                city: city,
+                pin_code: pinCode,
+                country: country
+            };
 
             const submitBtn = document.getElementById('submitBtn');
             const submitText = document.getElementById('submitText');
@@ -650,7 +726,7 @@
             try {
                 if (paymentMethod === 'google_pay') {
                     // Process Google Pay payment
-                    await processGooglePay();
+                    await processGooglePay(address);
                 } else {
                     // Process other payment methods
                     await processPayment(address, paymentMethod);
@@ -664,8 +740,7 @@
             }
         });
 
-        async function processGooglePay() {
-            const address = document.getElementById('address').value;
+        async function processGooglePay(address) {
 
             try {
                 // Check if Google Pay is available
@@ -746,7 +821,10 @@
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
-                    address: address,
+                    street_address: address.street_address,
+                    city: address.city,
+                    pin_code: address.pin_code,
+                    country: address.country,
                     payment_method: paymentMethod,
                     payment_data: paymentData
                 })
@@ -797,7 +875,10 @@
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
-                    address: address,
+                    street_address: address.street_address,
+                    city: address.city,
+                    pin_code: address.pin_code,
+                    country: address.country,
                     payment_method: paymentMethod
                 })
             });
@@ -874,6 +955,11 @@
 
         // Load Google Pay on page load
         loadGooglePay();
+
+        // PIN code validation - only numbers
+        document.getElementById('pin_code').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
     </script>
 </body>
 
