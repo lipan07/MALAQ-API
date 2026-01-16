@@ -21,8 +21,8 @@ class ShareController extends Controller
                 return $this->renderNotFoundPage();
             }
 
-            // Extract domain from APP_URL
-            $appUrl = config('app.url');
+            // Extract domain from APP_URL with fallback
+            $appUrl = config('app.url', 'https://nearx.co');
             
             // Generate deep link URL
             $deepLink = "reuseapp://product/{$id}";
@@ -301,19 +301,19 @@ HTML;
                 if (strpos($imageUrl, 'http') === 0) {
                     return $imageUrl;
                 }
-                return config('app.url') . '/storage/' . $imageUrl;
+                return config('app.url', 'https://nearx.co') . '/storage/' . $imageUrl;
             }
             // If it's just a string URL
             if (is_string($firstImage)) {
                 if (strpos($firstImage, 'http') === 0) {
                     return $firstImage;
                 }
-                return config('app.url') . '/storage/' . $firstImage;
+                return config('app.url', 'https://nearx.co') . '/storage/' . $firstImage;
             }
         }
-        
+
         // Default image or placeholder
-        return config('app.url') . '/images/reuse-logo.png'; // Update with your logo path
+        return config('app.url', 'https://nearx.co') . '/images/reuse-logo.png'; // Update with your logo path
     }
 
     /**
@@ -341,7 +341,7 @@ HTML;
      */
     private function renderNotFoundPage()
     {
-        $appUrl = htmlspecialchars(config('app.url'));
+        $appUrl = htmlspecialchars(config('app.url', 'https://nearx.co'));
         
         $html = <<<HTML
 <!DOCTYPE html>
