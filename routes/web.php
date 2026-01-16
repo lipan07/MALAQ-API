@@ -65,6 +65,10 @@ Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('
 // Product sharing routes
 Route::get('/product/{id}', [\App\Http\Controllers\ShareController::class, 'redirectToProduct'])->name('product.share');
 
+// Buy product routes
+Route::get('/buy/{id}', [\App\Http\Controllers\BuyController::class, 'show'])->name('buy.show');
+Route::post('/buy/{id}/payment', [\App\Http\Controllers\BuyController::class, 'processPayment'])->name('buy.payment');
+
 // Invite token routes
 Route::get('/invite/{token}', function ($token) {
     // Redirect to app with invite token
