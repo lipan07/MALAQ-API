@@ -43,134 +43,80 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-            background-attachment: fixed;
+            background: #ffffff;
             min-height: 100vh;
-            padding: 20px;
             color: var(--gray-800);
             line-height: 1.6;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 680px;
-            margin: 0 auto;
-            animation: fadeInUp 0.6s ease-out;
+        .container-fluid {
+            padding: 0;
+            max-width: 100%;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .card {
-            background: white;
-            border-radius: 24px;
-            box-shadow: var(--shadow-xl);
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
-        .product-header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            padding: 40px 30px;
-            text-align: center;
+        .product-image-section {
+            width: 100%;
             position: relative;
+            background: var(--gray-50);
             overflow: hidden;
-        }
-
-        .product-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            animation: pulse 3s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-                opacity: 0.5;
-            }
-
-            50% {
-                transform: scale(1.1);
-                opacity: 0.3;
-            }
-        }
-
-        .product-image-wrapper {
-            position: relative;
-            display: inline-block;
-            margin-bottom: 20px;
-            z-index: 1;
         }
 
         .product-image {
-            width: 180px;
-            height: 180px;
+            width: 100%;
+            height: 400px;
             object-fit: cover;
-            border-radius: 20px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            box-shadow: var(--shadow-xl);
-            background: white;
-            transition: transform 0.3s ease;
+            display: block;
         }
 
-        .product-image:hover {
-            transform: scale(1.05);
+        .product-image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+            padding: 30px;
+            color: white;
         }
 
         .product-title {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 700;
             color: white;
             margin-bottom: 8px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 1;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .product-price {
-            font-size: 42px;
+            font-size: 36px;
             font-weight: 800;
             color: white;
-            margin-top: 12px;
-            position: relative;
-            z-index: 1;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .product-price::before {
             content: '₹';
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 600;
             margin-right: 4px;
         }
 
-        .form-section {
-            padding: 40px;
+        .content-section {
+            padding: 40px 24px;
+            max-width: 800px;
+            margin: 0 auto;
         }
 
         .section-title {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
             color: var(--gray-900);
             margin-bottom: 24px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--gray-200);
         }
 
         .section-title i {
@@ -190,34 +136,26 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 0;
+            padding: 14px 0;
             border-bottom: 1px solid var(--gray-200);
-            transition: background 0.2s;
         }
 
         .info-item:last-child {
             border-bottom: none;
         }
 
-        .info-item:hover {
-            background: rgba(99, 102, 241, 0.05);
-            margin: 0 -12px;
-            padding: 12px;
-            border-radius: 8px;
-        }
-
         .info-label {
             color: var(--gray-600);
             font-weight: 500;
-            font-size: 14px;
+            font-size: 15px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .info-label i {
             color: var(--primary);
-            font-size: 16px;
+            font-size: 18px;
         }
 
         .info-value {
@@ -227,29 +165,29 @@
         }
 
         .form-group {
-            margin-bottom: 28px;
+            margin-bottom: 32px;
         }
 
         .form-label {
             font-weight: 600;
             color: var(--gray-900);
-            margin-bottom: 10px;
-            font-size: 15px;
+            margin-bottom: 12px;
+            font-size: 16px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .form-label i {
             color: var(--primary);
-            font-size: 18px;
+            font-size: 20px;
         }
 
         .form-control,
         .form-select {
             border-radius: 12px;
             border: 2px solid var(--gray-200);
-            padding: 14px 18px;
+            padding: 16px 20px;
             font-size: 15px;
             transition: all 0.3s ease;
             background: white;
@@ -269,13 +207,13 @@
 
         textarea.form-control {
             resize: vertical;
-            min-height: 120px;
+            min-height: 140px;
         }
 
         .form-text {
             color: var(--gray-500);
             font-size: 13px;
-            margin-top: 6px;
+            margin-top: 8px;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -286,7 +224,7 @@
         }
 
         .payment-section {
-            background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
+            background: var(--gray-50);
             border: 2px solid var(--gray-200);
             border-radius: 16px;
             padding: 28px;
@@ -302,14 +240,14 @@
         .payment-method {
             border: 2px solid var(--gray-200);
             border-radius: 14px;
-            padding: 20px;
+            padding: 22px;
             cursor: pointer;
             transition: all 0.3s ease;
             background: white;
             position: relative;
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 18px;
         }
 
         .payment-method:hover {
@@ -326,8 +264,8 @@
         }
 
         .payment-method input[type="radio"] {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             cursor: pointer;
             accent-color: var(--primary);
         }
@@ -339,28 +277,28 @@
 
         .payment-method-label strong {
             display: block;
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 600;
             color: var(--gray-900);
-            margin-bottom: 4px;
+            margin-bottom: 5px;
         }
 
         .payment-method-label small {
             display: block;
             color: var(--gray-500);
-            font-size: 13px;
+            font-size: 14px;
         }
 
         .payment-icon {
-            width: 48px;
-            height: 48px;
+            width: 52px;
+            height: 52px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: var(--gray-100);
             color: var(--primary);
-            font-size: 24px;
+            font-size: 26px;
         }
 
         .payment-method.selected .payment-icon {
@@ -372,8 +310,8 @@
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             border: none;
             border-radius: 14px;
-            padding: 16px 32px;
-            font-size: 16px;
+            padding: 18px 32px;
+            font-size: 17px;
             font-weight: 600;
             width: 100%;
             color: white;
@@ -383,8 +321,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin-top: 8px;
+            gap: 12px;
+            margin-top: 12px;
             position: relative;
             overflow: hidden;
         }
@@ -429,17 +367,17 @@
         }
 
         .spinner-border-sm {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             border-width: 2px;
         }
 
         .alert {
             border-radius: 12px;
             border: none;
-            padding: 16px 20px;
-            margin-bottom: 20px;
-            font-size: 14px;
+            padding: 18px 22px;
+            margin-bottom: 24px;
+            font-size: 15px;
             box-shadow: var(--shadow);
             animation: slideDown 0.3s ease-out;
         }
@@ -483,29 +421,46 @@
         }
 
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
+            .product-image {
+                height: 300px;
             }
 
-            .form-section {
-                padding: 24px;
-            }
-
-            .product-header {
-                padding: 30px 20px;
+            .product-image-overlay {
+                padding: 20px;
             }
 
             .product-title {
-                font-size: 24px;
+                font-size: 26px;
             }
 
             .product-price {
-                font-size: 36px;
+                font-size: 30px;
             }
 
+            .content-section {
+                padding: 30px 20px;
+            }
+
+            .section-title {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
             .product-image {
-                width: 140px;
-                height: 140px;
+                height: 250px;
+            }
+
+            .product-title {
+                font-size: 22px;
+            }
+
+            .product-price {
+                font-size: 26px;
+            }
+
+            .content-section {
+                padding: 24px 16px;
             }
         }
 
@@ -530,114 +485,118 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="card">
-            <!-- Product Header -->
-            <div class="product-header">
-                <div class="product-image-wrapper">
-                    <img src="{{ $productImage }}" alt="{{ $productTitle }}" class="product-image" onerror="this.style.display='none';">
-                </div>
+    <div class="container-fluid">
+        <!-- Full Width Product Image -->
+        <div class="product-image-section">
+            <img src="{{ $productImage }}" alt="{{ $productTitle }}" class="product-image" onerror="this.style.display='none';">
+            <div class="product-image-overlay">
                 <div class="product-title">{{ $productTitle }}</div>
                 <div class="product-price">{{ number_format($price, 2) }}</div>
             </div>
+        </div>
 
-            <!-- Form Section -->
-            <div class="form-section">
-                <form id="buyForm">
-                    @csrf
+        <!-- Content Section -->
+        <div class="content-section">
+            <form id="buyForm">
+                @csrf
 
-                    <!-- Product Info -->
-                    <div class="product-info-card">
-                        <div class="info-item">
-                            <span class="info-label">
-                                <i class="bi bi-tag"></i>
-                                Category
-                            </span>
-                            <span class="info-value">{{ $post->category->name ?? 'Uncategorized' }}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">
-                                <i class="bi bi-geo-alt"></i>
-                                Location
-                            </span>
-                            <span class="info-value">{{ $post->address ?? 'Not specified' }}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">
-                                <i class="bi bi-person"></i>
-                                Seller
-                            </span>
-                            <span class="info-value">{{ $post->user->name ?? 'Unknown' }}</span>
-                        </div>
+                <!-- Product Info -->
+                <div class="section-title">
+                    <i class="bi bi-info-circle"></i>
+                    Product Details
+                </div>
+                <div class="product-info-card">
+                    <div class="info-item">
+                        <span class="info-label">
+                            <i class="bi bi-tag"></i>
+                            Category
+                        </span>
+                        <span class="info-value">{{ $post->category->name ?? 'Uncategorized' }}</span>
                     </div>
-
-                    <!-- Delivery Address -->
-                    <div class="form-group">
-                        <label for="address" class="form-label">
-                            <i class="bi bi-geo-alt-fill"></i>
-                            Delivery Address
-                        </label>
-                        <textarea
-                            class="form-control"
-                            id="address"
-                            name="address"
-                            rows="4"
-                            placeholder="Enter your complete delivery address including street, city, state, and PIN code"
-                            required></textarea>
-                        <small class="form-text">
-                            <i class="bi bi-info-circle"></i>
-                            Please provide your complete address for accurate delivery
-                        </small>
+                    <div class="info-item">
+                        <span class="info-label">
+                            <i class="bi bi-geo-alt"></i>
+                            Location
+                        </span>
+                        <span class="info-value">{{ $post->address ?? 'Not specified' }}</span>
                     </div>
+                    <div class="info-item">
+                        <span class="info-label">
+                            <i class="bi bi-person"></i>
+                            Seller
+                        </span>
+                        <span class="info-value">{{ $post->user->name ?? 'Unknown' }}</span>
+                    </div>
+                </div>
 
-                    <!-- Payment Method -->
-                    <div class="form-group">
-                        <div class="section-title">
-                            <i class="bi bi-credit-card-2-front"></i>
-                            Payment Method
+                <!-- Delivery Address -->
+                <div class="section-title">
+                    <i class="bi bi-truck"></i>
+                    Delivery Information
+                </div>
+                <div class="form-group">
+                    <label for="address" class="form-label">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        Delivery Address
+                    </label>
+                    <textarea
+                        class="form-control"
+                        id="address"
+                        name="address"
+                        rows="5"
+                        placeholder="Enter your complete delivery address including street, city, state, and PIN code"
+                        required></textarea>
+                    <small class="form-text">
+                        <i class="bi bi-info-circle"></i>
+                        Please provide your complete address for accurate delivery
+                    </small>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="section-title">
+                    <i class="bi bi-credit-card-2-front"></i>
+                    Payment Method
+                </div>
+                <div class="payment-section">
+                    <div class="payment-methods">
+                        <div class="payment-method" onclick="selectPaymentMethod('google_pay')">
+                            <input type="radio" name="payment_method" id="google_pay" value="google_pay" required>
+                            <div class="payment-icon">
+                                <i class="bi bi-google"></i>
+                            </div>
+                            <div class="payment-method-label">
+                                <label for="google_pay" style="cursor: pointer; margin: 0;">
+                                    <strong>Google Pay</strong>
+                                    <small>Fast and secure payment with Google Pay</small>
+                                </label>
+                            </div>
                         </div>
-                        <div class="payment-section">
-                            <div class="payment-methods">
-                                <div class="payment-method" onclick="selectPaymentMethod('google_pay')">
-                                    <input type="radio" name="payment_method" id="google_pay" value="google_pay" required>
-                                    <div class="payment-icon">
-                                        <i class="bi bi-google"></i>
-                                    </div>
-                                    <div class="payment-method-label">
-                                        <label for="google_pay" style="cursor: pointer; margin: 0;">
-                                            <strong>Google Pay</strong>
-                                            <small>Fast and secure payment with Google Pay</small>
-                                        </label>
-                                    </div>
-                                </div>
 
-                                <div class="payment-method" onclick="selectPaymentMethod('other')">
-                                    <input type="radio" name="payment_method" id="other" value="other">
-                                    <div class="payment-icon">
-                                        <i class="bi bi-wallet2"></i>
-                                    </div>
-                                    <div class="payment-method-label">
-                                        <label for="other" style="cursor: pointer; margin: 0;">
-                                            <strong>Other Payment Methods</strong>
-                                            <small>UPI, Credit/Debit Card, Net Banking</small>
-                                        </label>
-                                    </div>
-                                </div>
+                        <div class="payment-method" onclick="selectPaymentMethod('other')">
+                            <input type="radio" name="payment_method" id="other" value="other">
+                            <div class="payment-icon">
+                                <i class="bi bi-wallet2"></i>
+                            </div>
+                            <div class="payment-method-label">
+                                <label for="other" style="cursor: pointer; margin: 0;">
+                                    <strong>Other Payment Methods</strong>
+                                    <small>UPI, Credit/Debit Card, Net Banking</small>
+                                </label>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Alert Messages -->
-                    <div id="alertContainer"></div>
+                <!-- Alert Messages -->
+                <div id="alertContainer"></div>
 
-                    <!-- Submit Button -->
-                    <button type="submit" class="btn btn-primary" id="submitBtn">
-                        <span class="loading spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        <span id="submitText">Proceed to Payment</span>
-                        <i class="bi bi-arrow-right"></i>
-                    </button>
-                </form>
-            </div>
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <span class="loading spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span id="submitText">Proceed to Payment</span>
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
         </div>
     </div>
 
