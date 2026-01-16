@@ -61,11 +61,11 @@
                         </td>
                         <td>
                             @if($user->joined_via_invite)
-                                <span class="badge bg-info" title="User joined via invitation">
-                                    <i class="bi bi-gift"></i> Yes
-                                </span>
+                            <span class="badge bg-info" title="User joined via invitation">
+                                <i class="bi bi-gift"></i> Yes
+                            </span>
                             @else
-                                <span class="badge bg-secondary">No</span>
+                            <span class="badge bg-secondary">No</span>
                             @endif
                         </td>
                         <td>
@@ -176,62 +176,67 @@
             </div>
             <div class="modal-body">
                 @if($user->inviteTokens && $user->inviteTokens->count() > 0)
-                    <div class="table-responsive">
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Token</th>
-                                    <th>Status</th>
-                                    <th>Expires At</th>
-                                    <th>Used By</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($user->inviteTokens as $token)
-                                <tr>
-                                    <td>
-                                        <code class="token-code">{{ $token->token }}</code>
-                                    </td>
-                                    <td>
-                                        @if($token->is_used)
-                                            <span class="badge bg-secondary">Used</span>
-                                        @elseif($token->expires_at->isPast())
-                                            <span class="badge bg-danger">Expired</span>
-                                        @else
-                                            <span class="badge bg-success">Active</span>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Status</th>
+                                <th>Expires At</th>
+                                <th>Used By</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($user->inviteTokens as $token)
+                            <tr>
+                                <td>
+                                    <code class="token-code">{{ $token->token }}</code>
+                                </td>
+                                <td>
+                                    @if($token->is_used)
+                                    <span class="badge bg-secondary">Used</span>
+                                    @elseif($token->expires_at->isPast())
+                                    <span class="badge bg-danger">Expired</span>
+                                    @else
+                                    <span class="badge bg-success">Active</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <small>{{ $token->expires_at->format('M d, Y H:i') }}</small>
+                                </td>
+                                <td>
+                                    @if($token->usedBy)
+                                    <small>{{ $token->usedBy->name }}<br>{{ $token->usedBy->email }}</small>
+                                    @else
+                                    <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" class="btn btn-outline-primary copy-token-btn" data-token="{{ $token->token }}" title="Copy Token">
+                                            <i class="bi bi-copy"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info copy-url-btn" data-token="{{ $token->token }}" title="Copy URL">
+                                            <i class="bi bi-link-45deg"></i>
+                                        </button>
+                                        @if(!$token->is_used)
+                                        <button type="button" class="btn btn-outline-warning regenerate-token-btn" data-token-id="{{ $token->id }}" data-modal-id="inviteTokensModal{{ $user->id }}" title="Regenerate Token">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                        </button>
                                         @endif
-                                    </td>
-                                    <td>
-                                        <small>{{ $token->expires_at->format('M d, Y H:i') }}</small>
-                                    </td>
-                                    <td>
-                                        @if($token->usedBy)
-                                            <small>{{ $token->usedBy->name }}<br>{{ $token->usedBy->email }}</small>
-                                        @else
-                                            <span class="text-muted">-</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <button type="button" class="btn btn-outline-primary copy-token-btn" data-token="{{ $token->token }}" title="Copy Token">
-                                                <i class="bi bi-copy"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-outline-info copy-url-btn" data-token="{{ $token->token }}" title="Copy URL">
-                                                <i class="bi bi-link-45deg"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
                 @else
-                    <div class="text-center text-muted py-4">
-                        <i class="bi bi-gift" style="font-size: 3rem;"></i>
-                        <p class="mt-2">No invite tokens found for this user.</p>
-                    </div>
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-gift" style="font-size: 3rem;"></i>
+                    <p class="mt-2">No invite tokens found for this user.</p>
+                </div>
                 @endif
             </div>
             <div class="modal-footer">
@@ -321,7 +326,7 @@
         document.querySelectorAll('.copy-url-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 const token = this.getAttribute('data-token');
-                const baseUrl = '{{ config("app.url", "https://big-brain.co.in") }}';
+                const baseUrl = '{{ config("app.url", "https://nearx.co") }}';
                 const inviteUrl = baseUrl + '/invite/' + token;
                 navigator.clipboard.writeText(inviteUrl).then(function() {
                     // Show feedback
@@ -337,6 +342,51 @@
                 }).catch(function(err) {
                     alert('Failed to copy URL');
                 });
+            });
+        });
+
+        // Regenerate token functionality
+        document.querySelectorAll('.regenerate-token-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const tokenId = this.getAttribute('data-token-id');
+                const modalId = this.getAttribute('data-modal-id');
+                const btnElement = this;
+
+                if (!confirm('Are you sure you want to regenerate this token? The old token will be invalidated.')) {
+                    return;
+                }
+
+                // Disable button and show loading
+                btnElement.disabled = true;
+                const originalHTML = btnElement.innerHTML;
+                btnElement.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+
+                // Make AJAX request
+                fetch(`/admin/invite-tokens/${tokenId}/regenerate`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            // Reload the page to show updated token
+                            location.reload();
+                        } else {
+                            alert('Failed to regenerate token');
+                            btnElement.disabled = false;
+                            btnElement.innerHTML = originalHTML;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while regenerating the token');
+                        btnElement.disabled = false;
+                        btnElement.innerHTML = originalHTML;
+                    });
             });
         });
     });

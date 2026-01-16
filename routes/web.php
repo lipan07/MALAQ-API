@@ -7,6 +7,7 @@ use App\Http\Controllers\SmsController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\InviteTokenController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,6 +53,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Categories routes
     Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
+
+    // Invite Token routes (admin only)
+    Route::post('/invite-tokens/{tokenId}/regenerate', [InviteTokenController::class, 'regenerateToken'])->name('invite-tokens.regenerate');
 });
 
 
@@ -65,7 +69,7 @@ Route::get('/product/{id}', [\App\Http\Controllers\ShareController::class, 'redi
 Route::get('/invite/{token}', function ($token) {
     // Redirect to app with invite token
     $appUrl = 'reuseapp://invite/' . $token;
-    $fallbackUrl = config('app.url', 'https://big-brain.co.in');
+    $fallbackUrl = config('app.url', 'https://nearx.co');
     
     // Try to open app, fallback to website
     return redirect()->away($appUrl);

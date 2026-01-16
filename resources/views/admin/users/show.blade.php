@@ -97,11 +97,11 @@
                                         <td><strong>Joined Via Invite:</strong></td>
                                         <td>
                                             @if($user->joined_via_invite)
-                                                <span class="badge bg-info">
-                                                    <i class="bi bi-gift"></i> Yes
-                                                </span>
+                                            <span class="badge bg-info">
+                                                <i class="bi bi-gift"></i> Yes
+                                            </span>
                                             @else
-                                                <span class="badge bg-secondary">No</span>
+                                            <span class="badge bg-secondary">No</span>
                                             @endif
                                         </td>
                                     </tr>
@@ -155,11 +155,11 @@
                                             </td>
                                             <td>
                                                 @if($token->is_used)
-                                                    <span class="badge bg-secondary">Used</span>
+                                                <span class="badge bg-secondary">Used</span>
                                                 @elseif($token->expires_at->isPast())
-                                                    <span class="badge bg-danger">Expired</span>
+                                                <span class="badge bg-danger">Expired</span>
                                                 @else
-                                                    <span class="badge bg-success">Active</span>
+                                                <span class="badge bg-success">Active</span>
                                                 @endif
                                             </td>
                                             <td>
@@ -167,19 +167,19 @@
                                             </td>
                                             <td>
                                                 @if($token->usedBy)
-                                                    <small>
-                                                        <strong>{{ $token->usedBy->name }}</strong><br>
-                                                        {{ $token->usedBy->email }}
-                                                    </small>
+                                                <small>
+                                                    <strong>{{ $token->usedBy->name }}</strong><br>
+                                                    {{ $token->usedBy->email }}
+                                                </small>
                                                 @else
-                                                    <span class="text-muted">-</span>
+                                                <span class="text-muted">-</span>
                                                 @endif
                                             </td>
                                             <td>
                                                 @if($token->used_at)
-                                                    <small>{{ $token->used_at->format('M d, Y H:i') }}</small>
+                                                <small>{{ $token->used_at->format('M d, Y H:i') }}</small>
                                                 @else
-                                                    <span class="text-muted">-</span>
+                                                <span class="text-muted">-</span>
                                                 @endif
                                             </td>
                                             <td>
@@ -190,6 +190,11 @@
                                                     <button type="button" class="btn btn-outline-info copy-url-btn" data-token="{{ $token->token }}" title="Copy URL">
                                                         <i class="bi bi-link-45deg"></i> Copy URL
                                                     </button>
+                                                    @if(!$token->is_used)
+                                                    <button type="button" class="btn btn-outline-warning regenerate-token-btn" data-token-id="{{ $token->id }}" title="Regenerate Token">
+                                                        <i class="bi bi-arrow-clockwise"></i> Regenerate
+                                                    </button>
+                                                    @endif
                                                 </div>
                                             </td>
                                         </tr>
@@ -313,7 +318,7 @@
         document.querySelectorAll('.copy-url-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 const token = this.getAttribute('data-token');
-                const baseUrl = '{{ config("app.url", "https://big-brain.co.in") }}';
+                const baseUrl = '{{ config("app.url", "https://nearx.co") }}';
                 const inviteUrl = baseUrl + '/invite/' + token;
                 navigator.clipboard.writeText(inviteUrl).then(function() {
                     // Show feedback
@@ -329,6 +334,50 @@
                 }).catch(function(err) {
                     alert('Failed to copy URL');
                 });
+            });
+        });
+
+        // Regenerate token functionality
+        document.querySelectorAll('.regenerate-token-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const tokenId = this.getAttribute('data-token-id');
+                const btnElement = this;
+
+                if (!confirm('Are you sure you want to regenerate this token? The old token will be invalidated.')) {
+                    return;
+                }
+
+                // Disable button and show loading
+                btnElement.disabled = true;
+                const originalHTML = btnElement.innerHTML;
+                btnElement.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+
+                // Make AJAX request
+                fetch(`/admin/invite-tokens/${tokenId}/regenerate`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            // Reload the page to show updated token
+                            location.reload();
+                        } else {
+                            alert('Failed to regenerate token');
+                            btnElement.disabled = false;
+                            btnElement.innerHTML = originalHTML;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while regenerating the token');
+                        btnElement.disabled = false;
+                        btnElement.innerHTML = originalHTML;
+                    });
             });
         });
     });

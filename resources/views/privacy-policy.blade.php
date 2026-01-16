@@ -54,7 +54,7 @@
     <p>We implement industry-standard measures to protect your data, but no system is 100% secure. Use the app responsibly and report any suspicious activity.</p>
 
     <h2>Contact Us</h2>
-    <p>If you have any questions about this Privacy Policy, feel free to contact us at <strong>support@big-brain.co.in</strong>.</p>
+    <p>If you have any questions about this Privacy Policy, feel free to contact us at <strong>support@nearx.co</strong>.</p>
 
     <p>By using our app, you agree to this Privacy Policy.</p>
 </body>

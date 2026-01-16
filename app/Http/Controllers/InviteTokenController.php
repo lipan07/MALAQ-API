@@ -97,12 +97,56 @@ class InviteTokenController extends Controller
             ], 404);
         }
 
-        $baseUrl = config('app.url', 'https://big-brain.co.in');
+        $baseUrl = config('app.url', 'https://nearx.co');
         $inviteUrl = "{$baseUrl}/invite/{$token}";
 
         return response()->json([
             'url' => $inviteUrl,
             'token' => $token,
+        ]);
+    }
+
+    /**
+     * Regenerate an invite token (admin only)
+     */
+    public function regenerateToken(Request $request, $tokenId)
+    {
+        $inviteToken = InviteToken::findOrFail($tokenId);
+
+        // Don't allow regenerating used tokens
+        if ($inviteToken->is_used) {
+            return response()->json([
+                'message' => 'Cannot regenerate a token that has already been used',
+            ], 400);
+        }
+
+        // Generate new token and reset expiration
+        $inviteToken->update([
+            'token' => InviteToken::generateUniqueToken(),
+            'expires_at' => now()->addHours(24),
+            'is_used' => false,
+            'used_by_user_id' => null,
+            'used_at' => null,
+        ]);
+
+        // Reload relationships
+        $inviteToken->load('usedBy');
+
+        return response()->json([
+            'message' => 'Token regenerated successfully',
+            'token' => [
+                'id' => $inviteToken->id,
+                'token' => $inviteToken->token,
+                'is_used' => $inviteToken->is_used,
+                'is_valid' => $inviteToken->isValid(),
+                'expires_at' => $inviteToken->expires_at->toIso8601String(),
+                'used_at' => $inviteToken->used_at?->toIso8601String(),
+                'used_by' => $inviteToken->usedBy ? [
+                    'id' => $inviteToken->usedBy->id,
+                    'name' => $inviteToken->usedBy->name,
+                    'email' => $inviteToken->usedBy->email,
+                ] : null,
+            ],
         ]);
     }
 }
