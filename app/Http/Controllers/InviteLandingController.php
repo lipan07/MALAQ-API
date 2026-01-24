@@ -31,9 +31,9 @@ class InviteLandingController extends Controller
         }
 
         $webBaseUrl = config('app.url', 'https://nearx.co');
-        $deepLink = "reuseapp://invite/{$token}";
+        $deepLink = "nearx://invite/{$token}";
         $registerUrl = "{$webBaseUrl}/register?invite_token={$token}";
-        $installUrl = config('app.play_store_url', 'https://play.google.com/store/apps/details?id=com.reuse');
+        $installUrl = config('app.play_store_url', 'https://play.google.com/store/apps/details?id=com.malaq.notify');
 
         return view('invite.landing', [
             'token' => $token,

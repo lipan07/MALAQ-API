@@ -31,6 +31,8 @@ return [
 
     'env' => env('APP_ENV', 'production'),
 
+    'play_store_url' => env('PLAY_STORE_URL', 'https://play.google.com/store/apps/details?id=com.malaq.notify'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode
