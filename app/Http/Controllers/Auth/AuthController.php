@@ -180,6 +180,7 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'phone_no' => $user->phone_no,
                 'images' => $user->images, // Include the images data
+                'joined_via_invite' => $user->joined_via_invite,
             ],
         ]);
     }
