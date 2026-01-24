@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\InviteTokenController;
+use App\Http\Controllers\InviteLandingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,14 +71,7 @@ Route::get('/buy/{id}', [\App\Http\Controllers\BuyController::class, 'show'])->n
 Route::post('/buy/{id}/payment', [\App\Http\Controllers\BuyController::class, 'processPayment'])->name('buy.payment');
 
 // Invite token routes
-Route::get('/invite/{token}', function ($token) {
-    // Redirect to app with invite token
-    $appUrl = 'reuseapp://invite/' . $token;
-    $fallbackUrl = config('app.url', 'https://nearx.co');
-    
-    // Try to open app, fallback to website
-    return redirect()->away($appUrl);
-})->name('invite.share');
+Route::get('/invite/{token}', [InviteLandingController::class, 'show'])->name('invite.share');
 
 // Digital Asset Links for Android App Links verification
 // Must be accessible at: https://nearx.co/.well-known/assetlinks.json

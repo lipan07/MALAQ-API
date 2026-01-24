@@ -173,7 +173,7 @@
             margin-right: 0;
         }
 
-        .row > [class*="col-"] {
+        .row>[class*="col-"] {
             padding-left: 12px;
             padding-right: 12px;
         }
@@ -544,7 +544,7 @@
                     <i class="bi bi-truck"></i>
                     Delivery Information
                 </div>
-                
+
                 <div class="form-group">
                     <label for="street_address" class="form-label">
                         <i class="bi bi-house-door"></i>
@@ -686,7 +686,7 @@
             }
 
             paymentsClient = new google.payments.api.PaymentsClient({
-                environment: 'PRODUCTION' // or 'TEST' for testing
+                environment: '{{ config("services.google_pay.environment", "TEST") }}' // TEST or PRODUCTION
             });
         }
 
@@ -763,8 +763,8 @@
                             apiVersion: 2,
                             apiVersionMinor: 0,
                             merchantInfo: {
-                                merchantId: 'YOUR_MERCHANT_ID', // Replace with your Google Pay merchant ID
-                                merchantName: 'nearX'
+                                merchantId: '{{ config("services.google_pay.merchant_id", "") }}',
+                                merchantName: '{{ config("services.google_pay.merchant_name", "nearX") }}'
                             },
                             allowedPaymentMethods: [{
                                 type: 'CARD',
@@ -775,8 +775,8 @@
                                 tokenizationSpecification: {
                                     type: 'PAYMENT_GATEWAY',
                                     parameters: {
-                                        gateway: 'example',
-                                        gatewayMerchantId: 'exampleGatewayMerchantId'
+                                        gateway: '{{ config("services.google_pay.gateway", "razorpay") }}',
+                                        gatewayMerchantId: '{{ config("services.google_pay.gateway_merchant_id", "") }}'
                                     }
                                 }
                             }],

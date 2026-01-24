@@ -39,4 +39,12 @@ return [
         'credentials' => env('FIREBASE_CREDENTIALS'),
     ],
 
+    'google_pay' => [
+        'merchant_id' => env('GOOGLE_PAY_MERCHANT_ID'),
+        'merchant_name' => env('GOOGLE_PAY_MERCHANT_NAME', 'nearX'),
+        'environment' => env('GOOGLE_PAY_ENVIRONMENT', 'TEST'), // TEST or PRODUCTION
+        'gateway' => env('GOOGLE_PAY_GATEWAY', 'razorpay'), // razorpay, payu, stripe, etc.
+        'gateway_merchant_id' => env('GOOGLE_PAY_GATEWAY_MERCHANT_ID'),
+    ],
+
 ];
