@@ -51,12 +51,19 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('users', UserController::class);
     Route::post('/users/{user}/block', [UserController::class, 'block'])->name('users.block');
     Route::post('/users/{user}/unblock', [UserController::class, 'unblock'])->name('users.unblock');
+    Route::get('/users/{user}/referral-tree', [UserController::class, 'referralTree'])->name('users.referral-tree');
 
     // Categories routes
     Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
 
     // Invite Token routes (admin only)
     Route::post('/invite-tokens/{tokenId}/regenerate', [InviteTokenController::class, 'regenerateToken'])->name('invite-tokens.regenerate');
+
+    // Payments (admin: list, view screenshot, confirm/reject)
+    Route::get('/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/payments/{payment}', [\App\Http\Controllers\Admin\PaymentController::class, 'show'])->name('payments.show');
+    Route::post('/payments/{payment}/confirm', [\App\Http\Controllers\Admin\PaymentController::class, 'confirm'])->name('payments.confirm');
+    Route::post('/payments/{payment}/reject', [\App\Http\Controllers\Admin\PaymentController::class, 'reject'])->name('payments.reject');
 });
 
 
@@ -65,10 +72,6 @@ Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('
 
 // Product sharing routes
 Route::get('/product/{id}', [\App\Http\Controllers\ShareController::class, 'redirectToProduct'])->name('product.share');
-
-// Buy product routes
-Route::get('/buy/{id}', [\App\Http\Controllers\BuyController::class, 'show'])->name('buy.show');
-Route::post('/buy/{id}/payment', [\App\Http\Controllers\BuyController::class, 'processPayment'])->name('buy.payment');
 
 // Invite token routes
 Route::get('/invite/{token}', [InviteLandingController::class, 'show'])->name('invite.share');

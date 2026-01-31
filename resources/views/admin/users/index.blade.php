@@ -79,6 +79,11 @@
                         </td>
                         <td>
                             <div class="d-flex gap-1 flex-wrap">
+                                {{-- Referral Tree button --}}
+                                <a href="{{ route('admin.users.referral-tree', $user->id) }}" class="btn btn-info btn-sm" title="View Referral Tree">
+                                    <i class="bi bi-diagram-3"></i> Tree
+                                </a>
+
                                 {{-- Block/Unblock button --}}
                                 @if($user->status === 'blocked')
                                 <form action="{{ route('admin.users.unblock', $user->id) }}" method="POST" style="display:inline;">

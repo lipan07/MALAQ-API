@@ -74,6 +74,8 @@ return [
 
     'timezone' => 'UTC',
 
+    'payment_upi_id' => env('PAYMENT_UPI_ID', 'nearx@paytm'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration

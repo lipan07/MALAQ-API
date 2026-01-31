@@ -20,6 +20,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserStatusController;
 use App\Http\Controllers\BackblazeController;
 use App\Http\Controllers\InviteTokenController;
+use App\Http\Controllers\PaymentController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -141,6 +142,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Invite Tokens
     Route::get('/invite-tokens', [InviteTokenController::class, 'index']);
     Route::get('/invite-tokens/{token}/url', [InviteTokenController::class, 'getInviteUrl']);
+
+    // Payments (in-app: QR + screenshot upload)
+    Route::post('/payments', [PaymentController::class, 'store'])
+        ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidatePostSize::class]);
 });
 
 Route::get('test', function () {

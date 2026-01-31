@@ -76,4 +76,61 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
     }
+
+    /**
+     * Show referral tree for a user
+     */
+    public function referralTree(User $user)
+    {
+        $tree = $this->buildReferralTree($user->id);
+        
+        return view('admin.users.referral-tree', [
+            'rootUser' => $user,
+            'tree' => $tree,
+        ]);
+    }
+
+    /**
+     * Build referral tree recursively
+     */
+    private function buildReferralTree($userId, &$visited = [], $level = 0, $maxLevel = 10)
+    {
+        // Prevent infinite loops and limit depth
+        if (in_array($userId, $visited) || $level >= $maxLevel) {
+            return null;
+        }
+
+        $visited[] = $userId;
+        
+        $user = User::with(['inviteTokens.usedBy'])->find($userId);
+        
+        if (!$user) {
+            return null;
+        }
+
+        $node = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone_no' => $user->phone_no,
+            'joined_via_invite' => $user->joined_via_invite,
+            'created_at' => $user->created_at->toIso8601String(),
+            'level' => $level,
+            'children' => [],
+        ];
+
+        // Get all users who used this user's invite tokens
+        $usedTokens = $user->inviteTokens()->where('is_used', true)->with('usedBy')->get();
+        
+        foreach ($usedTokens as $token) {
+            if ($token->usedBy && !in_array($token->usedBy->id, $visited)) {
+                $childNode = $this->buildReferralTree($token->usedBy->id, $visited, $level + 1, $maxLevel);
+                if ($childNode) {
+                    $node['children'][] = $childNode;
+                }
+            }
+        }
+
+        return $node;
+    }
 }
