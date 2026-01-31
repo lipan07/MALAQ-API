@@ -73,7 +73,7 @@
                         </td>
                         <td>{{ $user->created_at->format('M d, Y H:i') }}</td>
                         <td>
-                            @if(!$user->joined_via_invite)
+                            @if($user->joined_via_invite)
                             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#inviteTokensModal{{ $user->id }}" title="View Invite Tokens">
                                 <i class="bi bi-gift"></i> Tokens
                             </button>
