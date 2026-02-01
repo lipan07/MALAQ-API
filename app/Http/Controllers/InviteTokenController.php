@@ -23,6 +23,7 @@ class InviteTokenController extends Controller
                     'id' => $token->id,
                     'token' => $token->token,
                     'is_used' => $token->is_used,
+                    'is_active' => $token->is_active,
                     'is_valid' => $token->isValid(),
                     'expires_at' => $token->expires_at->toIso8601String(),
                     'used_at' => $token->used_at?->toIso8601String(),
@@ -69,6 +70,13 @@ class InviteTokenController extends Controller
             return response()->json([
                 'valid' => false,
                 'message' => 'This invite token has expired',
+            ], 400);
+        }
+
+        if (!$token->is_active) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'This invite token is inactive. The owner must complete a payment and have it confirmed by admin to activate it.',
             ], 400);
         }
 

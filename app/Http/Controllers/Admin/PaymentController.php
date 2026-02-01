@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\InviteToken;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -43,6 +44,9 @@ class PaymentController extends Controller
             'admin_verified_by' => Auth::id(),
             'admin_notes' => $request->admin_notes,
         ]);
+
+        // Activate invite tokens for this user (so they can share and others can register with them)
+        InviteToken::where('user_id', $payment->user_id)->update(['is_active' => true]);
 
         return back()->with('success', 'Payment confirmed successfully.');
     }

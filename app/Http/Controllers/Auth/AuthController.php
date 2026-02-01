@@ -59,8 +59,9 @@ class AuthController extends Controller
             $userData['phone_no'] = $request->phoneNumber;
         }
 
-        // Check if user is joining via invite token
+        // Validate invite token before creating user (must be valid and active)
         if ($request->has('invite_token') && $request->invite_token) {
+            $this->validateInviteTokenForSignup($request->invite_token);
             $userData['joined_via_invite'] = true;
         }
 
@@ -305,16 +306,41 @@ class AuthController extends Controller
     }
 
     /**
-     * Generate 2 invite tokens for a user
+     * Generate 2 invite tokens for a user.
+     * Tokens are inactive until admin confirms a payment (for users who joined via invite).
      */
     private function generateInviteTokens(User $user)
     {
+        $isActive = !$user->joined_via_invite; // Active only if user did not join via invite
+
         for ($i = 0; $i < 2; $i++) {
             InviteToken::create([
                 'user_id' => $user->id,
                 'token' => InviteToken::generateUniqueToken(),
                 'expires_at' => now()->addHours(24),
+                'is_active' => $isActive,
             ]);
+        }
+    }
+
+    /**
+     * Validate invite token before signup (throws ValidationException if invalid or inactive)
+     */
+    private function validateInviteTokenForSignup(string $token): void
+    {
+        $inviteToken = InviteToken::where('token', $token)->first();
+
+        if (!$inviteToken) {
+            throw ValidationException::withMessages(['invite_token' => ['Invalid invite token.']]);
+        }
+        if ($inviteToken->is_used) {
+            throw ValidationException::withMessages(['invite_token' => ['This invite token has already been used.']]);
+        }
+        if ($inviteToken->expires_at->isPast()) {
+            throw ValidationException::withMessages(['invite_token' => ['This invite token has expired.']]);
+        }
+        if (!$inviteToken->is_active) {
+            throw ValidationException::withMessages(['invite_token' => ['This invite token is inactive. The owner must complete a payment and have it confirmed by admin to activate it.']]);
         }
     }
 
@@ -337,6 +363,11 @@ class AuthController extends Controller
 
         if ($inviteToken->expires_at->isPast()) {
             Log::warning("Expired invite token used: {$token}");
+            return;
+        }
+
+        if (!$inviteToken->is_active) {
+            Log::warning("Inactive invite token used (owner must have payment confirmed): {$token}");
             return;
         }
 

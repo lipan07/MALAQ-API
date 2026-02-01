@@ -17,12 +17,14 @@ class InviteToken extends Model
         'expires_at',
         'used_at',
         'is_used',
+        'is_active',
     ];
 
     protected $casts = [
         'expires_at' => 'datetime',
         'used_at' => 'datetime',
         'is_used' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     /**
@@ -42,11 +44,11 @@ class InviteToken extends Model
     }
 
     /**
-     * Check if token is valid (not used and not expired)
+     * Check if token is valid (not used, not expired, and active for registration)
      */
     public function isValid(): bool
     {
-        return !$this->is_used && $this->expires_at->isFuture();
+        return !$this->is_used && $this->expires_at->isFuture() && $this->is_active;
     }
 
     /**
