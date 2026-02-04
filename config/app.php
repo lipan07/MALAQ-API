@@ -59,6 +59,8 @@ return [
 
     'url' => env('APP_URL', 'http://localhost:8000'),
 
+    'super_admin_email' => env('SUPER_ADMIN_EMAIL', 'superadmin@nearx.co'),
+
     'asset_url' => env('ASSET_URL'),
 
     /*

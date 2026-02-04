@@ -35,6 +35,8 @@ class User extends Authenticatable
         'otp_sent_at',
         'last_otp_resend_at',
         'joined_via_invite',
+        'admin_role',
+        'created_by_admin_id',
     ];
 
     /**
@@ -135,5 +137,57 @@ class User extends Authenticatable
     public function usedInviteTokens()
     {
         return $this->hasMany(InviteToken::class, 'used_by_user_id');
+    }
+
+    // --- Admin roles & permissions ---
+
+    public function permissions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Permission::class, 'permission_user')->withTimestamps();
+    }
+
+    public function createdBy(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by_admin_id');
+    }
+
+    public function createdAdmins(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(User::class, 'created_by_admin_id');
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->admin_role !== null;
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->admin_role === 'super_admin';
+    }
+
+    public function isLead(): bool
+    {
+        return $this->admin_role === 'lead';
+    }
+
+    public function isSupervisor(): bool
+    {
+        return $this->admin_role === 'supervisor';
+    }
+
+    /** Check if user can access a permission by slug (super_admin has all) */
+    public function hasPermissionTo(string $slug): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+        return $this->permissions()->where('slug', $slug)->exists();
+    }
+
+    /** Whether this admin user is marked as "invited" (lead/supervisor). Uses joined_via_invite. Invited admins only see/add invited users. */
+    public function isInvitedAdmin(): bool
+    {
+        return $this->isAdmin() && (bool) $this->joined_via_invite;
     }
 }

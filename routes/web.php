@@ -40,30 +40,59 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 // });
 
 
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    // Posts routes
-    Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
-    Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
-    Route::post('/posts/{post}/status', [PostController::class, 'changeStatus'])->name('posts.changeStatus');
-    Route::post('/posts/{post}/report', [PostController::class, 'report'])->name('posts.report');
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // No permission required
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/permission-denied', [\App\Http\Controllers\Admin\DashboardController::class, 'permissionDenied'])->name('permission-denied');
 
-    // Users routes
-    Route::resource('users', UserController::class);
-    Route::post('/users/{user}/block', [UserController::class, 'block'])->name('users.block');
-    Route::post('/users/{user}/unblock', [UserController::class, 'unblock'])->name('users.unblock');
-    Route::get('/users/{user}/referral-tree', [UserController::class, 'referralTree'])->name('users.referral-tree');
+    // Posts (permission: posts)
+    Route::middleware('permission:posts')->group(function () {
+        Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+        Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
+        Route::post('/posts/{post}/status', [PostController::class, 'changeStatus'])->name('posts.changeStatus');
+        Route::post('/posts/{post}/report', [PostController::class, 'report'])->name('posts.report');
+    });
 
-    // Categories routes
-    Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
+    // App Users (permission: users)
+    Route::middleware('permission:users')->group(function () {
+        Route::resource('users', UserController::class);
+        Route::post('/users/{user}/block', [UserController::class, 'block'])->name('users.block');
+        Route::post('/users/{user}/unblock', [UserController::class, 'unblock'])->name('users.unblock');
+        Route::get('/users/{user}/referral-tree', [UserController::class, 'referralTree'])->name('users.referral-tree');
+    });
 
-    // Invite Token routes (admin only)
-    Route::post('/invite-tokens/{tokenId}/regenerate', [InviteTokenController::class, 'regenerateToken'])->name('invite-tokens.regenerate');
+    // Categories (permission: categories)
+    Route::middleware('permission:categories')->group(function () {
+        Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
+    });
 
-    // Payments (admin: list, view screenshot, confirm/reject)
-    Route::get('/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'index'])->name('payments.index');
-    Route::get('/payments/{payment}', [\App\Http\Controllers\Admin\PaymentController::class, 'show'])->name('payments.show');
-    Route::post('/payments/{payment}/confirm', [\App\Http\Controllers\Admin\PaymentController::class, 'confirm'])->name('payments.confirm');
-    Route::post('/payments/{payment}/reject', [\App\Http\Controllers\Admin\PaymentController::class, 'reject'])->name('payments.reject');
+    // Invite Tokens (permission: users - same as users section)
+    Route::middleware('permission:users')->group(function () {
+        Route::post('/invite-tokens/{tokenId}/regenerate', [InviteTokenController::class, 'regenerateToken'])->name('invite-tokens.regenerate');
+    });
+
+    // Payments (permission: payments)
+    Route::middleware('permission:payments')->group(function () {
+        Route::get('/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'index'])->name('payments.index');
+        Route::get('/payments/{payment}', [\App\Http\Controllers\Admin\PaymentController::class, 'show'])->name('payments.show');
+        Route::post('/payments/{payment}/confirm', [\App\Http\Controllers\Admin\PaymentController::class, 'confirm'])->name('payments.confirm');
+        Route::post('/payments/{payment}/reject', [\App\Http\Controllers\Admin\PaymentController::class, 'reject'])->name('payments.reject');
+    });
+
+    // All Invite Tokens (permission: all_invite_tokens)
+    Route::middleware('permission:all_invite_tokens')->group(function () {
+        Route::get('/invite-tokens', [\App\Http\Controllers\Admin\InviteTokenController::class, 'index'])->name('invite-tokens.index');
+    });
+
+    // Admin Users (permission: admin_users)
+    Route::middleware('permission:admin_users')->group(function () {
+        Route::resource('admin-users', \App\Http\Controllers\Admin\AdminUserController::class)->parameters(['admin-users' => 'admin_user']);
+    });
+
+    // Roles - predefined list (permission: roles_permissions)
+    Route::middleware('permission:roles_permissions')->group(function () {
+        Route::get('/roles', [\App\Http\Controllers\Admin\RoleController::class, 'index'])->name('roles.index');
+    });
 });
 
 

@@ -469,18 +469,44 @@
             </h4>
         </div>
         <div class="sidebar-nav">
+            <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            @if(auth()->user()->hasPermissionTo('posts'))
             <a href="{{ route('admin.posts.index') }}" class="sidebar-link {{ request()->routeIs('admin.posts.*') ? 'active' : '' }}">
                 <i class="bi bi-file-post"></i> All Posts
             </a>
+            @endif
+            @if(auth()->user()->hasPermissionTo('categories'))
             <a href="{{ route('admin.categories.index') }}" class="sidebar-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
                 <i class="bi bi-tags"></i> Categories
             </a>
+            @endif
+            @if(auth()->user()->hasPermissionTo('users'))
             <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                 <i class="bi bi-people"></i> Users
             </a>
+            @endif
+            @if(auth()->user()->hasPermissionTo('payments'))
             <a href="{{ route('admin.payments.index') }}" class="sidebar-link {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
                 <i class="bi bi-credit-card"></i> Payments
             </a>
+            @endif
+            @if(auth()->user()->hasPermissionTo('all_invite_tokens'))
+            <a href="{{ route('admin.invite-tokens.index') }}" class="sidebar-link {{ request()->routeIs('admin.invite-tokens.*') ? 'active' : '' }}">
+                <i class="bi bi-gift"></i> All Invite Tokens
+            </a>
+            @endif
+            @if(auth()->user()->hasPermissionTo('admin_users'))
+            <a href="{{ route('admin.admin-users.index') }}" class="sidebar-link {{ request()->routeIs('admin.admin-users.*') ? 'active' : '' }}">
+                <i class="bi bi-person-gear"></i> Admin Users
+            </a>
+            @endif
+            @if(auth()->user()->hasPermissionTo('roles_permissions'))
+            <a href="{{ route('admin.roles.index') }}" class="sidebar-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
+                <i class="bi bi-shield-lock"></i> Roles
+            </a>
+            @endif
         </div>
     </div>
 

@@ -21,9 +21,12 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt($credentials)) {
+            if (!Auth::user()->isAdmin()) {
+                Auth::logout();
+                return back()->withErrors(['email' => 'You do not have access to the admin panel.'])->onlyInput('email');
+            }
             $request->session()->regenerate();
-
-            return redirect()->route('admin.posts.index');
+            return redirect()->intended(route('admin.dashboard'));
         }
 
         return back()->withErrors([

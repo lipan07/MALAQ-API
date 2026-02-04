@@ -69,5 +69,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'allow.large.uploads' => \App\Http\Middleware\AllowLargeUploads::class,
         'custom.validate.post.size' => \App\Http\Middleware\CustomValidatePostSize::class,
+        'admin' => \App\Http\Middleware\EnsureAdmin::class,
+        'permission' => \App\Http\Middleware\CheckPermission::class,
     ];
 }
