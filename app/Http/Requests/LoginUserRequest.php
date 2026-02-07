@@ -31,7 +31,7 @@ class LoginUserRequest extends FormRequest
             'otp' => [
                 'required',
                 'string',
-                'regex:/^[A-Za-z0-9]{4}$/' // exactly 4 alphanumeric characters
+                'regex:/^[0-9]{6}$/' // exactly 6 digits
             ],
             'phoneNumber' => [
                 'nullable',
@@ -52,8 +52,8 @@ class LoginUserRequest extends FormRequest
         return [
             'email.required' => 'Email is required.',
             'email.email' => 'Please provide a valid email address.',
-            'otp.required' => 'OTP is required.',
-            'otp.regex' => 'The OTP must be exactly 4 characters long and alphanumeric.'
+            'otp.required' => 'One time verification code is required.',
+            'otp.regex' => 'The one time verification code must be exactly 6 digits.'
         ];
     }
 

@@ -23,11 +23,11 @@ class OtpService
     private const MAX_RESEND_ATTEMPTS = 5;
 
     /**
-     * Generate a random OTP
+     * Generate a random 6-digit one time verification code
      */
     public function generateOtp(): string
     {
-        return str_pad(random_int(1000, 9999), 4, '0', STR_PAD_LEFT);
+        return str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -36,7 +36,7 @@ class OtpService
     private function sendEmailOtp(string $email, string $otp): bool
     {
         try {
-            $subject = 'Your Verification Code - nearX';
+            $subject = 'Your one time verification code - nearX';
             $fromAddress = config('mail.from.address');
             $fromName = config('mail.from.name', 'nearX');
 

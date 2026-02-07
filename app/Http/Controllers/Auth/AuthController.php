@@ -128,9 +128,9 @@ class AuthController extends Controller
     {
         $user = User::where('email', $request->email)->first();
 
-        // Verify OTP using the service
+        // Verify one time verification code using the service
         if (!$this->otpService->verifyOtp($request->email, $request->otp)) {
-            return response()->json(['message' => 'Invalid OTP. Please try again.'], 401);
+            return response()->json(['message' => 'Invalid one time verification code. Please try again.'], 401);
         }
 
         if (!$user) {

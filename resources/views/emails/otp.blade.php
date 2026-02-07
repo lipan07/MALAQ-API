@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="format-detection" content="telephone=no">
-    <title>Your OTP Code - nearX</title>
+    <title>Your one time verification code - nearX</title>
     <!--[if mso]>
     <style type="text/css">
         body, table, td {font-family: Arial, sans-serif !important;}
@@ -40,16 +40,16 @@
 
                             <p style="margin: 0 0 30px; color: #636e72; font-size: 16px; line-height: 1.6;">
                                 Hello! 👋<br><br>
-                                We received a request to verify your account. Please use the following One-Time Password (OTP) to complete your login:
+                                We received a request to verify your account. Please use the following one time verification code to complete your login:
                             </p>
 
-                            <!-- OTP Box -->
+                            <!-- One time verification code box -->
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                                 <tr>
                                     <td align="center" style="padding: 0 0 30px;">
                                         <div style="background: linear-gradient(135deg, #0984e3 0%, #74b9ff 100%); border-radius: 12px; padding: 30px; text-align: center; box-shadow: 0 8px 16px rgba(9, 132, 227, 0.3);">
                                             <p style="margin: 0 0 10px; color: #ffffff; font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;">
-                                                Your OTP Code
+                                                Your one time verification code
                                             </p>
                                             <div style="background-color: #ffffff; border-radius: 8px; padding: 20px; margin: 15px 0; display: inline-block; min-width: 200px;">
                                                 <p style="margin: 0; color: #0984e3; font-size: 36px; font-weight: 700; letter-spacing: 8px; font-family: 'Courier New', monospace; user-select: all; -webkit-user-select: all; cursor: text;">
