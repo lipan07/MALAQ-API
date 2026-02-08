@@ -16,7 +16,7 @@ class AdminUserController extends Controller
     {
         $query = User::whereNotNull('admin_role')
             ->with('createdBy', 'permissions')
-            ->orderByRaw("CASE admin_role WHEN 'super_admin' THEN 1 WHEN 'lead' THEN 2 WHEN 'supervisor' THEN 3 ELSE 4 END")
+            ->orderByRaw("CASE admin_role WHEN 'super_admin' THEN 1 WHEN 'admin' THEN 2 WHEN 'lead' THEN 3 WHEN 'moderator' THEN 4 WHEN 'support' THEN 5 WHEN 'analyst' THEN 6 WHEN 'supervisor' THEN 7 ELSE 8 END")
             ->orderBy('name');
 
         // Invited lead/supervisor: only see invited admin users (joined_via_invite)
@@ -24,38 +24,42 @@ class AdminUserController extends Controller
             $query->where('joined_via_invite', true);
         }
 
-        $users = $query->paginate(15);
-        return view('admin.admin-users.index', compact('users'));
+        $perPage = (int) $request->input('per_page', 15);
+        $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 15;
+        $users = $query->paginate($perPage);
+        return view('admin.admin-users.index', compact('users', 'perPage'));
     }
 
     public function create()
     {
         $current = Auth::user();
-        $canCreateLead = $current->isSuperAdmin();
-        $canCreateSupervisor = $current->isSuperAdmin() || $current->isLead();
-        // Lead can only assign permissions they have; super admin sees all
+        $assignableRoles = $current->rolesAssignableByCurrentUser();
+        if (empty($assignableRoles)) {
+            abort(403, 'You cannot create admin users.');
+        }
+        // Permissions: for lead/supervisor creation; super_admin sees all, lead only their permissions
         $permissions = $current->isSuperAdmin()
             ? Permission::orderBy('sort_order')->get()
             : $current->permissions()->orderBy('permissions.sort_order')->get();
         $showInvitedCheckbox = $current->isSuperAdmin();
         $forceInvitedSupervisor = $current->isInvitedAdmin() && $current->isLead();
-        return view('admin.admin-users.create', compact('canCreateLead', 'canCreateSupervisor', 'permissions', 'showInvitedCheckbox', 'forceInvitedSupervisor'));
+        return view('admin.admin-users.create', compact('assignableRoles', 'permissions', 'showInvitedCheckbox', 'forceInvitedSupervisor'));
     }
 
     public function store(Request $request)
     {
         $current = Auth::user();
-        $canCreateLead = $current->isSuperAdmin();
-        $canCreateSupervisor = $current->isSuperAdmin() || $current->isLead();
+        $assignableRoles = $current->rolesAssignableByCurrentUser();
+        $allowedRoleKeys = array_keys($assignableRoles);
+        if (empty($allowedRoleKeys)) {
+            abort(403, 'You cannot create admin users.');
+        }
 
         $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'admin_role' => ['required', Rule::in(array_filter([
-                $canCreateLead ? 'lead' : null,
-                $canCreateSupervisor ? 'supervisor' : null,
-            ]))],
+            'admin_role' => ['required', Rule::in($allowedRoleKeys)],
             'permissions' => 'nullable|array',
             'permissions.*' => 'exists:permissions,id',
         ];
@@ -64,9 +68,14 @@ class AdminUserController extends Controller
         }
         $request->validate($rules);
 
+        $role = $request->admin_role;
+        $staffRoles = ['admin', 'moderator', 'support', 'analyst'];
         $joinedViaInvite = false;
-        if ($current->isInvitedAdmin() && $current->isLead()) {
-            $joinedViaInvite = true; // invited lead can only add invited supervisors
+        if (in_array($role, $staffRoles, true)) {
+            // Non-invited staff: no joined_via_invite
+            $joinedViaInvite = false;
+        } elseif ($current->isInvitedAdmin() && $current->isLead()) {
+            $joinedViaInvite = true;
         } elseif ($current->isSuperAdmin() && $request->has('is_invited_admin')) {
             $joinedViaInvite = (bool) $request->is_invited_admin;
         }
@@ -75,13 +84,16 @@ class AdminUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'admin_role' => $request->admin_role,
+            'admin_role' => $role,
             'created_by_admin_id' => $current->id,
             'joined_via_invite' => $joinedViaInvite,
         ]);
 
-        // Super admin: assign any permissions. Lead: only assign permissions the lead has.
-        if ($request->has('permissions') && is_array($request->permissions)) {
+        if (in_array($role, $staffRoles, true)) {
+            $slugs = User::defaultPermissionSlugsForRole($role);
+            $permissionIds = Permission::whereIn('slug', $slugs)->pluck('id')->toArray();
+            $user->permissions()->sync($permissionIds);
+        } elseif ($request->has('permissions') && is_array($request->permissions)) {
             $requestedIds = array_map('intval', $request->permissions);
             if ($current->isSuperAdmin()) {
                 $user->permissions()->sync($requestedIds);
@@ -105,13 +117,13 @@ class AdminUserController extends Controller
             abort(403, 'You can only edit invited admin users.');
         }
         $current = Auth::user();
-        // Lead can only assign permissions they have; super admin sees all
         $permissions = $current->isSuperAdmin()
             ? Permission::orderBy('sort_order')->get()
             : $current->permissions()->orderBy('permissions.sort_order')->get();
         $user = $admin_user;
-        $showInvitedCheckbox = $current->isSuperAdmin();
-        return view('admin.admin-users.edit', compact('user', 'permissions', 'showInvitedCheckbox'));
+        $showInvitedCheckbox = $current->isSuperAdmin() && in_array($admin_user->admin_role, ['lead', 'supervisor'], true);
+        $roleIsStaff = in_array($admin_user->admin_role, ['admin', 'moderator', 'support', 'analyst'], true);
+        return view('admin.admin-users.edit', compact('user', 'permissions', 'showInvitedCheckbox', 'roleIsStaff'));
     }
 
     public function update(Request $request, User $admin_user)
@@ -146,16 +158,17 @@ class AdminUserController extends Controller
         }
         $admin_user->update($data);
 
-        // Super admin: assign any permissions. Lead: only assign permissions the lead has.
+        $current = Auth::user();
         if ($request->has('permissions') && is_array($request->permissions)) {
             $requestedIds = array_map('intval', $request->permissions);
-            $current = Auth::user();
             if ($current->isSuperAdmin()) {
                 $admin_user->permissions()->sync($requestedIds);
             } elseif ($current->isLead()) {
                 $allowedIds = $current->permissions->pluck('id')->map(fn($id) => (int) $id)->toArray();
                 $validIds = array_values(array_intersect($requestedIds, $allowedIds));
                 $admin_user->permissions()->sync($validIds);
+            } elseif ($current->isOperationsAdmin() && in_array($admin_user->admin_role, ['admin', 'moderator', 'support', 'analyst'], true)) {
+                $admin_user->permissions()->sync($requestedIds);
             }
         }
 

@@ -30,12 +30,11 @@
             </div>
             <div class="mb-3">
                 <span class="text-muted">Role: </span>
+                @php $roleLabels = config('roles.all_roles'); @endphp
                 @if($user->admin_role === 'super_admin')
                 <span class="badge bg-danger">Super Admin</span>
-                @elseif($user->admin_role === 'lead')
-                <span class="badge bg-primary">Lead</span>
                 @else
-                <span class="badge bg-info">Supervisor</span>
+                <span class="badge bg-secondary">{{ $roleLabels[$user->admin_role] ?? $user->admin_role }}</span>
                 @endif
             </div>
             @if($showInvitedCheckbox)
@@ -47,11 +46,13 @@
                 <small class="text-muted">Invited lead/supervisor can only see and add invited users.</small>
             </div>
             @endif
-            @if(auth()->user()->isSuperAdmin() || auth()->user()->isLead())
+            @if(auth()->user()->isSuperAdmin() || auth()->user()->isLead() || (auth()->user()->isOperationsAdmin() && $roleIsStaff))
             <div class="mb-3">
                 <label class="form-label">Permissions</label>
                 @if(auth()->user()->isLead())
                 <p class="small text-muted mb-1">You can only assign permissions that you have. Select which to give to this supervisor.</p>
+                @elseif($roleIsStaff)
+                <p class="small text-muted mb-1">Operations Manager can adjust permissions for Admin/Moderator/Support/Analyst.</p>
                 @endif
                 <div class="border rounded p-3">
                     @foreach($permissions as $p)

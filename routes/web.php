@@ -93,6 +93,21 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::middleware('permission:roles_permissions')->group(function () {
         Route::get('/roles', [\App\Http\Controllers\Admin\RoleController::class, 'index'])->name('roles.index');
     });
+
+    // Reports (permission: reports)
+    Route::middleware('permission:reports')->group(function () {
+        Route::get('/reports', [\App\Http\Controllers\Admin\ReportsController::class, 'index'])->name('reports.index');
+    });
+
+    // Analytics (permission: analytics)
+    Route::middleware('permission:analytics')->group(function () {
+        Route::get('/analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('analytics.index');
+    });
+
+    // Support Tickets (permission: support_tickets)
+    Route::middleware('permission:support_tickets')->group(function () {
+        Route::get('/support-tickets', [\App\Http\Controllers\Admin\SupportTicketsController::class, 'index'])->name('support-tickets.index');
+    });
 });
 
 

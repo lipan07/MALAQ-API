@@ -42,9 +42,11 @@ class UserController extends Controller
             });
         }
 
-        $users = $users->orderBy('created_at', 'desc')->paginate(10);
+        $perPage = (int) $request->input('per_page', 10);
+        $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 10;
+        $users = $users->orderBy('created_at', 'desc')->paginate($perPage);
 
-        return view('admin.users.index', compact('users'));
+        return view('admin.users.index', compact('users', 'perPage'));
     }
 
     public function show(User $user)
@@ -77,6 +79,9 @@ class UserController extends Controller
 
     public function block(User $user)
     {
+        if (!request()->user()->canBlockUsers()) {
+            abort(403, 'You do not have permission to block users.');
+        }
         $this->ensureInvitedAdminCanAccess($user);
         $user->update(['status' => 'blocked']);
 
@@ -85,6 +90,9 @@ class UserController extends Controller
 
     public function unblock(User $user)
     {
+        if (!request()->user()->canBlockUsers()) {
+            abort(403, 'You do not have permission to unblock users.');
+        }
         $this->ensureInvitedAdminCanAccess($user);
         $user->update(['status' => 'online']);
 
@@ -93,6 +101,9 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        if (!request()->user()->canDeleteUsers()) {
+            abort(403, 'You do not have permission to delete users.');
+        }
         $this->ensureInvitedAdminCanAccess($user);
         $user->delete();
 

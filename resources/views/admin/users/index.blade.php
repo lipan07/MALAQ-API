@@ -89,6 +89,7 @@
                                 </a>
 
                                 {{-- Block/Unblock button --}}
+                                @if(auth()->user()->canBlockUsers())
                                 @if($user->status === 'blocked')
                                 <form action="{{ route('admin.users.unblock', $user->id) }}" method="POST" style="display:inline;">
                                     @csrf
@@ -103,6 +104,7 @@
                                         <i class="bi bi-lock"></i> Block
                                     </button>
                                 </form>
+                                @endif
                                 @endif
 
                                 {{-- Actions dropdown --}}
@@ -125,6 +127,7 @@
                                             <hr class="dropdown-divider">
                                         </li>
 
+                                        @if(auth()->user()->canBlockUsers())
                                         @if($user->status !== 'blocked')
                                         <li>
                                             <form action="{{ route('admin.users.block', $user->id) }}" method="POST">
@@ -144,7 +147,9 @@
                                             </form>
                                         </li>
                                         @endif
+                                        @endif
 
+                                        @if(auth()->user()->canDeleteUsers())
                                         <li>
                                             <hr class="dropdown-divider">
                                         </li>
@@ -157,6 +162,7 @@
                                                 </button>
                                             </form>
                                         </li>
+                                        @endif
                                     </ul>
                                 </div>
                             </div>
@@ -166,9 +172,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="d-flex justify-content-center mt-3">
-            {{ $users->onEachSide(3)->links('pagination::bootstrap-5') }}
-        </div>
+        @include('admin.partials.per-page-pagination', ['paginator' => $users, 'perPage' => $perPage ?? 10])
     </div>
 </div>
 

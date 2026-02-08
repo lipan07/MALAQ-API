@@ -176,6 +176,30 @@ class User extends Authenticatable
         return $this->admin_role === 'supervisor';
     }
 
+    /** Operations Manager – can assign moderator, support, analyst */
+    public function isOperationsAdmin(): bool
+    {
+        return $this->admin_role === 'admin';
+    }
+
+    /** Content & Safety – approve listings, handle reports */
+    public function isModerator(): bool
+    {
+        return $this->admin_role === 'moderator';
+    }
+
+    /** Customer Support – view + tickets + flag only */
+    public function isSupport(): bool
+    {
+        return $this->admin_role === 'support';
+    }
+
+    /** Read-only – dashboards, stats, export */
+    public function isAnalyst(): bool
+    {
+        return $this->admin_role === 'analyst';
+    }
+
     /** Check if user can access a permission by slug (super_admin has all) */
     public function hasPermissionTo(string $slug): bool
     {
@@ -189,5 +213,83 @@ class User extends Authenticatable
     public function isInvitedAdmin(): bool
     {
         return $this->isAdmin() && (bool) $this->joined_via_invite;
+    }
+
+    /** Whether current user can assign the given role (e.g. admin can assign moderator, support, analyst) */
+    public function canAssignRole(string $role): bool
+    {
+        $assignable = config('roles.assignable_roles', []);
+        $myRole = $this->admin_role;
+        if ($myRole === null) {
+            return false;
+        }
+        return in_array($role, $assignable[$myRole] ?? [], true);
+    }
+
+    /** Roles the current user is allowed to assign (for dropdowns) */
+    public function rolesAssignableByCurrentUser(): array
+    {
+        $assignable = config('roles.assignable_roles', []);
+        $myRole = $this->admin_role;
+        if ($myRole === null) {
+            return [];
+        }
+        $keys = $assignable[$myRole] ?? [];
+        $all = config('roles.all_roles', []);
+        return array_intersect_key($all, array_flip($keys));
+    }
+
+    /** Default permission slugs for a role (from config) */
+    public static function defaultPermissionSlugsForRole(string $role): array
+    {
+        return config('roles.default_permissions.' . $role, []);
+    }
+
+    /** Can block/unblock app users – super_admin and admin only */
+    public function canBlockUsers(): bool
+    {
+        if (!$this->hasPermissionTo('users')) {
+            return false;
+        }
+        return $this->isSuperAdmin() || $this->isOperationsAdmin();
+    }
+
+    /** Can approve/reject/disable listings – super_admin, admin, moderator */
+    public function canApproveListings(): bool
+    {
+        if (!$this->hasPermissionTo('posts')) {
+            return false;
+        }
+        return $this->isSuperAdmin() || $this->isOperationsAdmin() || $this->isModerator();
+    }
+
+    /** Can create/edit/delete categories – super_admin only (admin "sees" only) */
+    public function canManageCategoriesFull(): bool
+    {
+        return $this->isSuperAdmin();
+    }
+
+    /** Can access payments (view/confirm) – super_admin and admin; moderator/support/analyst cannot */
+    public function canAccessPayments(): bool
+    {
+        if (!$this->hasPermissionTo('payments')) {
+            return false;
+        }
+        return $this->isSuperAdmin() || $this->isOperationsAdmin();
+    }
+
+    /** Can manage (create/edit/remove) admin users – super_admin and admin see all; invited lead only invited */
+    public function canManageAdminUsers(): bool
+    {
+        return $this->hasPermissionTo('admin_users');
+    }
+
+    /** Can delete app users – super_admin and admin only (moderator cannot delete users) */
+    public function canDeleteUsers(): bool
+    {
+        if (!$this->hasPermissionTo('users')) {
+            return false;
+        }
+        return $this->isSuperAdmin() || $this->isOperationsAdmin();
     }
 }

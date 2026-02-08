@@ -1,44 +1,89 @@
 @extends('admin.layouts.app')
 
+@push('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+@endpush
+
 @section('content')
 <div class="card">
-
-    {{-- Card Header with Advanced Filter Button --}}
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header">
         <h5 class="mb-0">All Posts</h5>
-        <button id="advancedFilterBtn" class="btn btn-secondary btn-sm">
-            <i class="bi bi-funnel"></i> Advanced Filter
-        </button>
     </div>
 
-    {{-- Advanced Filter Panel --}}
-    <div id="advancedFilterPanel" class="p-3 border-bottom" style="display: none;">
-        <div class="row g-2">
-            <div class="col-md-3">
-                <select id="statusFilter" class="form-select">
-                    <option value="">All</option>
-                    <option value="pending">Pending</option>
-                    <option value="processing">Processing</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="failed">Failed</option>
-                    <option value="sold">Sold</option>
-                    <option value="blocked">Blocked</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button id="applyFilterBtn" class="btn btn-primary btn-sm w-100">Apply</button>
-            </div>
-            <div class="col-md-2">
-                <button id="resetFilterBtn" class="btn btn-outline-secondary btn-sm w-100">Reset</button>
-            </div>
+    {{-- Status filter: buttons at top --}}
+    @php
+        $statusList = [
+            '' => ['label' => 'All', 'class' => 'outline-secondary', 'icon' => 'bi-grid-3x3-gap'],
+            'pending' => ['label' => 'Pending', 'class' => 'warning', 'icon' => 'bi-clock'],
+            'processing' => ['label' => 'Processing', 'class' => 'info', 'icon' => 'bi-gear'],
+            'active' => ['label' => 'Active', 'class' => 'success', 'icon' => 'bi-check-circle'],
+            'inactive' => ['label' => 'Inactive', 'class' => 'secondary', 'icon' => 'bi-pause-circle'],
+            'failed' => ['label' => 'Failed', 'class' => 'danger', 'icon' => 'bi-x-circle'],
+            'sold' => ['label' => 'Sold', 'class' => 'primary', 'icon' => 'bi-tag'],
+            'blocked' => ['label' => 'Blocked', 'class' => 'dark', 'icon' => 'bi-ban'],
+        ];
+        $currentStatus = request('status', '');
+    @endphp
+    <div class="card-body border-bottom bg-light">
+        <p class="text-muted small mb-2">Filter by status</p>
+        <div class="d-flex flex-wrap gap-2">
+            @foreach($statusList as $value => $config)
+            <a href="{{ request()->fullUrlWithQuery(array_merge(request()->except('page'), ['status' => $value ?: null])) }}"
+               class="btn btn-{{ $currentStatus === (string)$value ? $config['class'] : 'outline-' . $config['class'] }} btn-sm">
+                <i class="bi {{ $config['icon'] }} me-1"></i>{{ $config['label'] }}
+            </a>
+            @endforeach
         </div>
     </div>
 
-    {{-- Card Body --}}
-    <div class="card-body">
+    {{-- Date range + Search + Category --}}
+    <div class="card-body border-bottom">
+        <form method="GET" action="{{ route('admin.posts.index') }}" id="postsFilterForm" class="row g-3 align-items-end">
+            @if(request()->has('status'))<input type="hidden" name="status" value="{{ request('status') }}">@endif
+            @if(request()->has('per_page'))<input type="hidden" name="per_page" value="{{ request('per_page') }}">@endif
 
-        {{-- Flash Message --}}
+            <div class="col-12 col-md-4">
+                <label class="form-label small text-muted">Date range (post time)</label>
+                <input type="text" id="dateRangePicker" class="form-control form-control-sm"
+                       placeholder="Select date range" value="{{ request('date_from') && request('date_to') ? request('date_from') . ' to ' . request('date_to') : '' }}" readonly>
+                <input type="hidden" name="date_from" id="dateFrom" value="{{ request('date_from') }}">
+                <input type="hidden" name="date_to" id="dateTo" value="{{ request('date_to') }}">
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label class="form-label small text-muted">Search (title, email, category)</label>
+                <input type="text" name="search" class="form-control form-control-sm" placeholder="Search..."
+                       value="{{ request('search') }}">
+            </div>
+
+            <div class="col-12 col-md-2">
+                <label class="form-label small text-muted">Category</label>
+                <select name="category_id" class="form-select form-select-sm">
+                    <option value="">All categories</option>
+                    @foreach($categories as $cat)
+                    <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->parent ? $cat->parent->name . ' » ' . $cat->name : $cat->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-12 col-md-3 d-flex gap-2 flex-wrap">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="bi bi-funnel"></i> Apply filters
+                </button>
+                @php
+                    $clearParams = [];
+                    if (request()->filled('status')) { $clearParams['status'] = request('status'); }
+                    if (request()->filled('per_page')) { $clearParams['per_page'] = request('per_page'); }
+                @endphp
+                <a href="{{ route('admin.posts.index', $clearParams) }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-x-circle"></i> Clear filters
+                </a>
+            </div>
+        </form>
+    </div>
+
+    {{-- Card Body: table --}}
+    <div class="card-body">
         @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show">
             {{ session('success') }}
@@ -46,7 +91,6 @@
         </div>
         @endif
 
-        {{-- Scrollable Table for Mobile --}}
         <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
             <table class="table table-hover" style="min-width: 800px;">
                 <thead>
@@ -66,7 +110,14 @@
                     <tr>
                         <td>{{ $posts->firstItem() + $index }}</td>
                         <td>{{ Str::limit($post->title, 30) }}</td>
-                        <td>{{ $post->user?->name }}</td>
+                        <td>
+                            @if($post->user)
+                            <span class="d-block">{{ $post->user->name }}</span>
+                            <small class="text-muted">{{ $post->user->email ?? '—' }}</small>
+                            @else
+                            <span class="text-muted">—</span>
+                            @endif
+                        </td>
                         <td>
                             @if($post->category)
                             <span class="badge bg-light text-dark">{{ $post->category?->name }}</span>
@@ -77,7 +128,16 @@
                         <td>
                             @php
                             $status = $post->status->value ?? $post->status;
-                            $statusClass = strtolower($status) === 'pending' ? 'bg-warning text-dark' : 'bg-success';
+                            $statusClasses = [
+                                'pending' => 'bg-warning text-dark',
+                                'processing' => 'bg-info',
+                                'active' => 'bg-success',
+                                'inactive' => 'bg-secondary',
+                                'failed' => 'bg-danger',
+                                'sold' => 'bg-primary',
+                                'blocked' => 'bg-dark',
+                            ];
+                            $statusClass = $statusClasses[$status] ?? 'bg-secondary';
                             @endphp
                             <span class="badge {{ $statusClass }}">{{ ucfirst($status) }}</span>
                         </td>
@@ -103,8 +163,7 @@
                         </td>
                         <td>
                             <div class="d-flex gap-1 flex-wrap">
-                                {{-- Approve button --}}
-                                @if($post->status !== 'active')
+                                @if($post->status->value !== 'active' && auth()->user()->canApproveListings())
                                 <form action="{{ route('admin.posts.changeStatus', $post->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     <input type="hidden" name="status" value="active">
@@ -114,12 +173,10 @@
                                 </form>
                                 @endif
 
-                                {{-- View Details button --}}
                                 <a href="{{ route('admin.posts.show', $post->id) }}" class="btn btn-info btn-sm">
                                     <i class="bi bi-eye"></i> View
                                 </a>
 
-                                {{-- Actions dropdown --}}
                                 <div class="dropdown">
                                     <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="bi bi-chevron-down"></i>
@@ -130,9 +187,7 @@
                                                 <i class="bi bi-eye"></i> View Details
                                             </a>
                                         </li>
-                                        <li>
-                                            <hr class="dropdown-divider">
-                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
 
                                         @php
                                         $statuses = [
@@ -146,33 +201,33 @@
                                         ];
                                         @endphp
 
-                                        @foreach($statuses as $status => $config)
-                                        @if($post->status !== $status)
+                                        @foreach($statuses as $statusKey => $config)
+                                        @if(($post->status->value ?? $post->status) !== $statusKey && auth()->user()->canApproveListings())
                                         <li>
                                             <form action="{{ route('admin.posts.changeStatus', $post->id) }}" method="POST">
                                                 @csrf
-                                                <input type="hidden" name="status" value="{{ $status }}">
+                                                <input type="hidden" name="status" value="{{ $statusKey }}">
                                                 <button type="submit" class="dropdown-item text-{{ $config[0] }}">
-                                                    <i class="bi {{ $config[1] }}"></i> Mark as {{ ucfirst($status) }}
+                                                    <i class="bi {{ $config[1] }}"></i> Mark as {{ ucfirst($statusKey) }}
                                                 </button>
                                             </form>
                                         </li>
                                         @endif
                                         @endforeach
 
-                                        <li>
-                                            <hr class="dropdown-divider">
-                                        </li>
+                                        @if(auth()->user()->canApproveListings())
+                                        <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#reportModal{{ $post->id }}">
                                                 <i class="bi bi-flag"></i> Report Post
                                             </button>
                                         </li>
+                                        @endif
                                     </ul>
                                 </div>
                             </div>
 
-                            {{-- Report Modal --}}
+                            @if(auth()->user()->canApproveListings())
                             <div class="modal fade" id="reportModal{{ $post->id }}" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
@@ -208,16 +263,14 @@
                                     </div>
                                 </div>
                             </div>
+                            @endif
                         </td>
-
                     </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
 
-
-        <!-- Image Modal -->
         <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-xl modal-dialog-centered">
                 <div class="modal-content">
@@ -244,89 +297,69 @@
             </div>
         </div>
 
-        {{-- Pagination --}}
-        <div class="d-flex justify-content-center mt-3">
-            {{ $posts->onEachSide(3)->links('pagination::bootstrap-5') }}
-        </div>
+        @include('admin.partials.per-page-pagination', ['paginator' => $posts, 'perPage' => $perPage ?? 10])
     </div>
 </div>
 @endsection
 
-
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
-        const carouselInner = document.querySelector('#imageCarousel .carousel-inner');
-        const imageCounter = document.getElementById('imageCounter');
+document.addEventListener('DOMContentLoaded', function() {
+    // Date range picker
+    const dateFromInput = document.getElementById('dateFrom');
+    const dateToInput = document.getElementById('dateTo');
+    const rangeInput = document.getElementById('dateRangePicker');
 
-        document.querySelectorAll('.view-images-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const images = JSON.parse(this.getAttribute('data-images'));
-                carouselInner.innerHTML = '';
-
-                images.forEach((img, index) => {
-                    const div = document.createElement('div');
-                    div.classList.add('carousel-item', 'h-100');
-                    if (index === 0) div.classList.add('active');
-
-                    div.innerHTML = `
-                        <img src="${img}" class="d-block w-100 h-100 object-fit-contain" alt="Post Image">
-                    `;
-                    carouselInner.appendChild(div);
-                });
-
-                // Update counter
-                imageCounter.textContent = `1 of ${images.length}`;
-
-                // Initialize carousel
-                const carousel = new bootstrap.Carousel(document.getElementById('imageCarousel'), {
-                    interval: false
-                });
-
-                // Update counter when slide changes
-                document.getElementById('imageCarousel').addEventListener('slid.bs.carousel', function(e) {
-                    const activeIndex = e.to;
-                    imageCounter.textContent = `${activeIndex + 1} of ${images.length}`;
-                });
-
-                imageModal.show();
-            });
-        });
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const filterBtn = document.getElementById('advancedFilterBtn');
-        const filterPanel = document.getElementById('advancedFilterPanel');
-        const applyBtn = document.getElementById('applyFilterBtn');
-        const resetBtn = document.getElementById('resetFilterBtn');
-        const statusSelect = document.getElementById('statusFilter');
-
-        // Toggle filter panel visibility
-        filterBtn.addEventListener('click', function() {
-            filterPanel.style.display = filterPanel.style.display === 'none' ? 'block' : 'none';
-        });
-
-        // Apply filter
-        applyBtn.addEventListener('click', function() {
-            const selectedStatus = statusSelect.value;
-            const url = new URL(window.location.href);
-
-            if (selectedStatus) {
-                url.searchParams.set('status', selectedStatus);
-            } else {
-                url.searchParams.delete('status');
+    if (rangeInput && dateFromInput && dateToInput) {
+        function toYmd(d) {
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+        const picker = flatpickr(rangeInput, {
+            mode: 'range',
+            dateFormat: 'Y-m-d',
+            allowInput: false,
+            onChange: function(selectedDates) {
+                if (selectedDates.length === 1) {
+                    dateFromInput.value = toYmd(selectedDates[0]);
+                    dateToInput.value = '';
+                } else if (selectedDates.length === 2) {
+                    dateFromInput.value = toYmd(selectedDates[0]);
+                    dateToInput.value = toYmd(selectedDates[1]);
+                }
             }
-
-            window.location.href = url.toString();
         });
+        if (dateFromInput.value && dateToInput.value) {
+            picker.setDate([dateFromInput.value, dateToInput.value], false);
+        }
+    }
 
-        // Reset filter
-        resetBtn.addEventListener('click', function() {
-            const url = new URL(window.location.href);
-            url.searchParams.delete('status');
-            window.location.href = url.toString();
+    // Image modal
+    const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+    const carouselInner = document.querySelector('#imageCarousel .carousel-inner');
+    const imageCounter = document.getElementById('imageCounter');
+
+    document.querySelectorAll('.view-images-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const images = JSON.parse(this.getAttribute('data-images'));
+            carouselInner.innerHTML = '';
+
+            images.forEach((img, index) => {
+                const div = document.createElement('div');
+                div.classList.add('carousel-item', 'h-100');
+                if (index === 0) div.classList.add('active');
+                div.innerHTML = '<img src="' + img + '" class="d-block w-100 h-100 object-fit-contain" alt="Post Image">';
+                carouselInner.appendChild(div);
+            });
+
+            imageCounter.textContent = '1 of ' + images.length;
+            const carousel = new bootstrap.Carousel(document.getElementById('imageCarousel'), { interval: false });
+            document.getElementById('imageCarousel').addEventListener('slid.bs.carousel', function(e) {
+                imageCounter.textContent = (e.to + 1) + ' of ' + images.length;
+            });
+            imageModal.show();
         });
     });
+});
 </script>
 @endpush

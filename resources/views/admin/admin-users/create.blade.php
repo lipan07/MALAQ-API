@@ -31,8 +31,9 @@
                 <label class="form-label">Role <span class="text-danger">*</span></label>
                 <select name="admin_role" class="form-select @error('admin_role') is-invalid @enderror" required>
                     <option value="">Select role</option>
-                    @if($canCreateLead)<option value="lead" {{ old('admin_role') === 'lead' ? 'selected' : '' }}>Lead</option>@endif
-                    @if($canCreateSupervisor)<option value="supervisor" {{ old('admin_role') === 'supervisor' ? 'selected' : '' }}>Supervisor</option>@endif
+                    @foreach($assignableRoles as $key => $label)
+                    <option value="{{ $key }}" {{ old('admin_role') === $key ? 'selected' : '' }}>{{ $label }}</option>
+                    @endforeach
                 </select>
                 @error('admin_role')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
@@ -42,7 +43,7 @@
             </div>
             @endif
             @if($showInvitedCheckbox)
-            <div class="mb-3">
+            <div class="mb-3" id="invited-wrap">
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="is_invited_admin" value="1" id="is_invited_admin" {{ old('is_invited_admin') ? 'checked' : '' }}>
                     <label class="form-check-label" for="is_invited_admin">Invited user</label>
@@ -50,12 +51,9 @@
                 <small class="text-muted">Invited lead/supervisor can only see and add invited users (admin users and app users who joined via invite).</small>
             </div>
             @endif
-            @if(auth()->user()->isSuperAdmin() || auth()->user()->isLead())
-            <div class="mb-3">
+            <div class="mb-3" id="permissions-wrap">
                 <label class="form-label">Permissions</label>
-                @if(auth()->user()->isLead())
-                <p class="small text-muted mb-1">You can only assign permissions that you have. Select which to give to this supervisor.</p>
-                @endif
+                <p class="small text-muted mb-1">For Lead/Supervisor: select permissions. For Admin/Moderator/Support/Analyst, default permissions are applied automatically.</p>
                 <div class="border rounded p-3">
                     @foreach($permissions as $p)
                     <div class="form-check">
@@ -65,7 +63,6 @@
                     @endforeach
                 </div>
             </div>
-            @endif
             <button type="submit" class="btn btn-primary">Create</button>
             <a href="{{ route('admin.admin-users.index') }}" class="btn btn-secondary">Cancel</a>
         </form>

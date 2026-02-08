@@ -7,6 +7,7 @@
     <title>Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    @stack('styles')
     <style>
         :root {
             --sidebar-width: 250px;
@@ -505,6 +506,21 @@
             @if(auth()->user()->hasPermissionTo('roles_permissions'))
             <a href="{{ route('admin.roles.index') }}" class="sidebar-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
                 <i class="bi bi-shield-lock"></i> Roles
+            </a>
+            @endif
+            @if(auth()->user()->hasPermissionTo('reports'))
+            <a href="{{ route('admin.reports.index') }}" class="sidebar-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+                <i class="bi bi-flag"></i> Reports
+            </a>
+            @endif
+            @if(auth()->user()->hasPermissionTo('analytics'))
+            <a href="{{ route('admin.analytics.index') }}" class="sidebar-link {{ request()->routeIs('admin.analytics.*') ? 'active' : '' }}">
+                <i class="bi bi-graph-up"></i> Analytics
+            </a>
+            @endif
+            @if(auth()->user()->hasPermissionTo('support_tickets'))
+            <a href="{{ route('admin.support-tickets.index') }}" class="sidebar-link {{ request()->routeIs('admin.support-tickets.*') ? 'active' : '' }}">
+                <i class="bi bi-chat-dots"></i> Support Tickets
             </a>
             @endif
         </div>

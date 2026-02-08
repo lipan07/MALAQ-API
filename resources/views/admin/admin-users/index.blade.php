@@ -33,12 +33,11 @@
                         <td>{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
                         <td>
-                            @if($user->admin_role === 'super_admin')
-                            <span class="badge bg-danger">Super Admin</span>
-                            @elseif($user->admin_role === 'lead')
-                            <span class="badge bg-primary">Lead</span>
+                            @php $roleBadges = ['super_admin' => 'bg-danger', 'admin' => 'bg-primary', 'lead' => 'bg-primary', 'moderator' => 'bg-info', 'support' => 'bg-warning text-dark', 'analyst' => 'bg-secondary', 'supervisor' => 'bg-info']; @endphp
+                            @if(isset($roleBadges[$user->admin_role]))
+                            <span class="badge {{ $roleBadges[$user->admin_role] }}">{{ \Illuminate\Support\Arr::get(config('roles.all_roles'), $user->admin_role, $user->admin_role) }}</span>
                             @else
-                            <span class="badge bg-info">Supervisor</span>
+                            <span class="badge bg-secondary">{{ $user->admin_role }}</span>
                             @endif
                         </td>
                         <td>
@@ -79,7 +78,7 @@
                 </tbody>
             </table>
         </div>
-        {{ $users->links() }}
+        @include('admin.partials.per-page-pagination', ['paginator' => $users, 'perPage' => $perPage ?? 15])
     </div>
 </div>
 @endsection

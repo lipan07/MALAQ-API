@@ -78,7 +78,7 @@
             </div>
         </div>
 
-        @if($payment->status === 'pending')
+        @if($payment->status === 'pending' && auth()->user()->canAccessPayments())
         <hr>
         <div class="d-flex flex-wrap gap-3 align-items-end">
             <form action="{{ route('admin.payments.confirm', $payment->id) }}" method="POST" class="d-flex align-items-center gap-2">

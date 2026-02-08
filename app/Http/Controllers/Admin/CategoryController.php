@@ -27,7 +27,9 @@ class CategoryController extends Controller
             });
         }
 
-        $categories = $query->orderBy('name')->paginate(20);
+        $perPage = (int) $request->input('per_page', 20);
+        $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 20;
+        $categories = $query->orderBy('name')->paginate($perPage);
 
         // Get statistics
         $stats = [
@@ -37,7 +39,7 @@ class CategoryController extends Controller
             'categories_with_posts' => Category::has('posts')->count(),
         ];
 
-        return view('admin.categories.index', compact('categories', 'stats'));
+        return view('admin.categories.index', compact('categories', 'stats', 'perPage'));
     }
 
     public function show(Category $category)
@@ -45,25 +47,33 @@ class CategoryController extends Controller
         $category->load(['children', 'posts.user', 'posts.category']);
 
         // Get posts for this category
+        $perPage = (int) request()->input('per_page', 10);
+        $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 10;
         $posts = $category->posts()
             ->with(['user'])
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate($perPage);
 
         // Get subcategories with post counts
         $subcategories = $category->children()->withCount('posts')->get();
 
-        return view('admin.categories.show', compact('category', 'posts', 'subcategories'));
+        return view('admin.categories.show', compact('category', 'posts', 'subcategories', 'perPage'));
     }
 
     public function create()
     {
+        if (!request()->user()->canManageCategoriesFull()) {
+            abort(403, 'You do not have permission to create categories.');
+        }
         $parentCategories = Category::whereNull('parent_id')->orderBy('name')->get();
         return view('admin.categories.create', compact('parentCategories'));
     }
 
     public function store(Request $request)
     {
+        if (!request()->user()->canManageCategoriesFull()) {
+            abort(403, 'You do not have permission to create categories.');
+        }
         $request->validate([
             'name' => 'required|string|max:100',
             'guard_name' => 'required|string|max:50|unique:categories,guard_name',
@@ -82,6 +92,9 @@ class CategoryController extends Controller
 
     public function edit(Category $category)
     {
+        if (!request()->user()->canManageCategoriesFull()) {
+            abort(403, 'You do not have permission to edit categories.');
+        }
         $parentCategories = Category::whereNull('parent_id')
             ->where('id', '!=', $category->id)
             ->orderBy('name')
@@ -92,6 +105,9 @@ class CategoryController extends Controller
 
     public function update(Request $request, Category $category)
     {
+        if (!request()->user()->canManageCategoriesFull()) {
+            abort(403, 'You do not have permission to edit categories.');
+        }
         $request->validate([
             'name' => 'required|string|max:100',
             'guard_name' => 'required|string|max:50|unique:categories,guard_name,' . $category->id,
@@ -110,6 +126,9 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
+        if (!request()->user()->canManageCategoriesFull()) {
+            abort(403, 'You do not have permission to delete categories.');
+        }
         // Check if category has posts
         if ($category->posts()->count() > 0) {
             return back()->with('error', 'Cannot delete category with existing posts.');

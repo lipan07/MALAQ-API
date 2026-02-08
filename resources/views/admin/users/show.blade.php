@@ -35,6 +35,7 @@
 
                                 <!-- Action Buttons -->
                                 <div class="d-grid gap-2">
+                                    @if(auth()->user()->canBlockUsers())
                                     @if($user->status === 'blocked')
                                     <form action="{{ route('admin.users.unblock', $user->id) }}" method="POST">
                                         @csrf
@@ -50,7 +51,9 @@
                                         </button>
                                     </form>
                                     @endif
+                                    @endif
 
+                                    @if(auth()->user()->canDeleteUsers())
                                     <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="delete-user-form">
                                         @csrf
                                         @method('DELETE')
@@ -58,6 +61,7 @@
                                             <i class="bi bi-trash"></i> Delete User
                                         </button>
                                     </form>
+                                    @endif
                                 </div>
                             </div>
                         </div>

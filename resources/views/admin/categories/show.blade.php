@@ -12,9 +12,11 @@
                     <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary btn-sm">
                         <i class="bi bi-arrow-left"></i> Back to Categories
                     </a>
+                    @if(auth()->user()->canManageCategoriesFull())
                     <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-warning btn-sm">
                         <i class="bi bi-pencil"></i> Edit Category
                     </a>
+                    @endif
                 </div>
             </div>
             <div class="card-body">
@@ -125,6 +127,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="d-grid gap-2">
+                                    @if(auth()->user()->canManageCategoriesFull())
                                     <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-warning">
                                         <i class="bi bi-pencil"></i> Edit Category
                                     </a>
@@ -137,6 +140,7 @@
                                             <i class="bi bi-trash"></i> Delete Category
                                         </button>
                                     </form>
+                                    @endif
                                     @endif
 
                                     <a href="{{ route('admin.posts.index', ['category' => $category->id]) }}" class="btn btn-info">
@@ -211,11 +215,7 @@
                     </div>
 
                     <!-- Posts Pagination -->
-                    @if($posts->hasPages())
-                    <div class="d-flex justify-content-center mt-3">
-                        {{ $posts->onEachSide(3)->links('pagination::bootstrap-5') }}
-                    </div>
-                    @endif
+                    @include('admin.partials.per-page-pagination', ['paginator' => $posts, 'perPage' => $perPage ?? 10])
                 </div>
             </div>
         </div>

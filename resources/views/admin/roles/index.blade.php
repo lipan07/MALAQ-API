@@ -16,16 +16,21 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                        $badgeClass = [
+                            'super_admin' => 'bg-danger',
+                            'admin' => 'bg-primary',
+                            'moderator' => 'bg-info',
+                            'support' => 'bg-warning text-dark',
+                            'analyst' => 'bg-secondary',
+                            'lead' => 'bg-primary',
+                            'supervisor' => 'bg-info',
+                        ];
+                    @endphp
                     @foreach($roles as $role)
                     <tr>
                         <td>
-                            @if($role['key'] === 'super_admin')
-                                <span class="badge bg-danger">Super Admin</span>
-                            @elseif($role['key'] === 'lead')
-                                <span class="badge bg-primary">Lead</span>
-                            @else
-                                <span class="badge bg-info">Supervisor</span>
-                            @endif
+                            <span class="badge {{ $badgeClass[$role['key']] ?? 'bg-secondary' }}">{{ $role['name'] }}</span>
                         </td>
                         <td>{{ $role['description'] }}</td>
                     </tr>

@@ -74,7 +74,7 @@
                 </tbody>
             </table>
         </div>
-        {{ $users->links() }}
+        @include('admin.partials.per-page-pagination', ['paginator' => $users, 'perPage' => $perPage ?? 15])
     </div>
 </div>
 

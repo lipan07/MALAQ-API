@@ -12,11 +12,13 @@ class PaymentController extends Controller
 {
     public function index(Request $request)
     {
+        $perPage = (int) $request->input('per_page', 15);
+        $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 15;
         $payments = Payment::with(['user', 'post', 'adminVerifiedBy'])
             ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->paginate($perPage);
 
-        return view('admin.payments.index', compact('payments'));
+        return view('admin.payments.index', compact('payments', 'perPage'));
     }
 
     public function show(Payment $payment)
@@ -34,6 +36,9 @@ class PaymentController extends Controller
 
     public function confirm(Request $request, Payment $payment)
     {
+        if (!Auth::user()->canAccessPayments()) {
+            abort(403, 'You do not have permission to confirm payments.');
+        }
         $request->validate([
             'admin_notes' => 'nullable|string|max:500',
         ]);
@@ -53,6 +58,9 @@ class PaymentController extends Controller
 
     public function reject(Request $request, Payment $payment)
     {
+        if (!Auth::user()->canAccessPayments()) {
+            abort(403, 'You do not have permission to reject payments.');
+        }
         $request->validate([
             'admin_notes' => 'nullable|string|max:500',
         ]);

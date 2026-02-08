@@ -56,9 +56,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="d-flex justify-content-center mt-3">
-            {{ $payments->links() }}
-        </div>
+        @include('admin.partials.per-page-pagination', ['paginator' => $payments, 'perPage' => $perPage ?? 15])
     </div>
 </div>
 @endsection

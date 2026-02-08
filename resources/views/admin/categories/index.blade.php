@@ -79,9 +79,11 @@
                     <button id="advancedFilterBtn" class="btn btn-secondary btn-sm">
                         <i class="bi bi-funnel"></i> Filter
                     </button>
+                    @if(auth()->user()->canManageCategoriesFull())
                     <a href="{{ route('admin.categories.create') }}" class="btn btn-primary btn-sm">
                         <i class="bi bi-plus-circle"></i> Add Category
                     </a>
+                    @endif
                 </div>
             </div>
 
@@ -181,6 +183,7 @@
                                         <a href="{{ route('admin.categories.show', $category->id) }}" class="btn btn-info btn-sm">
                                             <i class="bi bi-eye"></i>
                                         </a>
+                                        @if(auth()->user()->canManageCategoriesFull())
                                         <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-warning btn-sm">
                                             <i class="bi bi-pencil"></i>
                                         </a>
@@ -191,6 +194,7 @@
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -207,9 +211,7 @@
                 </div>
 
                 <!-- Pagination -->
-                <div class="d-flex justify-content-center mt-3">
-                    {{ $categories->onEachSide(3)->links('pagination::bootstrap-5') }}
-                </div>
+                @include('admin.partials.per-page-pagination', ['paginator' => $categories, 'perPage' => $perPage ?? 20])
             </div>
         </div>
     </div>
