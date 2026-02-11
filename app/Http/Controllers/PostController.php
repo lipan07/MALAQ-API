@@ -452,7 +452,7 @@ class PostController extends Controller
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
             'type' => $request->listingType,
-            'status' => PostStatus::Pending,
+            'status' => PostStatus::Active,
             'show_phone' => $this->convertToBoolean($request->show_phone),
         ]);
     }
