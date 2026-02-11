@@ -97,6 +97,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Reports (permission: reports)
     Route::middleware('permission:reports')->group(function () {
         Route::get('/reports', [\App\Http\Controllers\Admin\ReportsController::class, 'index'])->name('reports.index');
+        Route::get('/reports/{report}', [\App\Http\Controllers\Admin\ReportsController::class, 'show'])->name('reports.show');
     });
 
     // Analytics (permission: analytics)

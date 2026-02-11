@@ -12,9 +12,10 @@ class Report extends Model
 
     protected $fillable = ['reporting_user_id', 'post_id', 'description', 'type'];
 
-    public function user()
+    /** User who submitted the report */
+    public function reportingUser()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'reporting_user_id');
     }
 
     public function post()

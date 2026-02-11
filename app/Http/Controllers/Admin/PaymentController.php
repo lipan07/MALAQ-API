@@ -12,13 +12,26 @@ class PaymentController extends Controller
 {
     public function index(Request $request)
     {
+        $query = Payment::with(['user', 'post', 'adminVerifiedBy'])->orderBy('created_at', 'desc');
+
+        $statusFilter = null;
+        if ($request->filled('status') && in_array($request->status, ['pending', 'confirmed', 'rejected'], true)) {
+            $query->where('status', $request->status);
+            $statusFilter = $request->status;
+        }
+
         $perPage = (int) $request->input('per_page', 15);
         $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 15;
-        $payments = Payment::with(['user', 'post', 'adminVerifiedBy'])
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
+        $payments = $query->paginate($perPage)->withQueryString();
 
-        return view('admin.payments.index', compact('payments', 'perPage'));
+        $counts = [
+            'all' => Payment::count(),
+            'pending' => Payment::where('status', 'pending')->count(),
+            'confirmed' => Payment::where('status', 'confirmed')->count(),
+            'rejected' => Payment::where('status', 'rejected')->count(),
+        ];
+
+        return view('admin.payments.index', compact('payments', 'perPage', 'statusFilter', 'counts'));
     }
 
     public function show(Payment $payment)
