@@ -269,13 +269,13 @@ class User extends Authenticatable
         return $this->isSuperAdmin();
     }
 
-    /** Can access payments (view/confirm) – super_admin and admin; moderator/support/analyst cannot */
+    /** Can access payments (view/confirm/reject) – super_admin, admin, lead, supervisor; moderator/support/analyst cannot */
     public function canAccessPayments(): bool
     {
         if (!$this->hasPermissionTo('payments')) {
             return false;
         }
-        return $this->isSuperAdmin() || $this->isOperationsAdmin();
+        return $this->isSuperAdmin() || $this->isOperationsAdmin() || $this->isLead() || $this->isSupervisor();
     }
 
     /** Can manage (create/edit/remove) admin users – super_admin and admin see all; invited lead only invited */
