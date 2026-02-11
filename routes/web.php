@@ -108,6 +108,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::middleware('permission:support_tickets')->group(function () {
         Route::get('/support-tickets', [\App\Http\Controllers\Admin\SupportTicketsController::class, 'index'])->name('support-tickets.index');
     });
+
+    // Impersonate (super_admin, lead, admin only – search in navbar dropdown; no separate page)
+    Route::get('/impersonate/search', [\App\Http\Controllers\Admin\ImpersonateController::class, 'search'])->name('impersonate.search');
+    Route::post('/impersonate', [\App\Http\Controllers\Admin\ImpersonateController::class, 'store'])->name('impersonate.store');
+    Route::post('/impersonate/stop', [\App\Http\Controllers\Admin\ImpersonateController::class, 'stop'])->name('impersonate.stop');
 });
 
 

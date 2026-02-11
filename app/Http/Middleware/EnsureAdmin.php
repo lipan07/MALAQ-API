@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +17,13 @@ class EnsureAdmin
         }
 
         if (!Auth::user()->isAdmin()) {
+            // Super admin may impersonate app users; allow access so they can use "Leave impersonation"
+            if ($request->session()->has('impersonator_id')) {
+                $impersonator = User::find($request->session()->get('impersonator_id'));
+                if ($impersonator && $impersonator->isSuperAdmin()) {
+                    return $next($request);
+                }
+            }
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();

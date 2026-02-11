@@ -533,12 +533,42 @@
     <div class="content">
         <!-- Navbar -->
         <nav class="navbar">
-            <div class="d-flex w-100 align-items-center">
-                <button class="mobile-menu-toggle me-3" id="menuToggle">
+            <div class="d-flex w-100 align-items-center gap-3">
+                <button class="mobile-menu-toggle me-1" id="menuToggle">
                     <i class="bi bi-list"></i>
                 </button>
+
+                @if(auth()->user()->canImpersonate() && !session('impersonator_id'))
+                <div class="d-flex align-items-center gap-2 navbar-impersonate-wrap position-relative flex-grow-1 flex-md-grow-0" style="max-width: 520px;">
+                    <div id="navImpersonateSearchWrap" class="d-flex align-items-center gap-2 flex-grow-1">
+                        <input type="text" id="navImpersonateSearch" class="form-control form-control-sm" placeholder="Search user to impersonate (name or email)..." autocomplete="off" style="min-width: 280px;">
+                        <div id="navImpersonateLoading" class="text-muted small text-nowrap" style="display: none;">Searching...</div>
+                    </div>
+                    <div id="navImpersonateSelected" class="d-none d-flex align-items-center gap-2 flex-nowrap">
+                        <span class="small text-muted text-nowrap">View as:</span>
+                        <span id="navImpersonateSelectedName" class="fw-semibold small text-truncate" style="max-width: 180px;" title=""></span>
+                        <button type="button" id="navImpersonateClear" class="btn btn-link btn-sm p-0 text-secondary align-baseline flex-shrink-0" title="Clear selection"><i class="bi bi-x-circle-fill"></i></button>
+                        <form action="{{ route('admin.impersonate.store') }}" method="POST" id="navImpersonateForm" class="d-inline flex-shrink-0">
+                            @csrf
+                            <input type="hidden" name="user_id" id="navImpersonateUserId" value="">
+                            <button type="submit" class="btn btn-primary btn-sm text-nowrap"><i class="bi bi-person-badge"></i> Impersonate</button>
+                        </form>
+                    </div>
+                    <div id="navImpersonateResults" class="position-absolute top-100 start-0 mt-1 bg-white border rounded shadow-sm list-group list-group-flush" style="min-width: 100%; max-height: 280px; overflow-y: auto; display: none; z-index: 1050;"></div>
+                </div>
+                @endif
+
+                @if(session('impersonator_id'))
+                <form action="{{ route('admin.impersonate.stop') }}" method="POST" class="d-inline">
+                    @csrf
+                    <button type="submit" class="btn btn-warning btn-sm">
+                        <i class="bi bi-box-arrow-left"></i> Leave impersonation
+                    </button>
+                </form>
+                @endif
+
                 <div class="ms-auto">
-                    <form action="{{ route('logout') }}" method="POST">
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
                         @csrf
                         <button class="btn btn-danger btn-sm">
                             <i class="bi bi-box-arrow-right"></i> Logout
@@ -588,6 +618,108 @@
                     }
                 });
             });
+
+            // Navbar impersonate: search in header, select then Impersonate button
+            var navSearch = document.getElementById('navImpersonateSearch');
+            if (navSearch) {
+                var searchWrap = document.getElementById('navImpersonateSearchWrap');
+                var selectedWrap = document.getElementById('navImpersonateSelected');
+                var selectedNameEl = document.getElementById('navImpersonateSelectedName');
+                var userIdInput = document.getElementById('navImpersonateUserId');
+                var resultsEl = document.getElementById('navImpersonateResults');
+                var loadingEl = document.getElementById('navImpersonateLoading');
+                var clearBtn = document.getElementById('navImpersonateClear');
+                var searchUrl = '{{ route("admin.impersonate.search") }}';
+                var debounceTimer;
+
+                function esc(s) {
+                    if (!s) return '';
+                    var d = document.createElement('div');
+                    d.textContent = s;
+                    return d.innerHTML;
+                }
+
+                function showResults(show) {
+                    resultsEl.style.display = show ? 'block' : 'none';
+                }
+
+                function selectUser(user) {
+                    userIdInput.value = user.id;
+                    var label = user.name + ' (' + (user.email || '—') + ')';
+                    selectedNameEl.textContent = label;
+                    selectedNameEl.setAttribute('title', label);
+                    searchWrap.classList.add('d-none');
+                    selectedWrap.classList.remove('d-none');
+                    navSearch.value = '';
+                    resultsEl.innerHTML = '';
+                    showResults(false);
+                }
+
+                navSearch.addEventListener('input', function() {
+                    var q = this.value.trim();
+                    clearTimeout(debounceTimer);
+                    if (q.length < 2) {
+                        resultsEl.innerHTML = '';
+                        showResults(false);
+                        return;
+                    }
+                    debounceTimer = setTimeout(function() {
+                        loadingEl.style.display = 'block';
+                        resultsEl.innerHTML = '';
+                        showResults(true);
+                        fetch(searchUrl + '?q=' + encodeURIComponent(q), {
+                            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                        })
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            loadingEl.style.display = 'none';
+                            if (data.length === 0) {
+                                resultsEl.innerHTML = '<div class="list-group-item list-group-item-secondary small">No users found.</div>';
+                            } else {
+                                data.forEach(function(u) {
+                                    var div = document.createElement('div');
+                                    div.className = 'list-group-item list-group-item-action py-2 cursor-pointer';
+                                    div.setAttribute('data-user-id', u.id);
+                                    div.setAttribute('data-user-name', u.name);
+                                    div.setAttribute('data-user-email', u.email || '');
+                                    div.innerHTML = '<strong class="small">' + esc(u.name) + '</strong><br><span class="text-muted small">' + esc(u.email) + ' · ' + esc(u.role) + '</span>';
+                                    div.addEventListener('click', function() {
+                                        selectUser({
+                                            id: this.getAttribute('data-user-id'),
+                                            name: this.getAttribute('data-user-name'),
+                                            email: this.getAttribute('data-user-email')
+                                        });
+                                    });
+                                    resultsEl.appendChild(div);
+                                });
+                            }
+                        })
+                        .catch(function() {
+                            loadingEl.style.display = 'none';
+                            resultsEl.innerHTML = '<div class="list-group-item list-group-item-danger small">Search failed.</div>';
+                        });
+                    }, 300);
+                });
+
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', function() {
+                        selectedWrap.classList.add('d-none');
+                        searchWrap.classList.remove('d-none');
+                        userIdInput.value = '';
+                        navSearch.value = '';
+                        navSearch.focus();
+                    });
+                }
+
+                document.addEventListener('click', function(e) {
+                    if (!navSearch.contains(e.target) && !resultsEl.contains(e.target)) {
+                        showResults(false);
+                    }
+                });
+                navSearch.addEventListener('focus', function() {
+                    if (resultsEl.innerHTML) showResults(true);
+                });
+            }
         });
     </script>
     @stack('scripts')

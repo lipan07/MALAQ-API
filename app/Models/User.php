@@ -292,4 +292,31 @@ class User extends Authenticatable
         }
         return $this->isSuperAdmin() || $this->isOperationsAdmin();
     }
+
+    /** Can use impersonation feature – super_admin, lead, admin only */
+    public function canImpersonate(): bool
+    {
+        return $this->isSuperAdmin() || $this->isLead() || $this->isOperationsAdmin();
+    }
+
+    /** Whether current user can impersonate the given target. */
+    public function canImpersonateUser(User $target): bool
+    {
+        if ($target->id === $this->id) {
+            return false; // cannot impersonate self
+        }
+        if ($this->isSuperAdmin()) {
+            return true; // can impersonate any user (admin or app user)
+        }
+        if ($target->admin_role === null) {
+            return false; // lead/admin can only impersonate admin-panel users
+        }
+        if ($this->isLead()) {
+            return $target->admin_role === 'supervisor' && $target->joined_via_invite;
+        }
+        if ($this->isOperationsAdmin()) {
+            return $target->created_by_admin_id === $this->id;
+        }
+        return false;
+    }
 }
