@@ -196,10 +196,14 @@ class UserController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     * Users can only delete their own account (for Google Play / data deletion compliance).
      */
     public function destroy(string $id)
     {
         $user = User::findOrFail($id);
+        if (Auth::id() !== $user->id) {
+            return response()->json(['message' => 'You can only delete your own account.'], 403);
+        }
         $user->delete();
 
         return response()->json([

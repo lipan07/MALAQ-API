@@ -119,6 +119,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 
 Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('privacy-policy');
+
+// Google Play: account and data deletion (no auth required)
+// Play Store URLs are in routes/api.php (prefix "api"): GET /api/users/account-deletion, GET /api/users/data-deletion
+Route::get('/account-deletion', fn() => app(\App\Http\Controllers\AccountDeletionController::class)->page(request(), 'all'))->name('account-deletion');
+Route::post('/api/request-deletion', [\App\Http\Controllers\AccountDeletionController::class, 'requestDeletion'])->name('api.request-deletion');
 // Route::get('/send-sms',[SmsController::class,'sendMessage']);
 
 // Product sharing routes

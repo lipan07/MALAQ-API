@@ -52,6 +52,10 @@ Route::post('product/{id}/track-share', [ShareController::class, 'trackShare'])-
 // Invite token validation (public route - no auth required)
 Route::post('invite-token/validate', [InviteTokenController::class, 'validateToken']);
 
+// Google Play: account/data deletion info pages (public – must be before /users/{user})
+Route::get('users/account-deletion', fn () => app(\App\Http\Controllers\AccountDeletionController::class)->page(request(), 'account'));
+Route::get('users/data-deletion', fn () => app(\App\Http\Controllers\AccountDeletionController::class)->page(request(), 'data'));
+
 Route::middleware('auth:sanctum')->group(function () {
     //User
     Route::get('/user', [UserController::class, 'index']);
