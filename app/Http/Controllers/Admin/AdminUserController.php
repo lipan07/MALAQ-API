@@ -208,16 +208,16 @@ class AdminUserController extends Controller
     }
 
     /**
-     * Generate 2 invite tokens for a supervisor (or lead) who has fewer than 2.
-     * Only supervisors and leads can have tokens; creates enough to bring total to 2.
+     * Generate 2 invite tokens for a supervisor who has fewer than 2.
+     * Only supervisors can have tokens; creates enough to bring total to 2.
      */
     public function generateTokens(User $admin_user)
     {
         if ($admin_user->admin_role === null) {
             abort(404);
         }
-        if (!in_array($admin_user->admin_role, ['supervisor', 'lead'], true)) {
-            return redirect()->route('admin.admin-users.index')->with('error', 'Only supervisors and leads can have invite tokens.');
+        if ($admin_user->admin_role !== 'supervisor') {
+            return redirect()->route('admin.admin-users.index')->with('error', 'Only supervisors can have invite tokens.');
         }
         if (Auth::user()->isInvitedAdmin() && !$admin_user->joined_via_invite) {
             abort(403, 'You can only generate tokens for invited admin users.');

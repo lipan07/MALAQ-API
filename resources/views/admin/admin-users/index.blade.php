@@ -59,15 +59,15 @@
                         </td>
                         <td>{{ $user->createdBy?->name ?? '—' }}</td>
                         <td>
-                            @if(in_array($user->admin_role, ['supervisor', 'lead'], true))
+                            @if($user->admin_role === 'supervisor')
                                 @if($user->inviteTokens->count() >= 2)
                                 <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#adminInviteTokensModal{{ $user->id }}" title="View invite tokens">
                                     <i class="bi bi-gift"></i> {{ $user->inviteTokens->count() }} token(s)
                                 </button>
                                 @else
-                                <form action="{{ route('admin.admin-users.generate-tokens', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('Generate {{ 2 - $user->inviteTokens->count() }} invite token(s) for this user?');">
+                                <form action="{{ route('admin.admin-users.generate-tokens', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('Generate {{ 2 - $user->inviteTokens->count() }} invite token(s) for this supervisor?');">
                                     @csrf
-                                    <button type="submit" class="btn btn-sm btn-success" title="Generate 2 tokens for this supervisor/lead">
+                                    <button type="submit" class="btn btn-sm btn-success" title="Generate 2 tokens for this supervisor">
                                         <i class="bi bi-plus-circle"></i> Generate tokens
                                     </button>
                                 </form>
@@ -77,16 +77,12 @@
                                 </button>
                                 @endif
                                 @endif
-                            @elseif($user->inviteTokens->isNotEmpty())
-                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#adminInviteTokensModal{{ $user->id }}" title="View invite tokens">
-                                <i class="bi bi-gift"></i> {{ $user->inviteTokens->count() }} token(s)
-                            </button>
                             @else
                             <span class="text-muted">—</span>
                             @endif
                         </td>
                         <td>
-                            @if($user->inviteTokens->isNotEmpty() || in_array($user->admin_role, ['lead', 'supervisor'], true))
+                            @if($user->admin_role === 'supervisor')
                             <a href="{{ route('admin.users.referral-tree', $user) }}" class="btn btn-sm btn-outline-info" title="View referral tree">
                                 <i class="bi bi-diagram-3"></i> Tree
                             </a>
@@ -125,7 +121,7 @@
         @include('admin.partials.per-page-pagination', ['paginator' => $users, 'perPage' => $perPage ?? 15])
 
         @foreach($users as $user)
-        @if($user->inviteTokens->isNotEmpty())
+        @if($user->admin_role === 'supervisor' && $user->inviteTokens->isNotEmpty())
         <div class="modal fade" id="adminInviteTokensModal{{ $user->id }}" tabindex="-1" aria-labelledby="adminInviteTokensModalLabel{{ $user->id }}" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
