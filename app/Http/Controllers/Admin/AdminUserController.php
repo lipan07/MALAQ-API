@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\InviteToken;
 use App\Models\Permission;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class AdminUserController extends Controller
     public function index(Request $request)
     {
         $query = User::whereNotNull('admin_role')
-            ->with('createdBy', 'permissions')
+            ->with('createdBy', 'permissions', ['inviteTokens' => fn ($q) => $q->with('usedBy')->orderBy('created_at')])
             ->orderByRaw("CASE admin_role WHEN 'super_admin' THEN 1 WHEN 'admin' THEN 2 WHEN 'lead' THEN 3 WHEN 'moderator' THEN 4 WHEN 'support' THEN 5 WHEN 'analyst' THEN 6 WHEN 'supervisor' THEN 7 ELSE 8 END")
             ->orderBy('name');
 
@@ -101,6 +102,18 @@ class AdminUserController extends Controller
                 $allowedIds = $current->permissions->pluck('id')->map(fn($id) => (int) $id)->toArray();
                 $validIds = array_values(array_intersect($requestedIds, $allowedIds));
                 $user->permissions()->sync($validIds);
+            }
+        }
+
+        // When lead or super_admin creates a supervisor, generate 2 invite tokens for them to share
+        if ($role === 'supervisor') {
+            for ($i = 0; $i < 2; $i++) {
+                InviteToken::create([
+                    'user_id' => $user->id,
+                    'token' => InviteToken::generateUniqueToken(),
+                    'expires_at' => now()->addYear(),
+                    'is_active' => true,
+                ]);
             }
         }
 

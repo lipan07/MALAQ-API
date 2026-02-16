@@ -111,11 +111,22 @@ class UserController extends Controller
     }
 
     /**
-     * Show referral tree for a user
+     * Show referral tree for a user (app user or admin user e.g. supervisor/lead)
      */
     public function referralTree(User $user)
     {
-        $this->ensureInvitedAdminCanAccess($user);
+        if ($user->admin_role !== null) {
+            // Admin user (e.g. supervisor/lead): require permission to manage admin users
+            if (!request()->user()->canManageAdminUsers()) {
+                abort(403, 'You do not have permission to view this tree.');
+            }
+            if (request()->user()->isInvitedAdmin() && !$user->joined_via_invite) {
+                abort(403, 'You can only view trees of invited admin users.');
+            }
+        } else {
+            $this->ensureInvitedAdminCanAccess($user);
+        }
+
         $tree = $this->buildReferralTree($user->id);
         
         return view('admin.users.referral-tree', [

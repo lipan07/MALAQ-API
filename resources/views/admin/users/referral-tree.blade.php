@@ -9,9 +9,15 @@
             </h5>
             <small class="text-muted">User: <strong>{{ $rootUser->name }}</strong> ({{ $rootUser->email }})</small>
         </div>
+        @if($rootUser->admin_role)
+        <a href="{{ route('admin.admin-users.index') }}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Back to Admin Users
+        </a>
+        @else
         <a href="{{ route('admin.users.index') }}" class="btn btn-secondary btn-sm">
             <i class="bi bi-arrow-left"></i> Back to Users
         </a>
+        @endif
     </div>
 
     <div class="card-body">
