@@ -16,7 +16,13 @@ class AdminUserController extends Controller
     public function index(Request $request)
     {
         $query = User::whereNotNull('admin_role')
-            ->with('createdBy', 'permissions', ['inviteTokens' => fn ($q) => $q->with('usedBy')->orderBy('created_at')])
+            ->with([
+                'createdBy',
+                'permissions',
+                'inviteTokens' => function ($q) {
+                    $q->with('usedBy')->orderBy('created_at');
+                },
+            ])
             ->orderByRaw("CASE admin_role WHEN 'super_admin' THEN 1 WHEN 'admin' THEN 2 WHEN 'lead' THEN 3 WHEN 'moderator' THEN 4 WHEN 'support' THEN 5 WHEN 'analyst' THEN 6 WHEN 'supervisor' THEN 7 ELSE 8 END")
             ->orderBy('name');
 
