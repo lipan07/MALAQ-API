@@ -206,4 +206,39 @@ class AdminUserController extends Controller
         $admin_user->permissions()->detach();
         return redirect()->route('admin.admin-users.index')->with('success', 'Admin user removed successfully.');
     }
+
+    /**
+     * Generate 2 invite tokens for a supervisor (or lead) who has fewer than 2.
+     * Only supervisors and leads can have tokens; creates enough to bring total to 2.
+     */
+    public function generateTokens(User $admin_user)
+    {
+        if ($admin_user->admin_role === null) {
+            abort(404);
+        }
+        if (!in_array($admin_user->admin_role, ['supervisor', 'lead'], true)) {
+            return redirect()->route('admin.admin-users.index')->with('error', 'Only supervisors and leads can have invite tokens.');
+        }
+        if (Auth::user()->isInvitedAdmin() && !$admin_user->joined_via_invite) {
+            abort(403, 'You can only generate tokens for invited admin users.');
+        }
+
+        $currentCount = $admin_user->inviteTokens()->count();
+        $toCreate = max(0, 2 - $currentCount);
+        if ($toCreate === 0) {
+            return redirect()->route('admin.admin-users.index')->with('info', 'This user already has 2 invite tokens.');
+        }
+
+        for ($i = 0; $i < $toCreate; $i++) {
+            InviteToken::create([
+                'user_id' => $admin_user->id,
+                'token' => InviteToken::generateUniqueToken(),
+                'expires_at' => now()->addYear(),
+                'is_active' => true,
+            ]);
+        }
+
+        $message = $toCreate === 2 ? '2 invite tokens generated successfully.' : '1 invite token generated successfully.';
+        return redirect()->route('admin.admin-users.index')->with('success', $message);
+    }
 }

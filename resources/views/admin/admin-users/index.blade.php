@@ -12,6 +12,12 @@
         @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
         @endif
+        @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+        @endif
+        @if(session('info'))
+        <div class="alert alert-info">{{ session('info') }}</div>
+        @endif
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
@@ -53,7 +59,25 @@
                         </td>
                         <td>{{ $user->createdBy?->name ?? '—' }}</td>
                         <td>
-                            @if($user->inviteTokens->isNotEmpty())
+                            @if(in_array($user->admin_role, ['supervisor', 'lead'], true))
+                                @if($user->inviteTokens->count() >= 2)
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#adminInviteTokensModal{{ $user->id }}" title="View invite tokens">
+                                    <i class="bi bi-gift"></i> {{ $user->inviteTokens->count() }} token(s)
+                                </button>
+                                @else
+                                <form action="{{ route('admin.admin-users.generate-tokens', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('Generate {{ 2 - $user->inviteTokens->count() }} invite token(s) for this user?');">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-success" title="Generate 2 tokens for this supervisor/lead">
+                                        <i class="bi bi-plus-circle"></i> Generate tokens
+                                    </button>
+                                </form>
+                                @if($user->inviteTokens->isNotEmpty())
+                                <button type="button" class="btn btn-sm btn-outline-primary ms-1" data-bs-toggle="modal" data-bs-target="#adminInviteTokensModal{{ $user->id }}" title="View invite tokens">
+                                    <i class="bi bi-gift"></i> {{ $user->inviteTokens->count() }}
+                                </button>
+                                @endif
+                                @endif
+                            @elseif($user->inviteTokens->isNotEmpty())
                             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#adminInviteTokensModal{{ $user->id }}" title="View invite tokens">
                                 <i class="bi bi-gift"></i> {{ $user->inviteTokens->count() }} token(s)
                             </button>
