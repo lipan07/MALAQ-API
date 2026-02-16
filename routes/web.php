@@ -86,7 +86,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Admin Users (permission: admin_users)
     Route::middleware('permission:admin_users')->group(function () {
-        Route::post('admin-users/{admin_user}/generate-tokens', [\App\Http\Controllers\Admin\AdminUserController::class, 'generateTokens'])->name('admin.admin-users.generate-tokens');
+        Route::post('admin-users/{admin_user}/generate-tokens', [\App\Http\Controllers\Admin\AdminUserController::class, 'generateTokens'])->name('admin-users.generate-tokens');
         Route::resource('admin-users', \App\Http\Controllers\Admin\AdminUserController::class)->parameters(['admin-users' => 'admin_user']);
     });
 
