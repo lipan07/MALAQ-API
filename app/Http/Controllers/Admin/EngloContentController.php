@@ -11,6 +11,7 @@ use App\Models\EngloContent;
 use App\Services\EngloVideoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class EngloContentController extends Controller
 {
@@ -49,13 +50,17 @@ class EngloContentController extends Controller
 
         $videoPath = $videoService->storeAndProcess($request->file('video'));
         if ($videoPath === null) {
+            Log::warning('EngloContentController: store failed (storeAndProcess returned null)', [
+                'original_name' => $request->file('video')->getClientOriginalName(),
+            ]);
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Video duration must not exceed 3 minutes. Please upload a shorter video.');
+                ->with('error', 'Video could not be saved. Ensure it is under 3 minutes and that storage is writable (run: php artisan storage:link if you have not).');
         }
         $validated['video_path'] = $videoPath;
 
         EngloContent::create($validated);
+        Log::info('EngloContentController: englo post created', ['video_path' => $videoPath]);
 
         return redirect()->route('admin.englo-contents.index')
             ->with('success', 'Englo post created successfully.');
@@ -79,12 +84,17 @@ class EngloContentController extends Controller
         if ($request->hasFile('video')) {
             $videoPath = $videoService->storeAndProcess($request->file('video'));
             if ($videoPath === null) {
+                Log::warning('EngloContentController: update failed (storeAndProcess returned null)', [
+                    'englo_content_id' => $englo_content->id,
+                    'original_name' => $request->file('video')->getClientOriginalName(),
+                ]);
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', 'Video duration must not exceed 3 minutes. Please upload a shorter video.');
+                    ->with('error', 'Video could not be saved. Ensure it is under 3 minutes and that storage is writable.');
             }
             $videoService->deleteVideo($englo_content->video_path);
             $validated['video_path'] = $videoPath;
+            Log::info('EngloContentController: englo post video replaced', ['id' => $englo_content->id, 'video_path' => $videoPath]);
         }
 
         $englo_content->update($validated);

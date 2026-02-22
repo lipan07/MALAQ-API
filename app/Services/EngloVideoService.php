@@ -28,10 +28,22 @@ class EngloVideoService
     public function validateDuration(string $path): bool
     {
         if (! $this->ffprobeAvailable()) {
+            Log::info('EngloVideoService: duration check skipped (ffprobe not available)');
             return true; // skip check if ffprobe not installed
         }
         $duration = $this->getDurationSeconds($path);
-        return $duration !== null && $duration <= self::MAX_DURATION_SECONDS;
+        $valid = $duration !== null && $duration <= self::MAX_DURATION_SECONDS;
+        if ($duration !== null) {
+            Log::info('EngloVideoService: duration check', [
+                'path' => $path,
+                'duration_seconds' => $duration,
+                'max_allowed' => self::MAX_DURATION_SECONDS,
+                'valid' => $valid,
+            ]);
+        } else {
+            Log::warning('EngloVideoService: could not read duration (ffprobe returned empty)', ['path' => $path]);
+        }
+        return $valid;
     }
 
     /**
@@ -42,14 +54,19 @@ class EngloVideoService
         if (! $this->ffprobeAvailable()) {
             return null;
         }
-        $path = escapeshellarg($path);
-        $cmd = "ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {$path} 2>/dev/null";
+        $pathEscaped = escapeshellarg($path);
+        $cmd = "ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {$pathEscaped} 2>&1";
         $output = @shell_exec($cmd);
-        if ($output === null || $output === '') {
+        if ($output === null || trim($output) === '') {
+            Log::warning('EngloVideoService: ffprobe returned no output', ['path' => $path, 'raw_output' => $output]);
             return null;
         }
         $seconds = (float) trim($output);
-        return $seconds > 0 ? $seconds : null;
+        if ($seconds <= 0) {
+            Log::warning('EngloVideoService: ffprobe returned invalid duration', ['path' => $path, 'raw_output' => trim($output)]);
+            return null;
+        }
+        return $seconds;
     }
 
     public function ffprobeAvailable(): bool
@@ -71,18 +88,36 @@ class EngloVideoService
     /**
      * Store and process video: resize to 360px width, compress, save to engloPoster.
      * Returns relative path (e.g. engloPoster/xxx.mp4) for DB, or null on failure.
+     * Requires: php artisan storage:link (so public/storage -> storage/app/public).
      */
     public function storeAndProcess(UploadedFile $file): ?string
     {
         $fullPath = $file->getRealPath();
+        $originalName = $file->getClientOriginalName();
+        $size = $file->getSize();
+        $mime = $file->getMimeType();
+
+        Log::info('EngloVideoService: upload started', [
+            'original_name' => $originalName,
+            'temp_path' => $fullPath,
+            'size_bytes' => $size,
+            'mime' => $mime,
+        ]);
+
         if (! $this->validateDuration($fullPath)) {
+            Log::warning('EngloVideoService: upload rejected (duration > 3 min)', [
+                'original_name' => $originalName,
+            ]);
             return null;
         }
 
         $disk = Storage::disk('public');
         $dir = self::STORAGE_DIR;
+        $storageRoot = $disk->path('');
+
         if (! $disk->exists($dir)) {
             $disk->makeDirectory($dir);
+            Log::info('EngloVideoService: created storage directory', ['dir' => $dir, 'absolute' => $disk->path($dir)]);
         }
 
         $extension = $file->getClientOriginalExtension() ?: 'mp4';
@@ -91,17 +126,46 @@ class EngloVideoService
         }
         $filename = Str::uuid() . '.' . $extension;
         $relativePath = $dir . '/' . $filename;
+        $absolutePath = $disk->path($relativePath);
 
-        if ($this->ffmpegAvailable()) {
-            $outputPath = $disk->path($relativePath);
-            $success = $this->transcodeTo360($fullPath, $outputPath);
+        $ffmpegAvailable = $this->ffmpegAvailable();
+        Log::info('EngloVideoService: storage plan', [
+            'relative_path' => $relativePath,
+            'absolute_path' => $absolutePath,
+            'storage_root' => $storageRoot,
+            'ffmpeg_available' => $ffmpegAvailable,
+        ]);
+
+        if ($ffmpegAvailable) {
+            $success = $this->transcodeTo360($fullPath, $absolutePath);
             if (! $success) {
-                // Fallback: store original
-                $file->storeAs($dir, $filename, 'public');
+                Log::warning('EngloVideoService: transcode failed, falling back to storeAs', ['output_path' => $absolutePath]);
+                $stored = $file->storeAs($dir, $filename, 'public');
+                Log::info('EngloVideoService: storeAs result', ['returned_path' => $stored, 'expected' => $relativePath]);
+            } else {
+                Log::info('EngloVideoService: transcode succeeded', ['output_path' => $absolutePath]);
             }
         } else {
-            $file->storeAs($dir, $filename, 'public');
+            Log::info('EngloVideoService: ffmpeg not available, storing original file');
+            $stored = $file->storeAs($dir, $filename, 'public');
+            Log::info('EngloVideoService: storeAs result', ['returned_path' => $stored, 'expected' => $relativePath]);
         }
+
+        if (! $disk->exists($relativePath)) {
+            Log::warning('EngloVideoService: file was not written', [
+                'relative_path' => $relativePath,
+                'absolute_path' => $absolutePath,
+                'storage_root_exists' => is_dir($storageRoot),
+                'dir_exists' => $disk->exists($dir),
+            ]);
+            return null;
+        }
+
+        $writtenSize = File::size($absolutePath);
+        Log::info('EngloVideoService: upload completed', [
+            'relative_path' => $relativePath,
+            'written_size_bytes' => $writtenSize,
+        ]);
 
         return $relativePath;
     }
@@ -111,14 +175,22 @@ class EngloVideoService
      */
     protected function transcodeTo360(string $inputPath, string $outputPath): bool
     {
-        $inputPath = escapeshellarg($inputPath);
-        $outputPath = escapeshellarg($outputPath);
+        $inputEscaped = escapeshellarg($inputPath);
+        $outputEscaped = escapeshellarg($outputPath);
         $w = self::TARGET_WIDTH;
-        // -vf scale=360:-2 (height divisible by 2), -crf 28 (smaller file), -preset fast, -movflags +faststart for web
-        $cmd = "ffmpeg -y -i {$inputPath} -vf scale={$w}:-2 -c:v libx264 -crf 28 -preset fast -movflags +faststart -c:a aac -b:a 96k {$outputPath} 2>/dev/null";
+        $cmd = "ffmpeg -y -i {$inputEscaped} -vf scale={$w}:-2 -c:v libx264 -crf 28 -preset fast -movflags +faststart -c:a aac -b:a 96k {$outputEscaped} 2>&1";
+        Log::info('EngloVideoService: running ffmpeg', ['input' => $inputPath, 'output' => $outputPath]);
+
         $output = @shell_exec($cmd);
 
-        return File::isFile($outputPath);
+        $exists = File::isFile($outputPath);
+        if (! $exists) {
+            Log::warning('EngloVideoService: ffmpeg did not produce output file', [
+                'output_path' => $outputPath,
+                'ffmpeg_output' => $output ? trim($output) : '(empty)',
+            ]);
+        }
+        return $exists;
     }
 
     /**
