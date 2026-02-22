@@ -40,7 +40,7 @@ class StoreEngloContentRequest extends FormRequest
     {
         return [
             'video.required' => 'Please upload a video file.',
-            'video.mimetypes' => 'Video must be MP4, WebM or MOV. Max duration 3 minutes.',
+            'video.mimetypes' => 'Video must be MP4, WebM or MOV.',
         ];
     }
 }

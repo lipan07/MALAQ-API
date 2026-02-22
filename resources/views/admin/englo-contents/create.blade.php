@@ -19,7 +19,7 @@
                         <label for="video" class="form-label">Video <span class="text-danger">*</span></label>
                         <input type="file" class="form-control @error('video') is-invalid @enderror"
                             id="video" name="video" accept="video/mp4,video/webm,video/quicktime" required>
-                        <div class="form-text">MP4, WebM or MOV. Max 3 minutes. Will be resized to 360px for mobile.</div>
+                        <div class="form-text">MP4, WebM or MOV. Stored as uploaded.</div>
                         @error('video')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -87,7 +87,7 @@
             <div class="card-body">
                 <ul class="list-unstyled">
                     <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i> Upload a video file (MP4, WebM or MOV).</li>
-                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i> Video must be max 3 minutes. It will be resized to 360px for mobile.</li>
+                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i> Video is stored as uploaded (no processing).</li>
                     <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i> Genre and language are from the predefined list.</li>
                     <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i> JSON data is optional; must be valid JSON if provided.</li>
                 </ul>

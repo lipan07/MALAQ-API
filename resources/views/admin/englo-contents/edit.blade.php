@@ -21,9 +21,9 @@
                         <input type="file" class="form-control @error('video') is-invalid @enderror"
                             id="video" name="video" accept="video/mp4,video/webm,video/quicktime">
                         @if($content->video_path)
-                        <div class="form-text">Current: <a href="{{ $content->video_url }}" target="_blank" rel="noopener">View video</a>. Upload a new file to replace (max 3 min, resized to 360px).</div>
+                        <div class="form-text">Current: <a href="{{ $content->video_url }}" target="_blank" rel="noopener">View video</a>. Upload a new file to replace.</div>
                         @else
-                        <div class="form-text">MP4, WebM or MOV. Max 3 minutes. Will be resized to 360px for mobile.</div>
+                        <div class="form-text">MP4, WebM or MOV. Stored as uploaded.</div>
                         @endif
                         @error('video')
                         <div class="invalid-feedback">{{ $message }}</div>

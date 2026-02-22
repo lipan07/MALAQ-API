@@ -55,7 +55,7 @@ class EngloContentController extends Controller
             ]);
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Video could not be saved. Ensure it is under 3 minutes and that storage is writable (run: php artisan storage:link if you have not).');
+                ->with('error', 'Video could not be saved. Ensure storage is writable and run: php artisan storage:link.');
         }
         $validated['video_path'] = $videoPath;
 
@@ -90,7 +90,7 @@ class EngloContentController extends Controller
                 ]);
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', 'Video could not be saved. Ensure it is under 3 minutes and that storage is writable.');
+                    ->with('error', 'Video could not be saved. Ensure storage is writable.');
             }
             $videoService->deleteVideo($englo_content->video_path);
             $validated['video_path'] = $videoPath;

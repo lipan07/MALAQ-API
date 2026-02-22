@@ -39,7 +39,7 @@ class UpdateEngloContentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'video.mimetypes' => 'Video must be MP4, WebM or MOV. Max duration 3 minutes.',
+            'video.mimetypes' => 'Video must be MP4, WebM or MOV.',
         ];
     }
 }
