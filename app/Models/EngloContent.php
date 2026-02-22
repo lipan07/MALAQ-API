@@ -6,6 +6,7 @@ use App\Enums\EngloGenre;
 use App\Enums\EngloLanguage;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class EngloContent extends Model
 {
@@ -34,7 +35,10 @@ class EngloContent extends Model
 
     public function getVideoUrlAttribute(): ?string
     {
-        return app(\App\Services\EngloVideoService::class)->videoUrl($this->video_path);
+        if (!$this->video_path) {
+            return null;
+        }
+        return Storage::disk('public')->url($this->video_path);
     }
 
     public function genre(): EngloGenre

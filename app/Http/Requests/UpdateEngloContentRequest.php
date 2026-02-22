@@ -17,7 +17,7 @@ class UpdateEngloContentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'video' => ['nullable', 'file', 'mimetypes:video/mp4,video/webm,video/quicktime', 'max:102400'],
+            'video' => ['nullable', 'file', 'mimes:mp4,webm,mov', 'max:102400'],
             'genre_id' => ['required', 'integer', Rule::in(EngloGenre::ids())],
             'language_id' => ['required', 'integer', Rule::in(EngloLanguage::ids())],
             'data' => [

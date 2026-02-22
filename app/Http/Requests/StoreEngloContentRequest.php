@@ -17,7 +17,7 @@ class StoreEngloContentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'video' => ['required', 'file', 'mimetypes:video/mp4,video/webm,video/quicktime', 'max:102400'], // 100MB max
+            'video' => ['required', 'file', 'mimes:mp4,webm,mov', 'max:102400'],
             'genre_id' => ['required', 'integer', Rule::in(EngloGenre::ids())],
             'language_id' => ['required', 'integer', Rule::in(EngloLanguage::ids())],
             'data' => [

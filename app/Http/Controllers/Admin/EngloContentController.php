@@ -8,13 +8,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreEngloContentRequest;
 use App\Http\Requests\UpdateEngloContentRequest;
 use App\Models\EngloContent;
-use App\Services\EngloVideoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class EngloContentController extends Controller
 {
+    private const VIDEO_FOLDER = 'engloPoster';
+
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -42,25 +44,22 @@ class EngloContentController extends Controller
         return view('admin.englo-contents.create', compact('genres', 'languages'));
     }
 
-    public function store(StoreEngloContentRequest $request, EngloVideoService $videoService)
+    public function store(StoreEngloContentRequest $request)
     {
         $validated = $request->validated();
         unset($validated['video']);
         $validated['data'] = $this->parseData($validated['data'] ?? null);
 
-        $videoPath = $videoService->storeAndProcess($request->file('video'));
-        if ($videoPath === null) {
-            Log::warning('EngloContentController: store failed (storeAndProcess returned null)', [
-                'original_name' => $request->file('video')->getClientOriginalName(),
-            ]);
+        $file = $request->file('video');
+        $videoPath = $this->storeVideo($file);
+        if (!$videoPath) {
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Video could not be saved. Ensure storage is writable and run: php artisan storage:link.');
+                ->with('error', 'Video could not be saved. Run: php artisan storage:link');
         }
         $validated['video_path'] = $videoPath;
 
         EngloContent::create($validated);
-        Log::info('EngloContentController: englo post created', ['video_path' => $videoPath]);
 
         return redirect()->route('admin.englo-contents.index')
             ->with('success', 'Englo post created successfully.');
@@ -75,26 +74,21 @@ class EngloContentController extends Controller
         return view('admin.englo-contents.edit', compact('content', 'genres', 'languages'));
     }
 
-    public function update(UpdateEngloContentRequest $request, EngloContent $englo_content, EngloVideoService $videoService)
+    public function update(UpdateEngloContentRequest $request, EngloContent $englo_content)
     {
         $validated = $request->validated();
         unset($validated['video']);
         $validated['data'] = $this->parseData($validated['data'] ?? null);
 
         if ($request->hasFile('video')) {
-            $videoPath = $videoService->storeAndProcess($request->file('video'));
-            if ($videoPath === null) {
-                Log::warning('EngloContentController: update failed (storeAndProcess returned null)', [
-                    'englo_content_id' => $englo_content->id,
-                    'original_name' => $request->file('video')->getClientOriginalName(),
-                ]);
+            $videoPath = $this->storeVideo($request->file('video'));
+            if (!$videoPath) {
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', 'Video could not be saved. Ensure storage is writable.');
+                    ->with('error', 'Video could not be saved. Run: php artisan storage:link');
             }
-            $videoService->deleteVideo($englo_content->video_path);
+            $this->deleteVideoFile($englo_content->video_path);
             $validated['video_path'] = $videoPath;
-            Log::info('EngloContentController: englo post video replaced', ['id' => $englo_content->id, 'video_path' => $videoPath]);
         }
 
         $englo_content->update($validated);
@@ -103,13 +97,42 @@ class EngloContentController extends Controller
             ->with('success', 'Englo post updated successfully.');
     }
 
-    public function destroy(EngloContent $englo_content, EngloVideoService $videoService)
+    public function destroy(EngloContent $englo_content)
     {
-        $videoService->deleteVideo($englo_content->video_path);
+        $this->deleteVideoFile($englo_content->video_path);
         $englo_content->delete();
 
         return redirect()->route('admin.englo-contents.index')
             ->with('success', 'Englo post deleted successfully.');
+    }
+
+    /**
+     * Store video file in storage/app/public/engloPoster. Returns relative path or null.
+     */
+    private function storeVideo($file): ?string
+    {
+        $disk = Storage::disk('public');
+        $dir = self::VIDEO_FOLDER;
+
+        if (!$disk->exists($dir)) {
+            $disk->makeDirectory($dir);
+        }
+
+        $ext = strtolower($file->getClientOriginalExtension() ?: 'mp4');
+        if (!in_array($ext, ['mp4', 'webm', 'mov'], true)) {
+            $ext = 'mp4';
+        }
+        $name = Str::uuid() . '.' . $ext;
+        $path = $file->storeAs($dir, $name, 'public');
+
+        return $path ?: null;
+    }
+
+    private function deleteVideoFile(?string $path): void
+    {
+        if ($path && Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+        }
     }
 
     private function parseData(mixed $data): ?array
