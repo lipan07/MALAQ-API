@@ -112,6 +112,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/support-tickets/{support_request}', [\App\Http\Controllers\Admin\SupportTicketsController::class, 'show'])->name('support-tickets.show');
     });
 
+    // Englo Posts (Super Admin only)
+    Route::middleware('super_admin')->group(function () {
+        Route::resource('englo-contents', \App\Http\Controllers\Admin\EngloContentController::class)
+            ->parameters(['englo-contents' => 'englo_content'])
+            ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+    });
+
     // Impersonate (super_admin, lead, admin only – search in navbar dropdown; no separate page)
     Route::get('/impersonate/search', [\App\Http\Controllers\Admin\ImpersonateController::class, 'search'])->name('impersonate.search');
     Route::post('/impersonate', [\App\Http\Controllers\Admin\ImpersonateController::class, 'store'])->name('impersonate.store');

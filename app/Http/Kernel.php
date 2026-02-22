@@ -71,5 +71,6 @@ class Kernel extends HttpKernel
         'custom.validate.post.size' => \App\Http\Middleware\CustomValidatePostSize::class,
         'admin' => \App\Http\Middleware\EnsureAdmin::class,
         'permission' => \App\Http\Middleware\CheckPermission::class,
+        'super_admin' => \App\Http\Middleware\SuperAdminOnly::class,
     ];
 }

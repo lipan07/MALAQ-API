@@ -523,6 +523,11 @@
                 <i class="bi bi-chat-dots"></i> Support Tickets
             </a>
             @endif
+            @if(auth()->user()->isSuperAdmin())
+            <a href="{{ route('admin.englo-contents.index') }}" class="sidebar-link {{ request()->routeIs('admin.englo-contents.*') ? 'active' : '' }}">
+                <i class="bi bi-play-btn"></i> Englo Post
+            </a>
+            @endif
         </div>
     </div>
 
