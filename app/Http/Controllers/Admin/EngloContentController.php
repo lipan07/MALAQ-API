@@ -70,12 +70,12 @@ class EngloContentController extends Controller
                 'size' => $file->getSize(),
             ]);
 
-            $videoPath = $this->storeVideo($file);
+            [$videoPath, $storeError] = $this->storeVideo($file);
             if (!$videoPath) {
-                Log::warning('EngloContentController@store: storeVideo returned null');
+                Log::warning('EngloContentController@store: storeVideo failed', ['reason' => $storeError]);
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', 'Video could not be saved. Run: php artisan storage:link');
+                    ->with('error', $storeError ?: 'Video could not be saved.');
             }
             $validated['video_path'] = $videoPath;
 
@@ -113,11 +113,11 @@ class EngloContentController extends Controller
         $validated['data'] = $this->parseData($validated['data'] ?? null);
 
         if ($request->hasFile('video')) {
-            $videoPath = $this->storeVideo($request->file('video'));
+            [$videoPath, $storeError] = $this->storeVideo($request->file('video'));
             if (!$videoPath) {
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', 'Video could not be saved. Run: php artisan storage:link');
+                    ->with('error', $storeError ?: 'Video could not be saved.');
             }
             $this->deleteVideoFile($englo_content->video_path);
             $validated['video_path'] = $videoPath;
@@ -139,39 +139,70 @@ class EngloContentController extends Controller
     }
 
     /**
-     * Store video file in storage/app/public/engloPoster. Returns relative path or null.
+     * Store video file in storage/app/public/engloPoster.
+     * Returns [path, error]: path string on success, null + error message on failure.
      */
-    private function storeVideo($file): ?string
+    private function storeVideo($file): array
     {
-        if (!$file || !$file->isValid()) {
-            Log::warning('EngloContentController@storeVideo: invalid or missing file', [
-                'error' => $file ? $file->getError() : 'null',
-            ]);
-            return null;
+        if (!$file) {
+            return [null, 'No video file received.'];
+        }
+        if (!$file->isValid()) {
+            $code = $file->getError();
+            $messages = [
+                UPLOAD_ERR_INI_SIZE => 'File exceeds upload_max_filesize in php.ini.',
+                UPLOAD_ERR_FORM_SIZE => 'File exceeds max size.',
+                UPLOAD_ERR_PARTIAL => 'File was only partially uploaded.',
+                UPLOAD_ERR_NO_FILE => 'No file uploaded.',
+                UPLOAD_ERR_NO_TMP_DIR => 'Missing temp folder.',
+                UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
+                UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the upload.',
+            ];
+            $msg = $messages[$code] ?? "Upload error (code {$code}).";
+            Log::warning('EngloContentController@storeVideo: invalid file', ['error' => $code]);
+            return [null, $msg];
         }
 
         $disk = Storage::disk('public');
         $dir = self::VIDEO_FOLDER;
-        $root = $disk->path('');
+        $rootPath = $disk->path('');
 
-        if (!$disk->exists($dir)) {
-            $disk->makeDirectory($dir);
-            Log::info('EngloContentController@storeVideo: created directory', ['dir' => $dir, 'root' => $root]);
+        try {
+            if (!$disk->exists($dir)) {
+                $disk->makeDirectory($dir);
+                Log::info('EngloContentController@storeVideo: created directory', ['dir' => $dir]);
+            }
+
+            $fullDirPath = $disk->path($dir);
+            if (!is_writable($fullDirPath)) {
+                Log::warning('EngloContentController@storeVideo: directory not writable', ['path' => $fullDirPath]);
+                return [null, 'Storage folder is not writable. Run: chmod -R 775 storage'];
+            }
+
+            $ext = strtolower($file->getClientOriginalExtension() ?: 'mp4');
+            if (!in_array($ext, ['mp4', 'webm', 'mov'], true)) {
+                $ext = 'mp4';
+            }
+            $name = Str::uuid() . '.' . $ext;
+            $path = $file->storeAs($dir, $name, 'public');
+
+            if (!$path || !$disk->exists($path)) {
+                Log::warning('EngloContentController@storeVideo: storeAs failed or file missing', [
+                    'path' => $path,
+                    'root' => $rootPath,
+                ]);
+                return [null, 'Could not save file. Ensure storage/app/public/engloPoster is writable (chmod -R 775 storage).'];
+            }
+
+            Log::info('EngloContentController@storeVideo: saved', ['path' => $path]);
+            return [$path, null];
+        } catch (Throwable $e) {
+            Log::error('EngloContentController@storeVideo: exception', [
+                'message' => $e->getMessage(),
+                'path' => $rootPath ?? null,
+            ]);
+            return [null, 'Save failed: ' . $e->getMessage() . '. Check storage permissions (chmod -R 775 storage).'];
         }
-
-        $ext = strtolower($file->getClientOriginalExtension() ?: 'mp4');
-        if (!in_array($ext, ['mp4', 'webm', 'mov'], true)) {
-            $ext = 'mp4';
-        }
-        $name = Str::uuid() . '.' . $ext;
-        $path = $file->storeAs($dir, $name, 'public');
-
-        Log::info('EngloContentController@storeVideo: result', [
-            'path' => $path,
-            'exists' => $path ? $disk->exists($path) : false,
-        ]);
-
-        return $path ?: null;
     }
 
     private function deleteVideoFile(?string $path): void
