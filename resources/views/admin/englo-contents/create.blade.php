@@ -13,6 +13,19 @@
                 </a>
             </div>
             <div class="card-body">
+                @if($errors->any())
+                <div class="alert alert-danger mb-3">
+                    <strong>Please fix the following:</strong>
+                    <ul class="mb-0 mt-1">
+                        @foreach($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+                @if(session('error'))
+                <div class="alert alert-danger mb-3">{{ session('error') }}</div>
+                @endif
                 <form action="{{ route('admin.englo-contents.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-3">

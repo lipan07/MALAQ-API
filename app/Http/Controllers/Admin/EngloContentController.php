@@ -10,8 +10,10 @@ use App\Http\Requests\UpdateEngloContentRequest;
 use App\Models\EngloContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Throwable;
 
 class EngloContentController extends Controller
 {
@@ -46,23 +48,53 @@ class EngloContentController extends Controller
 
     public function store(StoreEngloContentRequest $request)
     {
-        $validated = $request->validated();
-        unset($validated['video']);
-        $validated['data'] = $this->parseData($validated['data'] ?? null);
+        Log::info('EngloContentController@store: request reached', [
+            'has_video' => $request->hasFile('video'),
+        ]);
 
-        $file = $request->file('video');
-        $videoPath = $this->storeVideo($file);
-        if (!$videoPath) {
+        try {
+            $validated = $request->validated();
+            unset($validated['video']);
+            $validated['data'] = $this->parseData($validated['data'] ?? null);
+
+            $file = $request->file('video');
+            if (!$file) {
+                Log::warning('EngloContentController@store: no video file in request after validation');
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'No video file received. Check PHP upload limits (upload_max_filesize, post_max_size).');
+            }
+
+            Log::info('EngloContentController@store: storing video', [
+                'original_name' => $file->getClientOriginalName(),
+                'size' => $file->getSize(),
+            ]);
+
+            $videoPath = $this->storeVideo($file);
+            if (!$videoPath) {
+                Log::warning('EngloContentController@store: storeVideo returned null');
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Video could not be saved. Run: php artisan storage:link');
+            }
+            $validated['video_path'] = $videoPath;
+
+            EngloContent::create($validated);
+            Log::info('EngloContentController@store: created', ['video_path' => $videoPath]);
+
+            return redirect()->route('admin.englo-contents.index')
+                ->with('success', 'Englo post created successfully.');
+        } catch (Throwable $e) {
+            Log::error('EngloContentController@store: exception', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Video could not be saved. Run: php artisan storage:link');
+                ->with('error', 'Something went wrong: ' . $e->getMessage());
         }
-        $validated['video_path'] = $videoPath;
-
-        EngloContent::create($validated);
-
-        return redirect()->route('admin.englo-contents.index')
-            ->with('success', 'Englo post created successfully.');
     }
 
     public function edit(EngloContent $englo_content)
@@ -111,11 +143,20 @@ class EngloContentController extends Controller
      */
     private function storeVideo($file): ?string
     {
+        if (!$file || !$file->isValid()) {
+            Log::warning('EngloContentController@storeVideo: invalid or missing file', [
+                'error' => $file ? $file->getError() : 'null',
+            ]);
+            return null;
+        }
+
         $disk = Storage::disk('public');
         $dir = self::VIDEO_FOLDER;
+        $root = $disk->path('');
 
         if (!$disk->exists($dir)) {
             $disk->makeDirectory($dir);
+            Log::info('EngloContentController@storeVideo: created directory', ['dir' => $dir, 'root' => $root]);
         }
 
         $ext = strtolower($file->getClientOriginalExtension() ?: 'mp4');
@@ -124,6 +165,11 @@ class EngloContentController extends Controller
         }
         $name = Str::uuid() . '.' . $ext;
         $path = $file->storeAs($dir, $name, 'public');
+
+        Log::info('EngloContentController@storeVideo: result', [
+            'path' => $path,
+            'exists' => $path ? $disk->exists($path) : false,
+        ]);
 
         return $path ?: null;
     }

@@ -4,14 +4,38 @@ namespace App\Http\Requests;
 
 use App\Enums\EngloGenre;
 use App\Enums\EngloLanguage;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class StoreEngloContentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->isSuperAdmin() ?? false;
+        $user = $this->user();
+        $ok = $user && method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin();
+        if (!$ok) {
+            Log::warning('EngloContent StoreEngloContentRequest: unauthorized', [
+                'user_id' => $user?->id,
+            ]);
+        }
+        return $ok;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $hasFile = $this->hasFile('video');
+        Log::info('EngloContent StoreEngloContentRequest: prepareForValidation', [
+            'has_file' => $hasFile,
+            'all_keys' => array_keys($this->all()),
+            'file_keys' => array_keys($this->allFiles()),
+            'video_valid' => $hasFile && $this->file('video')?->isValid(),
+            'video_error' => $hasFile ? $this->file('video')?->getError() : null,
+            'video_size' => $hasFile ? $this->file('video')?->getSize() : null,
+            'post_max_size' => ini_get('post_max_size'),
+            'upload_max_filesize' => ini_get('upload_max_filesize'),
+        ]);
     }
 
     public function rules(): array
@@ -40,7 +64,16 @@ class StoreEngloContentRequest extends FormRequest
     {
         return [
             'video.required' => 'Please upload a video file.',
-            'video.mimetypes' => 'Video must be MP4, WebM or MOV.',
+            'video.mimes' => 'Video must be MP4, WebM or MOV.',
+            'video.max' => 'Video must be under 100MB.',
         ];
+    }
+
+    protected function failedValidation(Validator $validator): void
+    {
+        Log::warning('EngloContent StoreEngloContentRequest: validation failed', [
+            'errors' => $validator->errors()->toArray(),
+        ]);
+        parent::failedValidation($validator);
     }
 }
