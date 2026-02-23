@@ -13,7 +13,7 @@ class EngloContentController extends Controller
      * List Englo contents with simple pagination and optional filters.
      * Public API (no auth required).
      *
-     * Query: per_page (default 10), page, genre_id, language_id
+     * Query: per_page (default 10), page, genre_id, language_id, podcast_genre_id
      */
     public function index(Request $request): JsonResponse
     {
@@ -22,6 +22,9 @@ class EngloContentController extends Controller
 
         $query = EngloContent::query()->orderByDesc('created_at');
 
+        if ($request->filled('podcast_genre_id')) {
+            $query->where('podcast_genre_id', (int) $request->input('podcast_genre_id'));
+        }
         if ($request->filled('genre_id')) {
             $query->where('genre_id', (int) $request->input('genre_id'));
         }
@@ -32,12 +35,17 @@ class EngloContentController extends Controller
         $contents = $query->simplePaginate($perPage);
 
         $items = $contents->map(function (EngloContent $item) {
+            $genre = $item->genre();
+            $language = $item->language();
+            $podcast = $item->podcastGenre();
             return [
                 'id' => $item->id,
                 'genre_id' => $item->genre_id,
-                'genre' => $item->genre()->label(),
+                'genre' => $genre?->label(),
                 'language_id' => $item->language_id,
-                'language' => $item->language()->label(),
+                'language' => $language?->label(),
+                'podcast_genre_id' => $item->podcast_genre_id,
+                'podcast' => $podcast?->label(),
                 'video_url' => $item->video_url,
                 'data' => $item->data,
                 'created_at' => $item->created_at?->toIso8601String(),

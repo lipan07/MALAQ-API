@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\EngloGenre;
 use App\Enums\EngloLanguage;
+use App\Enums\EngloPodcastGenre;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreEngloContentRequest;
 use App\Http\Requests\UpdateEngloContentRequest;
@@ -42,8 +43,9 @@ class EngloContentController extends Controller
     {
         $genres = EngloGenre::cases();
         $languages = EngloLanguage::cases();
+        $podcastGenres = EngloPodcastGenre::cases();
 
-        return view('admin.englo-contents.create', compact('genres', 'languages'));
+        return view('admin.englo-contents.create', compact('genres', 'languages', 'podcastGenres'));
     }
 
     public function store(StoreEngloContentRequest $request)
@@ -56,6 +58,7 @@ class EngloContentController extends Controller
             $validated = $request->validated();
             unset($validated['video']);
             $validated['data'] = $this->parseData($validated['data'] ?? null);
+            $this->normalizeEngloType($validated);
 
             $file = $request->file('video');
             if (!$file) {
@@ -101,9 +104,10 @@ class EngloContentController extends Controller
     {
         $genres = EngloGenre::cases();
         $languages = EngloLanguage::cases();
+        $podcastGenres = EngloPodcastGenre::cases();
         $content = $englo_content;
 
-        return view('admin.englo-contents.edit', compact('content', 'genres', 'languages'));
+        return view('admin.englo-contents.edit', compact('content', 'genres', 'languages', 'podcastGenres'));
     }
 
     public function update(UpdateEngloContentRequest $request, EngloContent $englo_content)
@@ -111,6 +115,7 @@ class EngloContentController extends Controller
         $validated = $request->validated();
         unset($validated['video']);
         $validated['data'] = $this->parseData($validated['data'] ?? null);
+        $this->normalizeEngloType($validated);
 
         if ($request->hasFile('video')) {
             [$videoPath, $storeError] = $this->storeVideo($request->file('video'));
@@ -209,6 +214,19 @@ class EngloContentController extends Controller
     {
         if ($path && Storage::disk('public')->exists($path)) {
             Storage::disk('public')->delete($path);
+        }
+    }
+
+    /**
+     * When podcast_genre_id is set, clear genre_id and language_id; otherwise clear podcast_genre_id.
+     */
+    private function normalizeEngloType(array &$validated): void
+    {
+        if (!empty($validated['podcast_genre_id'])) {
+            $validated['genre_id'] = null;
+            $validated['language_id'] = null;
+        } else {
+            $validated['podcast_genre_id'] = null;
         }
     }
 

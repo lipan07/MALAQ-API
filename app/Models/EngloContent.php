@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\EngloGenre;
 use App\Enums\EngloLanguage;
+use App\Enums\EngloPodcastGenre;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -21,6 +22,7 @@ class EngloContent extends Model
     protected $fillable = [
         'genre_id',
         'language_id',
+        'podcast_genre_id',
         'video_path',
         'data',
     ];
@@ -28,6 +30,7 @@ class EngloContent extends Model
     protected $casts = [
         'genre_id' => 'integer',
         'language_id' => 'integer',
+        'podcast_genre_id' => 'integer',
         'data' => 'array',
     ];
 
@@ -41,13 +44,18 @@ class EngloContent extends Model
         return Storage::disk('public')->url($this->video_path);
     }
 
-    public function genre(): EngloGenre
+    public function genre(): ?EngloGenre
     {
-        return EngloGenre::from($this->genre_id);
+        return $this->genre_id === null ? null : EngloGenre::tryFrom($this->genre_id);
     }
 
-    public function language(): EngloLanguage
+    public function language(): ?EngloLanguage
     {
-        return EngloLanguage::from($this->language_id);
+        return $this->language_id === null ? null : EngloLanguage::tryFrom($this->language_id);
+    }
+
+    public function podcastGenre(): ?EngloPodcastGenre
+    {
+        return $this->podcast_genre_id === null ? null : EngloPodcastGenre::tryFrom($this->podcast_genre_id);
     }
 }

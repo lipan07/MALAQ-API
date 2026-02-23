@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\EngloGenre;
 use App\Enums\EngloLanguage;
+use App\Enums\EngloPodcastGenre;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -18,8 +19,9 @@ class UpdateEngloContentRequest extends FormRequest
     {
         return [
             'video' => ['nullable', 'file', 'mimes:mp4,webm,mov', 'max:102400'],
-            'genre_id' => ['required', 'integer', Rule::in(EngloGenre::ids())],
-            'language_id' => ['required', 'integer', Rule::in(EngloLanguage::ids())],
+            'genre_id' => ['nullable', 'required_unless:podcast_genre_id,*', 'integer', Rule::in(EngloGenre::ids())],
+            'language_id' => ['nullable', 'required_unless:podcast_genre_id,*', 'integer', Rule::in(EngloLanguage::ids())],
+            'podcast_genre_id' => ['nullable', 'integer', Rule::in(EngloPodcastGenre::ids())],
             'data' => [
                 'nullable',
                 'string',

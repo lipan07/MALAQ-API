@@ -31,8 +31,8 @@
                         <thead>
                             <tr>
                                 <th>Video</th>
-                                <th>Genre</th>
-                                <th>Language</th>
+                                <th>Type</th>
+                                <th>Genre / Language</th>
                                 <th>Created</th>
                                 <th>Actions</th>
                             </tr>
@@ -49,8 +49,21 @@
                                     <span class="text-muted">–</span>
                                     @endif
                                 </td>
-                                <td><span class="badge bg-secondary">{{ $item->genre()->label() }}</span></td>
-                                <td><span class="badge bg-info">{{ $item->language()->label() }}</span></td>
+                                <td>
+                                    @if($item->podcastGenre())
+                                    <span class="badge bg-success">Podcast · {{ $item->podcastGenre()->name() }}</span>
+                                    @else
+                                    <span class="badge bg-primary">Film</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($item->podcastGenre())
+                                    <span class="text-muted">–</span>
+                                    @else
+                                    <span class="badge bg-secondary">{{ $item->genre()?->label() ?? '–' }}</span>
+                                    <span class="badge bg-info">{{ $item->language()?->label() ?? '–' }}</span>
+                                    @endif
+                                </td>
                                 <td>{{ $item->created_at->format('M d, Y H:i') }}</td>
                                 <td>
                                     <div class="d-flex gap-1 flex-wrap">
