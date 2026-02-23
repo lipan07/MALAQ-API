@@ -49,9 +49,6 @@ Route::post('test-sms', [AuthController::class, 'testSms']); // Debug only
 // Product sharing (public route - no auth required)
 Route::post('product/{id}/track-share', [ShareController::class, 'trackShare'])->name('product.track-share');
 
-// Englo contents (public read API with simple pagination)
-Route::get('englo-contents', [\App\Http\Controllers\Api\EngloContentController::class, 'index'])->name('api.englo-contents.index');
-
 // Invite token validation (public route - no auth required)
 Route::post('invite-token/validate', [InviteTokenController::class, 'validateToken']);
 
@@ -154,6 +151,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/payments', [PaymentController::class, 'store'])
         ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidatePostSize::class]);
 });
+
+
+
+// Englo contents (public read API with simple pagination)
+Route::get('englo-contents', [\App\Http\Controllers\Api\EngloContentController::class, 'index'])->name('api.englo-contents.index');
+
 
 Route::get('test', function () {
     return 'Hello World!!';
