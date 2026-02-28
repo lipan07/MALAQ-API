@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\User;
+use App\Models\EngloUser;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -107,11 +107,11 @@ class EngloAuthService
 
         Cache::forget($cacheKey);
 
-        $user = User::where('email', $email)->first();
+        $user = EngloUser::where('email', $email)->first();
 
         if (!$user) {
             $name = explode('@', $email)[0] ?? 'User';
-            $user = User::create([
+            $user = EngloUser::create([
                 'name' => $name,
                 'email' => $email,
                 'password' => Hash::make(Str::random(32)),
@@ -128,7 +128,6 @@ class EngloAuthService
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'phone_no' => $user->phone_no,
             ],
         ];
     }
