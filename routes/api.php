@@ -157,6 +157,10 @@ Route::middleware('auth:sanctum')->group(function () {
 // Englo contents (public read API with simple pagination)
 Route::get('englo-contents', [\App\Http\Controllers\Api\EngloContentController::class, 'index'])->name('api.englo-contents.index');
 
+// Englo auth (email verification code login)
+Route::post('englo/send-verification-code', [\App\Http\Controllers\Api\EngloAuthController::class, 'sendVerificationCode']);
+Route::post('englo/verify-and-login', [\App\Http\Controllers\Api\EngloAuthController::class, 'verifyAndLogin']);
+
 
 Route::get('test', function () {
     return 'Hello World!!';
