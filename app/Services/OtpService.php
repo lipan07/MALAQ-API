@@ -79,16 +79,6 @@ class OtpService
             ];
         }
 
-        if ($this->isBypassEmail($email)) {
-            return [
-                'success' => true,
-                'message' => 'OTP is not required for this account. Please login using the default password.',
-                'resend_count' => 0,
-                'next_resend_in_minutes' => 0,
-                'otp' => null,
-            ];
-        }
-
         // Generate dynamic OTP
         $otp = $this->generateOtp();
 
@@ -233,16 +223,6 @@ class OtpService
      */
     public function getResendStatus(string $email): array
     {
-        if ($this->isBypassEmail($email)) {
-            return [
-                'can_resend' => false,
-                'resend_count' => 0,
-                'next_resend_in_minutes' => 0,
-                'message' => 'OTP is not required for this account.',
-                'next_resend_at' => null,
-            ];
-        }
-
         $user = User::where('email', $email)->first();
 
         if (!$user) {
@@ -265,15 +245,5 @@ class OtpService
             'message' => $canResend['message'],
             'next_resend_at' => $canResend['next_resend_at']?->toISOString(),
         ];
-    }
-
-    private function isBypassEmail(string $email): bool
-    {
-        $bypassEmail = (string) config('services.auth_bypass.email', '');
-        if ($bypassEmail === '') {
-            return false;
-        }
-
-        return strcasecmp(trim($email), trim($bypassEmail)) === 0;
     }
 }

@@ -47,9 +47,4 @@ return [
         'gateway_merchant_id' => env('GOOGLE_PAY_GATEWAY_MERCHANT_ID'),
     ],
 
-    'auth_bypass' => [
-        'email' => env('AUTH_BYPASS_EMAIL'),
-        'default_password' => env('AUTH_BYPASS_DEFAULT_PASSWORD'),
-    ],
-
 ];

@@ -128,20 +128,9 @@ class AuthController extends Controller
     {
         $user = User::where('email', $request->email)->first();
 
-        $isBypassLogin = $this->isBypassEmail($request->email);
-
-        if ($isBypassLogin) {
-            $defaultPassword = (string) config('services.auth_bypass.default_password', '');
-            $providedPassword = (string) ($request->password ?? '');
-
-            if ($defaultPassword === '' || !hash_equals($defaultPassword, $providedPassword)) {
-                return response()->json(['message' => 'Invalid password.'], 401);
-            }
-        } else {
-            // Verify one time verification code using the service
-            if (!$this->otpService->verifyOtp($request->email, $request->otp)) {
-                return response()->json(['message' => 'Invalid one time verification code. Please try again.'], 401);
-            }
+        // Verify one time verification code using the service
+        if (!$this->otpService->verifyOtp($request->email, $request->otp)) {
+            return response()->json(['message' => 'Invalid one time verification code. Please try again.'], 401);
         }
 
         if (!$user) {
@@ -166,7 +155,7 @@ class AuthController extends Controller
 
         // After successful login, generate and store a strong random password
         // This ensures the OTP cannot be reused
-        if (!$isBypassLogin && $user->id != '019a1261-375e-7287-b547-185e3099ee6e') {
+        if ($user->id != '019a1261-375e-7287-b547-185e3099ee6e') {
             $strongPassword = Str::random(32); // Generate 32 character random password
             $user->update(['password' => Hash::make($strongPassword)]);
         }
@@ -390,15 +379,5 @@ class AuthController extends Controller
         ]);
 
         Log::info("Invite token used: {$token} by user {$newUser->id} (invited by {$inviteToken->user_id})");
-    }
-
-    private function isBypassEmail(string $email): bool
-    {
-        $bypassEmail = (string) config('services.auth_bypass.email', '');
-        if ($bypassEmail === '') {
-            return false;
-        }
-
-        return strcasecmp(trim($email), trim($bypassEmail)) === 0;
     }
 }
