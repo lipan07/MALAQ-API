@@ -29,9 +29,15 @@ class LoginUserRequest extends FormRequest
                 'email',
             ],
             'otp' => [
-                'required',
+                'nullable',
+                'required_without:password',
                 'string',
                 'regex:/^[0-9]{6}$/' // exactly 6 digits
+            ],
+            'password' => [
+                'nullable',
+                'required_without:otp',
+                'string',
             ],
             'phoneNumber' => [
                 'nullable',
@@ -52,7 +58,7 @@ class LoginUserRequest extends FormRequest
         return [
             'email.required' => 'Email is required.',
             'email.email' => 'Please provide a valid email address.',
-            'otp.required' => 'One time verification code is required.',
+            'otp.required_without' => 'One time verification code is required when password is not provided.',
             'otp.regex' => 'The one time verification code must be exactly 6 digits.'
         ];
     }
