@@ -219,13 +219,21 @@ class ChatController extends Controller
             $chat = Chat::select('id', 'buyer_id', 'seller_id') // select only needed cols
                 ->findOrFail($request->chat_id);
         } else {
+            $post = Post::select('user_id')->findOrFail($request->post_id);
+            $postSellerId = $post->user_id;
+            // Listing owner is always seller_id; buyer is the other participant.
+            $sellerId = $postSellerId;
+            $buyerId = (string) $user->id === (string) $postSellerId
+                ? $request->receiver_id
+                : $user->id;
+
             $chat = Chat::firstOrCreate(
                 [
-                    'buyer_id' => $user->id,
-                    'seller_id' => $request->receiver_id,
-                    'post_id'  => $request->post_id,
+                    'buyer_id' => $buyerId,
+                    'seller_id' => $sellerId,
+                    'post_id' => $request->post_id,
                 ],
-                ['created_at' => now()] // prevent extra DB write
+                ['created_at' => now()]
             );
         }
 

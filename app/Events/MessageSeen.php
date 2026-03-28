@@ -2,11 +2,11 @@
 
 namespace App\Events;
 
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 
-class MessageSeen  implements ShouldBroadcast
+class MessageSeen implements ShouldBroadcastNow
 {
     use SerializesModels;
 

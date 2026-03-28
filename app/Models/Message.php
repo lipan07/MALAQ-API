@@ -17,6 +17,10 @@ class Message extends Model
         'is_seen',
     ];
 
+    protected $casts = [
+        'is_seen' => 'boolean',
+    ];
+
     public function chat()
     {
         return $this->belongsTo(Chat::class, 'chat_id', 'id');
