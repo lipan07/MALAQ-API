@@ -3,9 +3,8 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\InteractsWithBroadcasting;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -13,13 +12,14 @@ use Illuminate\Support\Facades\Log;
 
 class MessageSent implements ShouldBroadcastNow
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable, InteractsWithBroadcasting, InteractsWithSockets, SerializesModels;
 
     public $message;
 
     public function __construct($message)
     {
         $this->message = $message;
+        $this->broadcastVia('reverb');
     }
 
     public function broadcastOn()
@@ -36,7 +36,7 @@ class MessageSent implements ShouldBroadcastNow
             'id' => $this->message->id,
             'message' => $this->message->message,
             'user_id' => $this->message->user_id,
-            'is_seen' => $this->message->is_seen,
+            'is_seen' => (int) (bool) $this->message->is_seen,
             'updated_at' => $this->message->updated_at->toDateTimeString(),
         ];
     }

@@ -113,7 +113,7 @@ class ChatController extends Controller
             'message' => $request->message,
         ]);
 
-        broadcast(new MessageSent($chat->id, $message))->toOthers();
+        broadcast(new MessageSent($message))->toOthers();
 
         return response()->json(['status' => '200', 'message' => 'Chat created successfully', 'data' => [$chat->id, $message->id]]);
     }
@@ -243,8 +243,15 @@ class ChatController extends Controller
             'message' => $validated['message'],
         ]);
 
-        // Broadcast to others
-        broadcast(new MessageSent($message))->toOthers();
+        try {
+            broadcast(new MessageSent($message))->toOthers();
+        } catch (\Throwable $e) {
+            \Log::error('MessageSent broadcast failed', [
+                'error' => $e->getMessage(),
+                'chat_id' => $chat->id,
+                'message_id' => $message->id,
+            ]);
+        }
 
         // Update chat updated_at
         $chat->touch();

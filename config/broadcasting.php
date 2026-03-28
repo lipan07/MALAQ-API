@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('BROADCAST_CONNECTION', 'null'),
+    'default' => env('BROADCAST_CONNECTION', env('BROADCAST_DRIVER', 'null')),
 
     /*
     |--------------------------------------------------------------------------
@@ -35,11 +35,17 @@ return [
             'key' => env('REVERB_APP_KEY'),
             'secret' => env('REVERB_APP_SECRET'),
             'app_id' => env('REVERB_APP_ID'),
+            /*
+             | Laravel publishes to Reverb via HTTP (Pusher protocol). Do NOT use your public domain
+             | here unless Reverb really listens there — PHP on the server should use 127.0.0.1 when
+             | Reverb runs on the same machine (typical). Mobile/web apps still use REVERB_HOST for WS.
+             | Override: REVERB_PUBLISH_HOST=reverb (Docker) or the internal hostname.
+             */
             'options' => [
-                'host' => env('REVERB_HOST'),
-                'port' => env('REVERB_PORT', 443),
-                'scheme' => env('REVERB_SCHEME', 'https'),
-                'useTLS' => env('REVERB_SCHEME', 'https') === 'https',
+                'host' => env('REVERB_PUBLISH_HOST', '127.0.0.1'),
+                'port' => env('REVERB_PUBLISH_PORT', env('REVERB_PORT', 443)),
+                'scheme' => env('REVERB_PUBLISH_SCHEME', env('REVERB_SCHEME', 'https')),
+                'useTLS' => (env('REVERB_PUBLISH_SCHEME', env('REVERB_SCHEME', 'https'))) === 'https',
             ],
             'client_options' => [
                 // Guzzle client options: https://docs.guzzlephp.org/en/stable/request-options.html

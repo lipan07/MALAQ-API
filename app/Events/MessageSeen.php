@@ -4,17 +4,19 @@ namespace App\Events;
 
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\InteractsWithBroadcasting;
 use Illuminate\Queue\SerializesModels;
 
 class MessageSeen implements ShouldBroadcastNow
 {
-    use SerializesModels;
+    use InteractsWithBroadcasting, SerializesModels;
 
     public $message;
 
     public function __construct($message)
     {
         $this->message = $message;
+        $this->broadcastVia('reverb');
     }
 
     public function broadcastOn()
