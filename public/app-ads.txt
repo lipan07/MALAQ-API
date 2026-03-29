@@ -1,0 +1,6 @@
+# app-ads.txt — Authorized sellers for this app (AdMob / Google)
+# Upload this file to the ROOT of your developer website: https://yourdomain.com/app-ads.txt
+# Publisher ID taken from your app ad units (ca-app-pub-9242328705068667/...)
+# If your AdMob account shows a different snippet, replace the google.com line with the exact copy from AdMob → Apps → app-ads.txt → How to set up.
+
+google.com, pub-9242328705068667, DIRECT, f08c47fec0942fa0
