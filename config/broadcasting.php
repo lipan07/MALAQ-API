@@ -15,7 +15,13 @@ return [
     |
     */
 
-    'default' => env('BROADCAST_CONNECTION', env('BROADCAST_DRIVER', 'null')),
+    /*
+     | If unset, Laravel used "null" and broadcasts were silently dropped while messages saved to DB.
+     | When Reverb app credentials exist, default to reverb so HTTP publish to Reverb is enabled.
+     */
+    'default' => env('BROADCAST_CONNECTION')
+        ?: env('BROADCAST_DRIVER')
+        ?: (filled(env('REVERB_APP_KEY')) ? 'reverb' : 'null'),
 
     /*
     |--------------------------------------------------------------------------
@@ -42,10 +48,11 @@ return [
              | Override: REVERB_PUBLISH_HOST=reverb (Docker) or the internal hostname.
              */
             'options' => [
+                'cluster' => env('REVERB_APP_CLUSTER', 'mt1'),
                 'host' => env('REVERB_PUBLISH_HOST', '127.0.0.1'),
-                'port' => env('REVERB_PUBLISH_PORT', env('REVERB_PORT', 443)),
-                'scheme' => env('REVERB_PUBLISH_SCHEME', env('REVERB_SCHEME', 'https')),
-                'useTLS' => (env('REVERB_PUBLISH_SCHEME', env('REVERB_SCHEME', 'https'))) === 'https',
+                'port' => (int) env('REVERB_PUBLISH_PORT', env('REVERB_PORT', 8080)),
+                'scheme' => env('REVERB_PUBLISH_SCHEME', env('REVERB_SCHEME', 'http')),
+                'useTLS' => (env('REVERB_PUBLISH_SCHEME', env('REVERB_SCHEME', 'http'))) === 'https',
             ],
             'client_options' => [
                 // Guzzle client options: https://docs.guzzlephp.org/en/stable/request-options.html

@@ -113,7 +113,11 @@ class ChatController extends Controller
             'message' => $request->message,
         ]);
 
-        broadcast(new MessageSent($message))->toOthers();
+        try {
+            broadcast(new MessageSent($message));
+        } catch (\Throwable $e) {
+            \Log::error('MessageSent broadcast failed (store)', ['error' => $e->getMessage()]);
+        }
 
         return response()->json(['status' => '200', 'message' => 'Chat created successfully', 'data' => [$chat->id, $message->id]]);
     }
@@ -244,7 +248,8 @@ class ChatController extends Controller
         ]);
 
         try {
-            broadcast(new MessageSent($message))->toOthers();
+            // No toOthers(): mobile API does not send X-Socket-Id; everyone on chat.{id} must receive.
+            broadcast(new MessageSent($message));
         } catch (\Throwable $e) {
             \Log::error('MessageSent broadcast failed', [
                 'error' => $e->getMessage(),
@@ -284,8 +289,11 @@ class ChatController extends Controller
             $message->is_seen = true;
             $message->save();
 
-            // Optionally broadcast this change to other users
-            broadcast(new MessageSeen($message));
+            try {
+                broadcast(new MessageSeen($message));
+            } catch (\Throwable $e) {
+                \Log::error('MessageSeen broadcast failed', ['error' => $e->getMessage(), 'message_id' => $message->id]);
+            }
 
             return response()->json(['message' => 'Message marked as seen', 'data' => $message]);
         }
