@@ -145,6 +145,7 @@ class ChatController extends Controller
         return response()->json([
             'message' => 'Chat messages fetched successfully',
             'chats' => $messages,
+            'post_id' => $chat->post_id,
             'other_person' => [
                 'id' => $otherUser->id,
                 'name' => $otherUser->name,
@@ -220,7 +221,7 @@ class ChatController extends Controller
         $validated = $request->validate($rules);
 
         if ($hasChatId) {
-            $chat = Chat::select('id', 'buyer_id', 'seller_id') // select only needed cols
+            $chat = Chat::select('id', 'buyer_id', 'seller_id', 'post_id')
                 ->findOrFail($request->chat_id);
         } else {
             $post = Post::select('user_id')->findOrFail($request->post_id);
@@ -261,16 +262,35 @@ class ChatController extends Controller
         // Update chat updated_at
         $chat->touch();
 
-        // 🔔 Send FCM Push to receiver
+        // 🔔 Send FCM Push to receiver (data payload must be strings for FCM)
         $receiverId = $hasChatId ? ($chat->buyer_id === $user->id ? $chat->seller_id : $chat->buyer_id) : $request->receiver_id;
         \Log::info("Receiver ID: $receiverId");
+
+        $chat->loadMissing('post:id,title,images');
+        $post = $chat->post;
+        $postImage = '';
+        if ($post && is_array($post->images) && count($post->images) > 0) {
+            $first = $post->images[0];
+            $postImage = is_array($first)
+                ? (string) ($first['url'] ?? $first['path'] ?? '')
+                : (string) $first;
+        }
+
+        $fcmData = [
+            'chat_id' => (string) $chat->id,
+            'post_id' => $post ? (string) $post->id : '',
+            'seller_id' => (string) $chat->seller_id,
+            'buyer_id' => (string) $chat->buyer_id,
+            'post_title' => $post ? (string) $post->title : 'Chat',
+            'post_image' => $postImage,
+        ];
 
         // Dispatch job to queue - returns immediately
         SendFcmNotification::dispatch(
             $receiverId,
             'New Message',
             $request->message,
-            ['chat_id' => $chat->id]
+            $fcmData
         )->afterResponse(); // This sends the response first, then processes the job
 
 
