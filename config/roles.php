@@ -32,7 +32,7 @@ return [
 
     /** Default permission slugs for each role (used when creating non-invited staff) */
     'default_permissions' => [
-        'admin'     => ['users', 'posts', 'categories', 'reports', 'analytics', 'admin_users', 'payments', 'all_invite_tokens'],
+        'admin'     => ['users', 'posts', 'categories', 'reports', 'analytics', 'admin_users', 'payments', 'all_invite_tokens', 'ad_settings'],
         'moderator' => ['posts', 'reports'],
         'support'   => ['users', 'posts', 'support_tickets'],
         'analyst'   => ['analytics'],

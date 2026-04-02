@@ -106,6 +106,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('analytics.index');
     });
 
+    // Ad placements (permission: ad_settings)
+    Route::middleware('permission:ad_settings')->group(function () {
+        Route::get('/ad-settings', [\App\Http\Controllers\Admin\AdSettingController::class, 'index'])->name('ad-settings.index');
+        Route::post('/ad-settings/{ad_setting}/toggle', [\App\Http\Controllers\Admin\AdSettingController::class, 'toggle'])->name('ad-settings.toggle');
+    });
+
     // Support Tickets (permission: support_tickets)
     Route::middleware('permission:support_tickets')->group(function () {
         Route::get('/support-tickets', [\App\Http\Controllers\Admin\SupportTicketsController::class, 'index'])->name('support-tickets.index');

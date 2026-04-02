@@ -20,6 +20,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'Reports', 'slug' => 'reports', 'description' => 'Review and handle reported users/listings', 'icon' => 'bi-flag', 'sort_order' => 56],
             ['name' => 'Analytics', 'slug' => 'analytics', 'description' => 'View dashboards and export reports (read-only)', 'icon' => 'bi-graph-up', 'sort_order' => 57],
             ['name' => 'Support Tickets', 'slug' => 'support_tickets', 'description' => 'View chats metadata and respond to support tickets', 'icon' => 'bi-chat-dots', 'sort_order' => 58],
+            ['name' => 'Ad placements', 'slug' => 'ad_settings', 'description' => 'Enable or disable in-app ad slots by type', 'icon' => 'bi-badge-ad', 'sort_order' => 59],
         ];
 
         foreach ($permissions as $p) {

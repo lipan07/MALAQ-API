@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             PermissionSeeder::class,
             SuperAdminSeeder::class,
+            AdSettingSeeder::class,
         ]);
     }
 }
