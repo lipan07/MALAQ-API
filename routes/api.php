@@ -2,6 +2,7 @@
 
 use App\Events\UserStatusChanged;
 use App\Http\Controllers\Api\DeviceTokenController;
+use App\Http\Controllers\Api\PostVideoController;
 use App\Http\Controllers\Api\FeedbackController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CategoryController;
@@ -72,6 +73,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Post
     Route::get('posts', [PostController::class, 'index'])->name('posts.index');
+    Route::get('posts/videos', PostVideoController::class)->name('posts.videos');
     Route::get('posts/{post}', [PostController::class, 'show'])->name('posts.show');
     Route::post('posts', [PostController::class, 'store'])->name('posts.store');
     Route::post('posts/{post}', [PostController::class, 'update'])->name('posts.update');
