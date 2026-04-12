@@ -7,94 +7,71 @@ use Illuminate\Support\Facades\Log;
 class BackblazeService
 {
     /**
-     * Generate signed download URL for private Backblaze files
-     * 
-     * @param string $fileUrl The original file URL from Backblaze
-     * @return string|null Signed URL or null on failure
+     * Public bucket: return the file URL unchanged, minus a stale ?Authorization=… query if present.
+     * (Kept method name for callers; no signed download tokens.)
      */
     public function getSignedUrl(string $fileUrl): ?string
     {
-        try {
-            // Extract fileName from URL
-            // URL format: https://fXXX.backblazeb2.com/file/bucketName/fileName
-            $urlParts = parse_url($fileUrl);
-            if (!isset($urlParts['path'])) {
-                return $fileUrl; // Return original if can't parse
-            }
-
-            $pathParts = explode('/file/', $urlParts['path']);
-            if (count($pathParts) < 2) {
-                return $fileUrl; // Return original if invalid format
-            }
-
-            $bucketAndFile = $pathParts[1];
-            $bucketAndFileParts = explode('/', $bucketAndFile, 2);
-            if (count($bucketAndFileParts) < 2) {
-                return $fileUrl; // Return original if invalid format
-            }
-
-            $bucketName = $bucketAndFileParts[0];
-            $fileName = urldecode($bucketAndFileParts[1]); // Decode URL-encoded file name
-
-            $accountId = env('BACKBLAZE_ACCOUNT_ID');
-            $applicationKey = env('BACKBLAZE_APPLICATION_KEY');
-            $bucketId = env('BACKBLAZE_BUCKET_ID');
-
-            if (!$accountId || !$applicationKey || !$bucketId) {
-                Log::warning('Backblaze credentials not configured for signed URL generation');
-                return $fileUrl; // Return original URL if credentials not available
-            }
-
-            // Authorize with Backblaze
-            $authResponse = $this->authorizeAccount($accountId, $applicationKey);
-            if (!$authResponse['success']) {
-                Log::error('Failed to authorize with Backblaze for signed URL');
-                return $fileUrl; // Return original URL on auth failure
-            }
-
-            $authToken = $authResponse['authorizationToken'];
-            $apiUrl = $authResponse['apiUrl'];
-            $downloadUrl = $authResponse['downloadUrl'];
-
-            // Get download authorization (valid for 24 hours)
-            $ch = curl_init($apiUrl . '/b2api/v2/b2_get_download_authorization');
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Authorization: ' . $authToken,
-                'Content-Type: application/json',
-            ]);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-                'bucketId' => $bucketId,
-                'fileNamePrefix' => $fileName,
-                'validDurationInSeconds' => 86400, // 24 hours
-            ]));
-
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            if ($httpCode !== 200) {
-                // Fallback: Use auth token directly (less secure but works)
-                $signedUrl = $downloadUrl . '/file/' . $bucketName . '/' . urlencode($fileName) . '?Authorization=' . urlencode($authToken);
-                return $signedUrl;
-            }
-
-            $data = json_decode($response, true);
-            $downloadAuthToken = $data['authorizationToken'] ?? $authToken;
-
-            // Construct signed URL
-            $signedUrl = $downloadUrl . '/file/' . $bucketName . '/' . urlencode($fileName) . '?Authorization=' . urlencode($downloadAuthToken);
-
-            return $signedUrl;
-        } catch (\Exception $e) {
-            Log::error('Error generating Backblaze signed URL: ' . $e->getMessage());
-            return $fileUrl; // Return original URL on error
+        if ($fileUrl === '') {
+            return null;
         }
+
+        return $this->stripAuthorizationQuery($fileUrl);
     }
 
     /**
-     * Authorize with Backblaze B2
+     * Build canonical B2 native URL when you only have the object key (fileName in bucket).
+     * Set BACKBLAZE_PUBLIC_DOWNLOAD_BASE in .env, e.g. https://f005.backblazeb2.com
+     */
+    public function buildPublicFileUrl(string $fileName): ?string
+    {
+        $base = rtrim((string) env('BACKBLAZE_PUBLIC_DOWNLOAD_BASE', ''), '/');
+        $bucket = (string) env('BACKBLAZE_BUCKET_NAME', '');
+        if ($base === '' || $bucket === '') {
+            return null;
+        }
+
+        return $base . '/file/' . $bucket . '/' . rawurlencode($fileName);
+    }
+
+    private function stripAuthorizationQuery(string $url): string
+    {
+        if (!str_contains($url, '?')) {
+            return $url;
+        }
+
+        $parsed = parse_url($url);
+        if (!is_array($parsed) || empty($parsed['query'])) {
+            return $url;
+        }
+
+        parse_str($parsed['query'], $query);
+        unset($query['Authorization']);
+
+        $scheme = $parsed['scheme'] ?? 'https';
+        $host = $parsed['host'] ?? '';
+        if ($host === '') {
+            return $url;
+        }
+
+        $rebuilt = $scheme . '://' . $host;
+        if (!empty($parsed['port'])) {
+            $rebuilt .= ':' . $parsed['port'];
+        }
+        $rebuilt .= $parsed['path'] ?? '';
+
+        if (!empty($query)) {
+            $rebuilt .= '?' . http_build_query($query);
+        }
+        if (!empty($parsed['fragment'])) {
+            $rebuilt .= '#' . $parsed['fragment'];
+        }
+
+        return $rebuilt;
+    }
+
+    /**
+     * Authorize with Backblaze B2 (uploads / deletes)
      */
     private function authorizeAccount($accountId, $applicationKey)
     {
@@ -125,7 +102,7 @@ class BackblazeService
 
     /**
      * Delete video from Backblaze B2
-     * 
+     *
      * @param string $fileId Backblaze file ID
      * @param string|null $fileName File name (optional)
      * @return array
@@ -180,20 +157,22 @@ class BackblazeService
 
     /**
      * Delete video by URL
-     * 
+     *
      * @param string $videoUrl Full video URL
      * @return array
      */
     public function deleteVideoByUrl(string $videoUrl): array
     {
         try {
+            $cleanUrl = $this->stripAuthorizationQuery($videoUrl);
+
             // Extract file path from URL
-            if (!preg_match('/\/file\/[^\/]+\/(.+)$/', $videoUrl, $matches)) {
+            if (!preg_match('/\/file\/[^\/]+\/(.+)$/', $cleanUrl, $matches)) {
                 return ['success' => false, 'message' => 'Could not extract file path from URL'];
             }
 
             $filePath = urldecode($matches[1]);
-            
+
             $accountId = env('BACKBLAZE_ACCOUNT_ID');
             $applicationKey = env('BACKBLAZE_APPLICATION_KEY');
             $bucketId = env('BACKBLAZE_BUCKET_ID');

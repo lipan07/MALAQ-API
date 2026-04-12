@@ -72,7 +72,7 @@ class PostResource extends JsonResource
             }
         }
 
-        // Default: assume it's a list for performance (no signed URLs)
+        // Default: assume it's a list for performance (no video URLs in list payload)
         return true;
     }
 
@@ -81,8 +81,8 @@ class PostResource extends JsonResource
         // Get images from posts table (JSON column)
         $imageUrls = $this->images ?? [];
 
-        // For list/index context: just return boolean for video existence (no signed URLs)
-        // For show/detail context: return full video URLs with signed URLs
+        // For list/index context: just return boolean for video existence (no video URLs in payload)
+        // For show/detail context: return full public video URLs (B2 bucket is public)
         $isListContext = $this->isListContext($request);
 
         // Calculate has_video boolean - should be consistent for both list and show contexts
@@ -90,17 +90,18 @@ class PostResource extends JsonResource
 
         if ($isListContext) {
             // List context: return empty array for videos, boolean for has_video - much faster!
-            // No signed URL generation needed - saves significant time
+            // No per-item URL work in list context
             $videoData = []; // Empty array for list context
         } else {
-            // Detail context: return full video URLs with signed URLs
+            // Detail context: public B2 URLs (strip stale ?Authorization= if any)
             $videoUrls = [];
             if ($this->videos && is_array($this->videos) && count($this->videos) > 0) {
                 $backblazeService = app(BackblazeService::class);
                 $videoUrls = array_map(function ($url) use ($backblazeService) {
-                    if ($url && strpos($url, 'backblazeb2.com') !== false) {
-                        return $backblazeService->getSignedUrl($url);
+                    if ($url && is_string($url)) {
+                        return $backblazeService->getSignedUrl($url) ?? $url;
                     }
+
                     return $url;
                 }, array_filter($this->videos));
             }

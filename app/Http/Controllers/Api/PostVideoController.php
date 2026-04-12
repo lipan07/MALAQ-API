@@ -6,7 +6,6 @@ use App\Enums\PostStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Post;
-use App\Services\BackblazeService;
 use Illuminate\Http\Request;
 
 class PostVideoController extends Controller
@@ -15,7 +14,7 @@ class PostVideoController extends Controller
      * Active posts that include at least one video URL.
      * Optional query: category (same parent/subcategory rules as posts index), limit (per page, default 15).
      */
-    public function __invoke(Request $request, BackblazeService $backblazeService)
+    public function __invoke(Request $request)
     {
         $request->validate([
             'category' => 'nullable|integer|min:1',
@@ -49,26 +48,18 @@ class PostVideoController extends Controller
             ->orderByDesc('post_time')
             ->simplePaginate($perPage);
 
-        return $paginator->through(function (Post $post) use ($backblazeService) {
+        return $paginator->through(function (Post $post) {
             $urls = array_values(array_filter(
                 $post->videos ?? [],
                 static fn ($u) => is_string($u) && $u !== ''
             ));
             $rawUrl = $urls[0] ?? '';
 
-            $videoUrl = $rawUrl;
-            if ($rawUrl !== '' && str_contains($rawUrl, 'backblazeb2.com')) {
-                $signed = $backblazeService->getSignedUrl($rawUrl);
-                if ($signed !== null && $signed !== '') {
-                    $videoUrl = $signed;
-                }
-            }
-
             return [
                 'category_id' => $post->category_id,
                 'post_id' => $post->id,
                 'title' => $post->title,
-                'video_url' => $videoUrl,
+                'video_url' => $rawUrl,
             ];
         });
     }

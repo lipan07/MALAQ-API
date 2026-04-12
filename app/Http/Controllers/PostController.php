@@ -358,7 +358,7 @@ class PostController extends Controller
         // Fetch additional data for posts with optimized queries
         $finalPosts = ServicesPostService::fetchPostData($finalPosts);
 
-        // Set list mode flag for performance (skip signed URL generation)
+        // Set list mode flag for performance (skip per-item video URLs in list payload)
         PostResource::$isListMode = true;
         $response = PostResource::collection($finalPosts);
         PostResource::$isListMode = false; // Reset after collection
@@ -381,7 +381,7 @@ class PostController extends Controller
         $posts = ServicesPostService::fetchPostData($posts);
         // Return the restructured paginated result
 
-        // Set list mode flag for performance (skip signed URL generation)
+        // Set list mode flag for performance (skip per-item video URLs in list payload)
         PostResource::$isListMode = true;
         $response = PostResource::collection($posts);
         PostResource::$isListMode = false; // Reset after collection
@@ -750,7 +750,7 @@ class PostController extends Controller
             ->exists();
 
         // Convert collection to resource and attach additional data
-        // Don't set list mode for show method - we want full video URLs with signed URLs
+        // Don't set list mode for show method - we want full public video URLs
         PostResource::$isListMode = false;
         $postResource = PostResource::collection($posts)[0];
         $postResource->additional([
@@ -1047,7 +1047,7 @@ class PostController extends Controller
         // Fetch additional data for posts
         $finalPosts = ServicesPostService::fetchPostData($posts);
 
-        // Set list mode flag for performance (skip signed URL generation)
+        // Set list mode flag for performance (skip per-item video URLs in list payload)
         PostResource::$isListMode = true;
         $response = PostResource::collection($finalPosts);
         PostResource::$isListMode = false; // Reset after collection
