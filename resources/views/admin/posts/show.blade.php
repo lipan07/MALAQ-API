@@ -218,17 +218,16 @@
 
                 <!-- Images Section -->
                 @php
-                    $images = is_array($post->images) ? $post->images : [];
+                    $images = $post->relationLoaded('contents')
+                        ? $post->contents->filter(fn ($c) => $c->type->value === 'image')->pluck('url')->filter()->values()->all()
+                        : [];
                     $imageCount = count($images);
                 @endphp
                 @if($imageCount > 0)
                 <div class="mt-4">
                     <h6 class="text-muted">Post Images</h6>
                     <div class="row">
-                        @foreach($images as $imageUrl)
-                        @php
-                            $url = is_string($imageUrl) ? $imageUrl : (is_object($imageUrl) && isset($imageUrl->url) ? $imageUrl->url : null);
-                        @endphp
+                        @foreach($images as $url)
                         @if($url)
                         <div class="col-md-3 col-sm-4 col-6 mb-3">
                             <div class="card">

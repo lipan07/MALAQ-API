@@ -69,7 +69,10 @@ class FollowerController extends Controller
             ->with([
                 'post' => function ($query) {
                     $query->with([
-                        'images',
+                        'contents' => function ($c) {
+                            $c->select('id', 'post_id', 'type', 'url', 'backblaze_id', 'sort_order')
+                                ->orderBy('sort_order');
+                        },
                         'user:id,name,phone_no,status,last_activity,created_at',
                         'category:id,name,parent_id',
                         'mobile',

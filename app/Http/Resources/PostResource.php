@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\PostContentType;
 use App\Services\BackblazeService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -78,33 +79,43 @@ class PostResource extends JsonResource
 
     public function toArray(Request $request): array
     {
-        // Get images from posts table (JSON column)
-        $imageUrls = $this->images ?? [];
-
-        // For list/index context: just return boolean for video existence (no video URLs in payload)
-        // For show/detail context: return full public video URLs (B2 bucket is public)
         $isListContext = $this->isListContext($request);
+        $backblazeService = app(BackblazeService::class);
 
-        // Calculate has_video boolean - should be consistent for both list and show contexts
-        $hasVideo = !empty($this->videos) && is_array($this->videos) && count($this->videos) > 0;
+        $imageUrls = [];
+        $videoUrls = [];
+        $mediaPayload = [];
+
+        if ($this->relationLoaded('contents')) {
+            $sorted = $this->contents->sortBy('sort_order')->values();
+            foreach ($sorted as $c) {
+                if ($c->type === PostContentType::Image) {
+                    $imageUrls[] = $c->url;
+                } elseif ($c->type === PostContentType::Video) {
+                    $url = $backblazeService->getSignedUrl($c->url) ?? $c->url;
+                    $videoUrls[] = $url;
+                }
+                if (!$isListContext) {
+                    $mediaPayload[] = [
+                        'id' => $c->id,
+                        'type' => $c->type->value,
+                        'backblaze_id' => $c->backblaze_id,
+                        'url' => $c->type === PostContentType::Video
+                            ? ($backblazeService->getSignedUrl($c->url) ?? $c->url)
+                            : $c->url,
+                    ];
+                }
+            }
+        }
+
+        $hasVideo = (bool) ($this->resource->getAttribute('has_video') ?? false);
+        if (!$hasVideo && $this->relationLoaded('contents')) {
+            $hasVideo = $this->contents->contains(fn ($c) => $c->type === PostContentType::Video);
+        }
 
         if ($isListContext) {
-            // List context: return empty array for videos, boolean for has_video - much faster!
-            // No per-item URL work in list context
-            $videoData = []; // Empty array for list context
+            $videoData = [];
         } else {
-            // Detail context: public B2 URLs (strip stale ?Authorization= if any)
-            $videoUrls = [];
-            if ($this->videos && is_array($this->videos) && count($this->videos) > 0) {
-                $backblazeService = app(BackblazeService::class);
-                $videoUrls = array_map(function ($url) use ($backblazeService) {
-                    if ($url && is_string($url)) {
-                        return $backblazeService->getSignedUrl($url) ?? $url;
-                    }
-
-                    return $url;
-                }, array_filter($this->videos));
-            }
             $videoData = $videoUrls;
         }
 
@@ -127,9 +138,10 @@ class PostResource extends JsonResource
             'updated_at' => $this->updated_at,
             'user' => $this->user,
             'category' => $this->category,
-            'images' => $imageUrls, // Get images from posts table JSON column
-            'videos' => $videoData, // Empty array for list, full URLs for detail
-            'has_video' => $hasVideo, // Boolean indicating if post has videos (consistent for both list and show contexts)
+            'images' => $imageUrls,
+            'videos' => $videoData,
+            'has_video' => $hasVideo,
+            'media' => $isListContext ? [] : $mediaPayload,
             'post_details' => $this->mobile ??
                 $this->car ??
                 $this->housesApartment ??

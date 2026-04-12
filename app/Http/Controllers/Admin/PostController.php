@@ -13,7 +13,9 @@ class PostController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Post::with('user', 'category')->orderBy('post_time', 'desc');
+        $query = Post::with(['user', 'category', 'contents' => function ($q) {
+            $q->orderBy('sort_order');
+        }])->orderBy('post_time', 'desc');
 
         // Status filter (optional – when empty, show all)
         if ($request->filled('status') && in_array($request->status, PostStatus::allStatus(), true)) {
@@ -64,7 +66,9 @@ class PostController extends Controller
 
     public function show(Post $post)
     {
-        $post->load(['user', 'category']);
+        $post->load(['user', 'category', 'contents' => function ($q) {
+            $q->orderBy('sort_order');
+        }]);
 
         // Load post details based on category
         $postDetails = null;

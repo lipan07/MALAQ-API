@@ -33,16 +33,12 @@ class Post extends Model
         'type',
         'view_count',
         'like_count',
-        'images',
-        'videos',
     ];
 
     protected $casts = [
         'type' => PostType::class,
         'status' => PostStatus::class,
         'show_phone' => 'boolean',
-        'images' => 'array',
-        'videos' => 'array',
     ];
 
     public function user()
@@ -55,7 +51,13 @@ class Post extends Model
         return $this->belongsTo(Category::class);
     }
 
-    // Legacy relationships - use $this->images (JSON column) instead
+    /** Images & videos for this listing (replaces JSON columns on posts). */
+    public function contents()
+    {
+        return $this->hasMany(PostContent::class)->orderBy('sort_order');
+    }
+
+    // Legacy morph relations (older image/video models)
     public function imageRelations(): MorphMany
     {
         return $this->morphMany(Image::class, 'imageable');

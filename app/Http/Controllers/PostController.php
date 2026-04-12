@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\CategoryGuardName;
+use App\Enums\PostContentType;
 use App\Enums\PostStatus;
 use App\Enums\PostType;
 use App\Http\Requests\FetchPostsRequest;
@@ -74,6 +75,7 @@ use App\Models\PostShopOffice;
 use App\Models\PostSportHobby;
 use App\Models\PostVehicleSpareParts;
 use App\Models\User;
+use App\Services\BackblazeService;
 use App\Services\PostService as ServicesPostService;
 use App\Services\CacheService;
 use Illuminate\Http\Request;
@@ -83,9 +85,44 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Database\Eloquent\Builder;
 
 class PostController extends Controller
 {
+    /** Eager existence flag for list payloads (has_video) without loading all media. */
+    protected function withListingVideoExists(Builder $query): Builder
+    {
+        return $query->withExists(['contents as has_video' => function ($q) {
+            $q->where('type', PostContentType::Video->value);
+        }]);
+    }
+
+    /** Remove all media files (local images + B2 videos) for a post before delete. */
+    protected function purgePostMediaFromStorageAndBackblaze(Post $post): void
+    {
+        $post->load('contents');
+        $svc = app(BackblazeService::class);
+        foreach ($post->contents as $row) {
+            if ($row->type === PostContentType::Video) {
+                try {
+                    if ($row->backblaze_id) {
+                        $svc->deleteVideo($row->backblaze_id);
+                    } elseif ($row->url && str_contains($row->url, 'backblazeb2.com')) {
+                        $svc->deleteVideoByUrl($row->url);
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning('Post destroy: Backblaze video delete failed', [
+                        'post_id' => $post->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            } elseif ($row->type === PostContentType::Image && $row->url && str_contains($row->url, '/storage/')) {
+                $relativePath = str_replace(config('app.url') . '/storage/', '', $row->url);
+                Storage::disk('public')->delete($relativePath);
+            }
+        }
+    }
+
     private array $jobGuardNames = [
         CategoryGuardName::DataEntryBackOffice->value,
         CategoryGuardName::SalesMarketing->value,
@@ -126,7 +163,7 @@ class PostController extends Controller
             $longitude = $request->longitude;
             $requestedDistance = $request->distance ?? 5;
 
-            $postsQuery = Post::query();
+            $postsQuery = $this->withListingVideoExists(Post::query());
 
             // Apply category filter if provided
             if ($request->filled('category')) {
@@ -218,7 +255,7 @@ class PostController extends Controller
                 $finalPosts = $posts;
             }
         } else if ($request->filled('user_id')) {
-            $postsQuery = Post::query();
+            $postsQuery = $this->withListingVideoExists(Post::query());
             $postsQuery->where('user_id', $request->user_id);
             $perPage = (int) ($request->input('limit', 15));
             $posts = $postsQuery->where('status', PostStatus::Active)->simplePaginate($perPage);
@@ -229,7 +266,7 @@ class PostController extends Controller
             }
         } else {
             // Generic filter (no location provided)
-            $postsQuery = Post::query();
+            $postsQuery = $this->withListingVideoExists(Post::query());
 
             // Category filter
             if ($request->filled('category')) {
@@ -310,15 +347,21 @@ class PostController extends Controller
         $finalPosts->load([
             'user:id,name,status,last_activity',
             'category:id,name',
+            'contents' => function ($q) {
+                $q->select(['id', 'post_id', 'type', 'url', 'backblaze_id', 'sort_order'])
+                    ->orderBy('sort_order');
+            },
         ]);
 
         // Check if it's page 1 and user is logged in, then merge pending posts at the top
         $currentPage = $request->input('page', 1);
         if ($currentPage == 1 && $userId) {
             // Fetch logged-in user's pending posts
-            $pendingPostsQuery = Post::where('user_id', $userId)
-                ->where('status', PostStatus::Pending)
-                ->orderByDesc('post_time');
+            $pendingPostsQuery = $this->withListingVideoExists(
+                Post::where('user_id', $userId)
+                    ->where('status', PostStatus::Pending)
+                    ->orderByDesc('post_time')
+            );
 
             $pendingPosts = $pendingPostsQuery->get();
 
@@ -327,6 +370,10 @@ class PostController extends Controller
                 $pendingPosts->load([
                     'user:id,name,status,last_activity',
                     'category:id,name',
+                    'contents' => function ($q) {
+                        $q->select(['id', 'post_id', 'type', 'url', 'backblaze_id', 'sort_order'])
+                            ->orderBy('sort_order');
+                    },
                 ]);
 
                 // Get current active posts items
@@ -372,10 +419,16 @@ class PostController extends Controller
     public function myPost()
     {
         $user = auth()->user();
-        $posts = Post::where(['user_id' => $user->id])->orderBy('created_at', 'DESC')->simplePaginate(10);
+        $posts = $this->withListingVideoExists(
+            Post::where(['user_id' => $user->id])->orderBy('created_at', 'DESC')
+        )->simplePaginate(10);
         $posts->load([
             'user',
             'category',
+            'contents' => function ($q) {
+                $q->select(['id', 'post_id', 'type', 'url', 'backblaze_id', 'sort_order'])
+                    ->orderBy('sort_order');
+            },
         ]);
 
         $posts = ServicesPostService::fetchPostData($posts);
@@ -457,73 +510,96 @@ class PostController extends Controller
         ]);
     }
 
-    private function handlePostImages(Request $request, Post $post)
+    private function handlePostImages(Request $request, Post $post): void
     {
-        if ($request->hasFile('new_images')) {
-            $imageUrls = $post->images ?? [];
-            foreach ($request->file('new_images') as $imageFile) {
-                // Store the image
-                $path = $imageFile->store($request->guard_name . '/images', 'public');
-                // Add image URL to the array
-                $imageUrls[] = config('app.url') . Storage::url($path);
-            }
-            // Update post with new images array
-            $post->update(['images' => $imageUrls]);
+        if (!$request->hasFile('new_images')) {
+            return;
+        }
+
+        $sortBase = (int) $post->contents()->max('sort_order');
+        $sort = $sortBase + 1;
+        foreach ($request->file('new_images') as $imageFile) {
+            $path = $imageFile->store($request->guard_name . '/images', 'public');
+            $url = config('app.url') . Storage::url($path);
+            $post->contents()->create([
+                'type' => PostContentType::Image,
+                'backblaze_id' => null,
+                'url' => $url,
+                'sort_order' => $sort++,
+            ]);
         }
     }
 
-    private function handlePostVideos(Request $request, Post $post)
+    private function handlePostVideos(Request $request, Post $post): void
     {
         try {
-            // Handle deleted video - delete from Backblaze
+            $backblazeService = app(BackblazeService::class);
+
+            $purgeVideoRows = function () use ($post, $backblazeService): void {
+                foreach ($post->contents()->where('type', PostContentType::Video)->get() as $row) {
+                    try {
+                        if ($row->backblaze_id) {
+                            $backblazeService->deleteVideo($row->backblaze_id);
+                        } elseif ($row->url && str_contains($row->url, 'backblazeb2.com')) {
+                            $backblazeService->deleteVideoByUrl($row->url);
+                        }
+                    } catch (\Exception $e) {
+                        Log::warning('Failed to delete video from Backblaze', [
+                            'post_id' => $post->id,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
+                }
+                $post->contents()->where('type', PostContentType::Video)->delete();
+            };
+
             if ($request->has('deleted_video_url') || $request->has('deleted_video_id')) {
                 $deletedVideoUrl = $request->input('deleted_video_url');
                 $deletedVideoId = $request->input('deleted_video_id');
-
                 try {
-                    // Call Backblaze service to delete video
-                    $backblazeService = app(\App\Services\BackblazeService::class);
                     if ($deletedVideoId) {
                         $backblazeService->deleteVideo($deletedVideoId);
                     } elseif ($deletedVideoUrl) {
                         $backblazeService->deleteVideoByUrl($deletedVideoUrl);
                     }
-                    \Log::info('Video deleted from Backblaze', [
+                    Log::info('Video deleted from Backblaze (explicit)', [
                         'post_id' => $post->id,
                         'video_id' => $deletedVideoId,
                         'video_url' => $deletedVideoUrl,
                     ]);
                 } catch (\Exception $e) {
-                    \Log::warning('Failed to delete video from Backblaze', [
+                    Log::warning('Failed explicit Backblaze video delete', [
                         'post_id' => $post->id,
                         'error' => $e->getMessage(),
                     ]);
-                    // Continue even if Backblaze deletion fails
+                }
+                $purgeVideoRows();
+                if (!$request->has('videoUrl')) {
+                    return;
                 }
             }
 
-            // Handle new video URL
             if ($request->has('videoUrl')) {
                 $videoUrl = $request->input('videoUrl');
-                
                 if (!empty($videoUrl) && filter_var($videoUrl, FILTER_VALIDATE_URL)) {
-                    // Store video URL in posts table
-                    $post->update(['videos' => [$videoUrl]]);
-                } elseif (empty($videoUrl) || $videoUrl === null) {
-                    // If videoUrl is explicitly empty/null, remove all videos
-                    $post->update(['videos' => null]);
+                    $purgeVideoRows();
+                    $maxSort = (int) $post->contents()->max('sort_order');
+                    $post->contents()->create([
+                        'type' => PostContentType::Video,
+                        'backblaze_id' => $request->input('videoId'),
+                        'url' => $videoUrl,
+                        'sort_order' => $maxSort + 1,
+                    ]);
+                } elseif ($videoUrl === null || $videoUrl === '') {
+                    $purgeVideoRows();
                 }
-            } elseif ($request->has('deleted_video_url') || $request->has('deleted_video_id')) {
-                // If video was deleted but no new video provided, remove videos
-                $post->update(['videos' => null]);
             }
         } catch (\Exception $e) {
-            \Log::error('Error handling post videos: ' . $e->getMessage(), [
+            Log::error('Error handling post videos: ' . $e->getMessage(), [
                 'post_id' => $post->id,
                 'video_url' => $request->input('videoUrl'),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            // Don't throw - allow post creation/update to continue even if video handling fails
         }
     }
 
@@ -734,6 +810,9 @@ class PostController extends Controller
         $posts = Post::with([
             'category',
             'user', // Ensure post owner is fetched
+            'contents' => function ($q) {
+                $q->orderBy('sort_order');
+            },
         ])->where('id', $post->id)->get();
 
         $posts = ServicesPostService::fetchPostData($posts);
@@ -881,39 +960,35 @@ class PostController extends Controller
         return response()->json(['message' => 'Post updated successfully'], 201);
     }
 
-    private function handlePostUpdateImages(Request $request, Post $post)
+    private function handlePostUpdateImages(Request $request, Post $post): void
     {
-        // Handle case when no image parameters are passed
         if (!$request->hasAny(['existing_images', 'new_images', 'deleted_images'])) {
-            // Delete all image files from storage
-            $currentImages = $post->images ?? [];
-            foreach ($currentImages as $imageUrl) {
-                $relativePath = str_replace(config('app.url') . '/storage/', '', $imageUrl);
-                Storage::disk('public')->delete($relativePath);
+            foreach ($post->contents()->where('type', PostContentType::Image)->get() as $row) {
+                if ($row->url && str_contains($row->url, '/storage/')) {
+                    $relativePath = str_replace(config('app.url') . '/storage/', '', $row->url);
+                    Storage::disk('public')->delete($relativePath);
+                }
             }
-            // Remove all images from posts table
-            $post->update(['images' => null]);
+            $post->contents()->where('type', PostContentType::Image)->delete();
+
             return;
         }
 
-        // Start with existing images if provided, otherwise use current images
-        $currentImages = $request->has('existing_images') 
-            ? $request->existing_images 
-            : ($post->images ?? []);
+        $currentImages = $request->has('existing_images')
+            ? (array) $request->existing_images
+            : $post->contents()->where('type', PostContentType::Image)->orderBy('sort_order')->pluck('url')->all();
 
-        // Handle deleted images
         if ($request->has('deleted_images')) {
-            $deletedUrls = $request->deleted_images;
+            $deletedUrls = (array) $request->deleted_images;
             foreach ($deletedUrls as $imageUrl) {
-                // Delete file from storage
-                $relativePath = str_replace(config('app.url') . '/storage/', '', $imageUrl);
-                Storage::disk('public')->delete($relativePath);
+                if ($imageUrl && str_contains($imageUrl, '/storage/')) {
+                    $relativePath = str_replace(config('app.url') . '/storage/', '', $imageUrl);
+                    Storage::disk('public')->delete($relativePath);
+                }
             }
-            // Remove deleted images from array
             $currentImages = array_values(array_diff($currentImages, $deletedUrls));
         }
 
-        // Handle new images
         if ($request->hasFile('new_images')) {
             $guardName = $request->guard_name ?? Category::getGuardNameById($post->category_id) ?? 'default';
             foreach ($request->file('new_images') as $imageFile) {
@@ -922,8 +997,19 @@ class PostController extends Controller
             }
         }
 
-        // Update post with final images array
-        $post->update(['images' => !empty($currentImages) ? $currentImages : null]);
+        $post->contents()->where('type', PostContentType::Image)->delete();
+        $sort = 0;
+        foreach ($currentImages as $url) {
+            if (!is_string($url) || $url === '') {
+                continue;
+            }
+            $post->contents()->create([
+                'type' => PostContentType::Image,
+                'backblaze_id' => null,
+                'url' => $url,
+                'sort_order' => $sort++,
+            ]);
+        }
     }
 
     protected function getValidationRulesForUpdate($guardName)
@@ -1026,7 +1112,10 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        $this->purgePostMediaFromStorageAndBackblaze($post);
+        $post->contents()->delete();
         $post->delete();
+
         return response()->json(['message' => 'Post deleted successfully'], 200);
     }
 
@@ -1036,12 +1125,18 @@ class PostController extends Controller
      */
     public function sellersPost(Request $request, User $user)
     {
-        $posts = Post::where('status', PostStatus::Active)->where('user_id', $user->id)->simplePaginate(15);
+        $posts = $this->withListingVideoExists(
+            Post::where('status', PostStatus::Active)->where('user_id', $user->id)
+        )->simplePaginate(15);
 
         // Eager load relationships
         $posts->load([
             'user',
             'category',
+            'contents' => function ($q) {
+                $q->select(['id', 'post_id', 'type', 'url', 'backblaze_id', 'sort_order'])
+                    ->orderBy('sort_order');
+            },
         ]);
 
         // Fetch additional data for posts

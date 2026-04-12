@@ -144,12 +144,10 @@
                         <td>{{ \Carbon\Carbon::parse($post->post_time)->format('M d, Y H:i') }}</td>
                         <td>
                             @php
-                            $images = is_array($post->images) ? $post->images : [];
-                            $imageCount = count($images);
-                            $imageUrls = array_map(function($img) {
-                            return is_string($img) ? $img : (is_object($img) && isset($img->url) ? $img->url : null);
-                            }, $images);
-                            $imageUrls = array_filter($imageUrls);
+                            $imageUrls = $post->relationLoaded('contents')
+                                ? $post->contents->filter(fn ($c) => $c->type->value === 'image')->pluck('url')->filter()->values()->all()
+                                : [];
+                            $imageCount = count($imageUrls);
                             @endphp
                             @if($imageCount > 0)
                             <button class="btn btn-sm btn-info view-images-btn"

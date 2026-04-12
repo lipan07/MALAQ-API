@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\PostContentType;
 use App\Enums\PostStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
@@ -11,7 +12,7 @@ use Illuminate\Http\Request;
 class PostVideoController extends Controller
 {
     /**
-     * Active posts that include at least one video URL.
+     * Active posts that include at least one video (post_contents).
      * Optional query: category (same parent/subcategory rules as posts index), limit (per page, default 15).
      */
     public function __invoke(Request $request)
@@ -22,10 +23,11 @@ class PostVideoController extends Controller
         ]);
 
         $query = Post::query()
-            ->select(['id', 'category_id', 'title', 'videos', 'post_time'])
-            ->where('status', PostStatus::Active)
-            ->whereNotNull('videos')
-            ->whereJsonLength('videos', '>', 0);
+            ->select(['posts.id', 'posts.category_id', 'posts.title', 'posts.post_time'])
+            ->where('posts.status', PostStatus::Active)
+            ->whereHas('contents', function ($q) {
+                $q->where('type', PostContentType::Video->value);
+            });
 
         if ($request->filled('category')) {
             $category = (int) $request->input('category');
@@ -33,27 +35,28 @@ class PostVideoController extends Controller
                 $hasSubCategories = Category::where('parent_id', $category)->exists();
                 if ($hasSubCategories) {
                     $subCategoryIds = Category::where('parent_id', $category)->pluck('id')->toArray();
-                    $query->whereIn('category_id', $subCategoryIds);
+                    $query->whereIn('posts.category_id', $subCategoryIds);
                 } else {
-                    $query->where('category_id', $category);
+                    $query->where('posts.category_id', $category);
                 }
             } else {
-                $query->where('category_id', $category);
+                $query->where('posts.category_id', $category);
             }
         }
 
         $perPage = (int) $request->input('limit', 15);
 
+        $query->with(['contents' => function ($q) {
+            $q->where('type', PostContentType::Video->value)->orderBy('sort_order')->limit(1);
+        }]);
+
         $paginator = $query
-            ->orderByDesc('post_time')
+            ->orderByDesc('posts.post_time')
             ->simplePaginate($perPage);
 
         return $paginator->through(function (Post $post) {
-            $urls = array_values(array_filter(
-                $post->videos ?? [],
-                static fn ($u) => is_string($u) && $u !== ''
-            ));
-            $rawUrl = $urls[0] ?? '';
+            $videoRow = $post->contents->first();
+            $rawUrl = $videoRow && $videoRow->url ? (string) $videoRow->url : '';
 
             return [
                 'category_id' => $post->category_id,

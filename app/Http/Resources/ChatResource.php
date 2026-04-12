@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\PostContentType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,22 +15,26 @@ class ChatResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $postPayload = null;
+        if ($this->post) {
+            if (!$this->post->relationLoaded('contents')) {
+                $this->post->load(['contents' => function ($q) {
+                    $q->orderBy('sort_order');
+                }]);
+            }
+            $postArr = $this->post->toArray();
+            unset($postArr['contents']);
+            $firstImage = $this->post->contents->firstWhere('type', PostContentType::Image);
+            $postPayload = array_merge($postArr, [
+                'image' => $firstImage && $firstImage->url ? ['url' => $firstImage->url] : null,
+            ]);
+        }
+
         return [
             'id' => $this->id,
             'post_id' => $this->post_id,
-            // 'buyer_id' => $this->buyer_id,
-            // 'seller_id' => $this->seller_id,
-            // 'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            // 'buyer' => $this->buyer,
-            'post' => $this->post ? array_merge(
-                $this->post->toArray(),
-                [
-                    'image' => is_array($this->post->images) && count($this->post->images) > 0 
-                        ? ['url' => $this->post->images[0]] 
-                        : null
-                ]
-            ) : null,
+            'post' => $postPayload,
         ];
     }
 }

@@ -287,27 +287,16 @@ HTML;
      */
     private function getProductImageUrl($post)
     {
-        // Images are now stored as JSON array in posts table
-        $images = $post->images ?? [];
-        if (!empty($images) && is_array($images) && count($images) > 0) {
-            $firstImage = $images[0];
-            // Ensure full URL
+        $post->loadMissing(['contents' => function ($q) {
+            $q->where('type', \App\Enums\PostContentType::Image->value)->orderBy('sort_order');
+        }]);
+        $firstRow = $post->contents->first();
+        if ($firstRow && $firstRow->url) {
+            $firstImage = $firstRow->url;
             if (is_string($firstImage) && strpos($firstImage, 'http') === 0) {
                 return $firstImage;
             }
-            // If it's an object with url property (legacy format)
-            if (is_object($firstImage) && isset($firstImage->url)) {
-                $imageUrl = $firstImage->url;
-                if (strpos($imageUrl, 'http') === 0) {
-                    return $imageUrl;
-                }
-                return config('app.url', 'https://nearx.co') . '/storage/' . $imageUrl;
-            }
-            // If it's just a string URL
             if (is_string($firstImage)) {
-                if (strpos($firstImage, 'http') === 0) {
-                    return $firstImage;
-                }
                 return config('app.url', 'https://nearx.co') . '/storage/' . $firstImage;
             }
         }

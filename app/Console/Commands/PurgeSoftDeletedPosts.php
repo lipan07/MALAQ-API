@@ -2,15 +2,17 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use App\Enums\PostContentType;
 use App\Models\Post;
-use App\Models\Chat;
+use App\Services\BackblazeService;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
 class PurgeSoftDeletedPosts extends Command
 {
     protected $signature = 'posts:purge-soft-deleted';
-    protected $description = 'Permanently delete images and chats for soft-deleted posts';
+
+    protected $description = 'Permanently delete media, post_contents, and chats for soft-deleted posts';
 
     public function handle()
     {
@@ -18,33 +20,40 @@ class PurgeSoftDeletedPosts extends Command
             ->where('deleted_at', '<=', now()->subDays(15))
             ->get();
 
+        $backblaze = app(BackblazeService::class);
+
         foreach ($posts as $post) {
-            // Delete images from storage (images are now stored as JSON array in posts table)
-            $images = $post->images ?? [];
-            if (!empty($images) && is_array($images)) {
-                foreach ($images as $imageUrl) {
-                    // Handle both string URLs and object URLs
-                    $url = is_string($imageUrl) ? $imageUrl : (is_object($imageUrl) && isset($imageUrl->url) ? $imageUrl->url : null);
-                    if ($url) {
-                        $relativePath = str_replace(config('app.url') . '/storage/', '', $url);
-                        Storage::disk('public')->delete($relativePath);
+            $post->load('contents');
+
+            foreach ($post->contents as $row) {
+                if ($row->type === PostContentType::Video) {
+                    try {
+                        if ($row->backblaze_id) {
+                            $backblaze->deleteVideo($row->backblaze_id);
+                        } elseif ($row->url && str_contains($row->url, 'backblazeb2.com')) {
+                            $backblaze->deleteVideoByUrl($row->url);
+                        }
+                    } catch (\Throwable $e) {
+                        $this->warn("B2 delete failed for post {$post->id}: {$e->getMessage()}");
                     }
+                } elseif ($row->type === PostContentType::Image && $row->url && str_contains($row->url, '/storage/')) {
+                    $relativePath = str_replace(config('app.url') . '/storage/', '', $row->url);
+                    Storage::disk('public')->delete($relativePath);
                 }
             }
 
-            // Delete related chats and messages
+            $post->contents()->delete();
+
             foreach ($post->chats as $chat) {
-                // Delete messages
                 foreach ($chat->messages as $message) {
                     $message->delete();
                 }
                 $chat->delete();
             }
 
-            // Permanently delete the post
             $post->forceDelete();
         }
 
-        $this->info('Purged all images and chats for soft-deleted posts.');
+        $this->info('Purged media, post_contents, and chats for soft-deleted posts.');
     }
 }

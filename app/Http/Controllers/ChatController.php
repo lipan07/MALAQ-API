@@ -266,14 +266,23 @@ class ChatController extends Controller
         $receiverId = $hasChatId ? ($chat->buyer_id === $user->id ? $chat->seller_id : $chat->buyer_id) : $request->receiver_id;
         \Log::info("Receiver ID: $receiverId");
 
-        $chat->loadMissing('post:id,title,images');
+        $chat->loadMissing([
+            'post' => function ($q) {
+                $q->select('id', 'title')
+                    ->with(['contents' => function ($c) {
+                        $c->select('id', 'post_id', 'type', 'url', 'sort_order')
+                            ->where('type', \App\Enums\PostContentType::Image->value)
+                            ->orderBy('sort_order');
+                    }]);
+            },
+        ]);
         $post = $chat->post;
         $postImage = '';
-        if ($post && is_array($post->images) && count($post->images) > 0) {
-            $first = $post->images[0];
-            $postImage = is_array($first)
-                ? (string) ($first['url'] ?? $first['path'] ?? '')
-                : (string) $first;
+        if ($post && $post->relationLoaded('contents')) {
+            $first = $post->contents->first();
+            if ($first && $first->url) {
+                $postImage = (string) $first->url;
+            }
         }
 
         $fcmData = [
