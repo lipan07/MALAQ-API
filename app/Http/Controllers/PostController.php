@@ -209,12 +209,12 @@ class PostController extends Controller
                 }
             }
 
-            // Apply location filter with current distance tier
+            // Distance column only — do not use `*` here: withListingVideoExists() already
+            // selects `posts.*` plus `has_video`, and `*, … AS distance` becomes invalid SQL (duplicate *).
             $postsQuery->selectRaw(
-                "*, 
-                (6371 * acos(cos(radians(?)) * cos(radians(latitude)) * 
-                cos(radians(longitude) - radians(?)) + 
-                sin(radians(?)) * sin(radians(latitude)))) AS distance",
+                '(6371 * acos(cos(radians(?)) * cos(radians(`posts`.`latitude`)) * '
+                . 'cos(radians(`posts`.`longitude`) - radians(?)) + '
+                . 'sin(radians(?)) * sin(radians(`posts`.`latitude`)))) AS distance',
                 [$latitude, $longitude, $latitude]
             )->having('distance', '<=', $requestedDistance);
 
