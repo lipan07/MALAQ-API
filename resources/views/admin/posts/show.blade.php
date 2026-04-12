@@ -219,7 +219,7 @@
                 <!-- Images Section -->
                 @php
                     $images = $post->relationLoaded('contents')
-                        ? $post->contents->filter(fn ($c) => $c->type->value === 'image')->pluck('url')->filter()->values()->all()
+                        ? $post->contents->filter(fn ($c) => $c->type === 'image')->pluck('url')->filter()->values()->all()
                         : [];
                     $imageCount = count($images);
                 @endphp

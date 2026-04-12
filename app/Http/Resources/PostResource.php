@@ -89,20 +89,25 @@ class PostResource extends JsonResource
         if ($this->relationLoaded('contents')) {
             $sorted = $this->contents->sortBy('sort_order')->values();
             foreach ($sorted as $c) {
-                if ($c->type === PostContentType::Image) {
-                    $imageUrls[] = $c->url;
-                } elseif ($c->type === PostContentType::Video) {
-                    $url = $backblazeService->getSignedUrl($c->url) ?? $c->url;
-                    $videoUrls[] = $url;
+                $typeVal = (string) $c->type;
+                if ($typeVal === PostContentType::Image->value) {
+                    if ($c->url !== null && $c->url !== '') {
+                        $imageUrls[] = $c->url;
+                    }
+                } elseif ($typeVal === PostContentType::Video->value) {
+                    $url = $backblazeService->getSignedUrl($c->url) ?? ($c->url ?? '');
+                    if ($url !== '') {
+                        $videoUrls[] = $url;
+                    }
                 }
                 if (!$isListContext) {
                     $mediaPayload[] = [
                         'id' => $c->id,
-                        'type' => $c->type->value,
+                        'type' => $typeVal,
                         'backblaze_id' => $c->backblaze_id,
-                        'url' => $c->type === PostContentType::Video
-                            ? ($backblazeService->getSignedUrl($c->url) ?? $c->url)
-                            : $c->url,
+                        'url' => $typeVal === PostContentType::Video->value
+                            ? ($backblazeService->getSignedUrl($c->url) ?? ($c->url ?? ''))
+                            : ($c->url ?? ''),
                     ];
                 }
             }
@@ -110,7 +115,7 @@ class PostResource extends JsonResource
 
         $hasVideo = (bool) ($this->resource->getAttribute('has_video') ?? false);
         if (!$hasVideo && $this->relationLoaded('contents')) {
-            $hasVideo = $this->contents->contains(fn ($c) => $c->type === PostContentType::Video);
+            $hasVideo = $this->contents->contains(fn ($c) => (string) $c->type === PostContentType::Video->value);
         }
 
         if ($isListContext) {

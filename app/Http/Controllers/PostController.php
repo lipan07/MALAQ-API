@@ -103,7 +103,7 @@ class PostController extends Controller
         $post->load('contents');
         $svc = app(BackblazeService::class);
         foreach ($post->contents as $row) {
-            if ($row->type === PostContentType::Video) {
+            if ($row->type === PostContentType::Video->value) {
                 try {
                     if ($row->backblaze_id) {
                         $svc->deleteVideo($row->backblaze_id);
@@ -116,7 +116,7 @@ class PostController extends Controller
                         'error' => $e->getMessage(),
                     ]);
                 }
-            } elseif ($row->type === PostContentType::Image && $row->url && str_contains($row->url, '/storage/')) {
+            } elseif ($row->type === PostContentType::Image->value && $row->url && str_contains($row->url, '/storage/')) {
                 $relativePath = str_replace(config('app.url') . '/storage/', '', $row->url);
                 Storage::disk('public')->delete($relativePath);
             }
@@ -332,7 +332,7 @@ class PostController extends Controller
             }
 
             // $posts = $postsQuery->where('status', PostStatus::Active)->simplePaginate(15);
-            $posts = $postsQuery->simplePaginate(15);
+            $posts = $postsQuery->where('status', PostStatus::Active)->simplePaginate(15);
             if ($posts->count() > 0) {
                 $finalPosts = $posts;
             }
@@ -522,7 +522,7 @@ class PostController extends Controller
             $path = $imageFile->store($request->guard_name . '/images', 'public');
             $url = config('app.url') . Storage::url($path);
             $post->contents()->create([
-                'type' => PostContentType::Image,
+                'type' => PostContentType::Image->value,
                 'backblaze_id' => null,
                 'url' => $url,
                 'sort_order' => $sort++,
@@ -585,7 +585,7 @@ class PostController extends Controller
                     $purgeVideoRows();
                     $maxSort = (int) $post->contents()->max('sort_order');
                     $post->contents()->create([
-                        'type' => PostContentType::Video,
+                        'type' => PostContentType::Video->value,
                         'backblaze_id' => $request->input('videoId'),
                         'url' => $videoUrl,
                         'sort_order' => $maxSort + 1,
@@ -1004,7 +1004,7 @@ class PostController extends Controller
                 continue;
             }
             $post->contents()->create([
-                'type' => PostContentType::Image,
+                'type' => PostContentType::Image->value,
                 'backblaze_id' => null,
                 'url' => $url,
                 'sort_order' => $sort++,

@@ -10,9 +10,9 @@ class BackblazeService
      * Public bucket: return the file URL unchanged, minus a stale ?Authorization=… query if present.
      * (Kept method name for callers; no signed download tokens.)
      */
-    public function getSignedUrl(string $fileUrl): ?string
+    public function getSignedUrl(?string $fileUrl): ?string
     {
-        if ($fileUrl === '') {
+        if ($fileUrl === null || $fileUrl === '') {
             return null;
         }
 

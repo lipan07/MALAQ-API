@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\PostContentType;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,7 +21,8 @@ class PostContent extends Model
     ];
 
     protected $casts = [
-        'type' => PostContentType::class,
+        // Store as plain string so bad/legacy rows never crash hydration (enum cast throws ValueError).
+        'type' => 'string',
         'sort_order' => 'integer',
     ];
 

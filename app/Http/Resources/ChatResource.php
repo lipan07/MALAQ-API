@@ -24,7 +24,7 @@ class ChatResource extends JsonResource
             }
             $postArr = $this->post->toArray();
             unset($postArr['contents']);
-            $firstImage = $this->post->contents->firstWhere('type', PostContentType::Image);
+            $firstImage = $this->post->contents->firstWhere('type', PostContentType::Image->value);
             $postPayload = array_merge($postArr, [
                 'image' => $firstImage && $firstImage->url ? ['url' => $firstImage->url] : null,
             ]);

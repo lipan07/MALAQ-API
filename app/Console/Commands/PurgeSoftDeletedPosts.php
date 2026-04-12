@@ -26,7 +26,7 @@ class PurgeSoftDeletedPosts extends Command
             $post->load('contents');
 
             foreach ($post->contents as $row) {
-                if ($row->type === PostContentType::Video) {
+                if ($row->type === PostContentType::Video->value) {
                     try {
                         if ($row->backblaze_id) {
                             $backblaze->deleteVideo($row->backblaze_id);
@@ -36,7 +36,7 @@ class PurgeSoftDeletedPosts extends Command
                     } catch (\Throwable $e) {
                         $this->warn("B2 delete failed for post {$post->id}: {$e->getMessage()}");
                     }
-                } elseif ($row->type === PostContentType::Image && $row->url && str_contains($row->url, '/storage/')) {
+                } elseif ($row->type === PostContentType::Image->value && $row->url && str_contains($row->url, '/storage/')) {
                     $relativePath = str_replace(config('app.url') . '/storage/', '', $row->url);
                     Storage::disk('public')->delete($relativePath);
                 }
