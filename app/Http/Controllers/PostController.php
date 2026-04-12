@@ -103,12 +103,15 @@ class PostController extends Controller
         $post->load('contents');
         $svc = app(BackblazeService::class);
         foreach ($post->contents as $row) {
-            if ($row->type === PostContentType::Video->value) {
+            if ((string) $row->type === PostContentType::Video->value) {
                 try {
-                    if ($row->backblaze_id) {
-                        $svc->deleteVideo($row->backblaze_id);
-                    } elseif ($row->url && str_contains($row->url, 'backblazeb2.com')) {
-                        $svc->deleteVideoByUrl($row->url);
+                    $result = $svc->deletePostContentVideo($row->backblaze_id, $row->url);
+                    if (empty($result['success'])) {
+                        Log::warning('Post destroy: Backblaze video delete did not succeed', [
+                            'post_id' => $post->id,
+                            'content_id' => $row->id,
+                            'message' => $result['message'] ?? 'unknown',
+                        ]);
                     }
                 } catch (\Throwable $e) {
                     Log::warning('Post destroy: Backblaze video delete failed', [
@@ -536,12 +539,15 @@ class PostController extends Controller
             $backblazeService = app(BackblazeService::class);
 
             $purgeVideoRows = function () use ($post, $backblazeService): void {
-                foreach ($post->contents()->where('type', PostContentType::Video)->get() as $row) {
+                foreach ($post->contents()->where('type', PostContentType::Video->value)->get() as $row) {
                     try {
-                        if ($row->backblaze_id) {
-                            $backblazeService->deleteVideo($row->backblaze_id);
-                        } elseif ($row->url && str_contains($row->url, 'backblazeb2.com')) {
-                            $backblazeService->deleteVideoByUrl($row->url);
+                        $result = $backblazeService->deletePostContentVideo($row->backblaze_id, $row->url);
+                        if (empty($result['success'])) {
+                            Log::warning('Failed to delete video from Backblaze', [
+                                'post_id' => $post->id,
+                                'content_id' => $row->id,
+                                'message' => $result['message'] ?? 'unknown',
+                            ]);
                         }
                     } catch (\Exception $e) {
                         Log::warning('Failed to delete video from Backblaze', [
@@ -550,23 +556,26 @@ class PostController extends Controller
                         ]);
                     }
                 }
-                $post->contents()->where('type', PostContentType::Video)->delete();
+                $post->contents()->where('type', PostContentType::Video->value)->delete();
             };
 
             if ($request->has('deleted_video_url') || $request->has('deleted_video_id')) {
                 $deletedVideoUrl = $request->input('deleted_video_url');
                 $deletedVideoId = $request->input('deleted_video_id');
                 try {
-                    if ($deletedVideoId) {
-                        $backblazeService->deleteVideo($deletedVideoId);
-                    } elseif ($deletedVideoUrl) {
-                        $backblazeService->deleteVideoByUrl($deletedVideoUrl);
+                    $delResult = $backblazeService->deletePostContentVideo($deletedVideoId, $deletedVideoUrl);
+                    if (empty($delResult['success'])) {
+                        Log::warning('Explicit Backblaze video delete did not succeed', [
+                            'post_id' => $post->id,
+                            'message' => $delResult['message'] ?? 'unknown',
+                        ]);
+                    } else {
+                        Log::info('Video deleted from Backblaze (explicit)', [
+                            'post_id' => $post->id,
+                            'video_id' => $deletedVideoId,
+                            'video_url' => $deletedVideoUrl,
+                        ]);
                     }
-                    Log::info('Video deleted from Backblaze (explicit)', [
-                        'post_id' => $post->id,
-                        'video_id' => $deletedVideoId,
-                        'video_url' => $deletedVideoUrl,
-                    ]);
                 } catch (\Exception $e) {
                     Log::warning('Failed explicit Backblaze video delete', [
                         'post_id' => $post->id,

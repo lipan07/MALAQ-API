@@ -71,6 +71,50 @@ class BackblazeService
     }
 
     /**
+     * Extract bucket object key from a B2 "friendly" file URL (/file/bucketName/...).
+     */
+    private function extractB2FilePathFromUrl(?string $url): ?string
+    {
+        if ($url === null || $url === '') {
+            return null;
+        }
+        $clean = $this->stripAuthorizationQuery($url);
+        if (!preg_match('/\/file\/[^\/]+\/(.+)$/', $clean, $matches)) {
+            return null;
+        }
+
+        return urldecode($matches[1]);
+    }
+
+    /**
+     * Delete a video stored like post_contents (backblaze file id + optional URL).
+     * Uses file id with file name derived from URL when possible, then falls back to URL-based delete.
+     */
+    public function deletePostContentVideo(?string $backblazeFileId, ?string $storedUrl): array
+    {
+        $fileId = $backblazeFileId !== null && $backblazeFileId !== '' ? trim($backblazeFileId) : null;
+        $storedUrl = $storedUrl !== null && $storedUrl !== '' ? trim($storedUrl) : null;
+        $pathFromUrl = $this->extractB2FilePathFromUrl($storedUrl);
+
+        if ($fileId !== null) {
+            $byId = $this->deleteVideo($fileId, $pathFromUrl);
+            if (!empty($byId['success'])) {
+                return $byId;
+            }
+        }
+
+        if ($pathFromUrl !== null && $storedUrl !== null) {
+            return $this->deleteVideoByUrl($storedUrl);
+        }
+
+        if ($storedUrl !== null && str_contains($this->stripAuthorizationQuery($storedUrl), 'backblazeb2.com')) {
+            return $this->deleteVideoByUrl($storedUrl);
+        }
+
+        return ['success' => false, 'message' => 'No usable Backblaze file id or URL to delete'];
+    }
+
+    /**
      * Authorize with Backblaze B2 (uploads / deletes)
      */
     private function authorizeAccount($accountId, $applicationKey)

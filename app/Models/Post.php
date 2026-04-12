@@ -2,13 +2,17 @@
 
 namespace App\Models;
 
+use App\Enums\PostContentType;
 use App\Enums\PostStatus;
 use App\Enums\PostType;
+use App\Services\BackblazeService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 
 class Post extends Model
@@ -40,6 +44,43 @@ class Post extends Model
         'status' => PostStatus::class,
         'show_phone' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Post $post): void {
+            if (!$post->isForceDeleting()) {
+                return;
+            }
+
+            $post->loadMissing('contents');
+            $backblaze = app(BackblazeService::class);
+
+            foreach ($post->contents as $row) {
+                if ((string) $row->type === PostContentType::Video->value) {
+                    try {
+                        $result = $backblaze->deletePostContentVideo($row->backblaze_id, $row->url);
+                        if (empty($result['success'])) {
+                            Log::warning('Post force-delete: Backblaze video not removed', [
+                                'post_id' => $post->id,
+                                'content_id' => $row->id,
+                                'message' => $result['message'] ?? '',
+                            ]);
+                        }
+                    } catch (\Throwable $e) {
+                        Log::warning('Post force-delete: Backblaze video delete failed', [
+                            'post_id' => $post->id,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
+                } elseif ((string) $row->type === PostContentType::Image->value
+                    && $row->url
+                    && str_contains((string) $row->url, '/storage/')) {
+                    $relativePath = str_replace(config('app.url') . '/storage/', '', $row->url);
+                    Storage::disk('public')->delete($relativePath);
+                }
+            }
+        });
+    }
 
     public function user()
     {
