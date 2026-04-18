@@ -90,6 +90,27 @@
                                         <td>{{ $user->phone_no ?? '-' }}</td>
                                     </tr>
                                     <tr>
+                                        <td class="align-top"><strong>Address:</strong></td>
+                                        <td>
+                                            @if(filled($user->address))
+                                                {!! nl2br(e($user->address)) !!}
+                                            @else
+                                                <span class="text-muted">—</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @if(filled($user->latitude) && filled($user->longitude))
+                                    <tr>
+                                        <td><strong>Location:</strong></td>
+                                        <td>
+                                            <span class="text-monospace small">{{ $user->latitude }}, {{ $user->longitude }}</span>
+                                            <a href="https://www.google.com/maps?q={{ urlencode($user->latitude . ',' . $user->longitude) }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm ms-2">
+                                                <i class="bi bi-geo-alt"></i> Open in Maps
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    @endif
+                                    <tr>
                                         <td><strong>Status:</strong></td>
                                         <td>
                                             <span class="badge {{ $user->status === 'online' ? 'bg-success' : ($user->status === 'blocked' ? 'bg-danger' : 'bg-secondary') }}">
