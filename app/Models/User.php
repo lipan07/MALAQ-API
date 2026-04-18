@@ -70,13 +70,13 @@ class User extends Authenticatable
 
     public function buyerChats()
     {
-        return $this->hasMany(Chat::class, 'buyer_id', 'id');
+        return $this->hasMany(chat::class, 'buyer_id', 'id');
     }
 
     // A User can have many Chats as a Seller
     public function sellerChats()
     {
-        return $this->hasMany(Chat::class, 'seller_id', 'id');
+        return $this->hasMany(chat::class, 'seller_id', 'id');
     }
 
     public function images()

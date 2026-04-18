@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Chat;
+use App\Models\chat;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -18,7 +18,7 @@ class PurgeArchivedChats extends Command
         $cutoff = now()->subDays(30);
         $purged = 0;
 
-        Chat::query()
+        chat::query()
             ->whereNotNull('buyer_deleted_at')
             ->whereNotNull('seller_deleted_at')
             ->orderBy('updated_at')

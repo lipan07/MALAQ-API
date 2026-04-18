@@ -2,14 +2,22 @@
 
 namespace App\Models;
 
+use Database\Factories\ChatFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
-class Chat extends Model
+/** PSR-4: App\Models\chat → app/Models/chat.php (required on case-sensitive Linux hosts). */
+class chat extends Model
 {
     use HasFactory, HasUuids;
+
+    protected static function newFactory()
+    {
+        return ChatFactory::new();
+    }
 
     protected $fillable = [
         'post_id',
@@ -46,26 +54,28 @@ class Chat extends Model
     {
         return $this->hasMany(Message::class, 'chat_id', 'id');
     }
+
+    /** Latest message per chat (safe for eager loading; do not use hasMany + limit(1) in with()). */
+    public function latestMessage(): HasOne
+    {
+        return $this->hasOne(Message::class, 'chat_id', 'id')->latestOfMany('created_at');
+    }
+
     public function buyer()
     {
         return $this->belongsTo(User::class, 'buyer_id', 'id');
     }
 
-    // A Chat belongs to one Seller
     public function seller()
     {
         return $this->belongsTo(User::class, 'seller_id', 'id');
     }
 
-    // A Chat belongs to a Product
     public function post()
     {
         return $this->belongsTo(Post::class, 'post_id', 'id')->withTrashed();
     }
 
-    /**
-     * Get all of the images.
-     */
     public function images(): MorphMany
     {
         return $this->morphMany(Image::class, 'imageable');

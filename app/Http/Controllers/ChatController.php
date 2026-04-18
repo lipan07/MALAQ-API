@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\MessageSeen;
 use App\Http\Requests\StorechatRequest;
 use App\Http\Requests\UpdatechatRequest;
-use App\Models\Chat;
+use App\Models\chat;
 use App\Models\Post;
 use App\Events\MessageSent;
 use App\Http\Resources\ChatResource;
@@ -26,15 +26,13 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        $chats = Chat::with([
+        $chats = chat::with([
             'post:id,category_id,title,status,post_time',
             'buyer:id,name,status,last_activity',
             'seller:id,name,status,last_activity',
-            'messages' => function ($query) {
-                $query->select('id', 'chat_id', 'user_id', 'message', 'created_at', 'is_seen')
-                    ->latest()
-                    ->limit(1);
-            }
+            'latestMessage' => function ($query) {
+                $query->select('id', 'chat_id', 'user_id', 'message', 'created_at', 'is_seen');
+            },
         ])
             ->select(
                 'id',
@@ -55,7 +53,7 @@ class ChatController extends Controller
 
         // Filter out chats with no messages
         $chats = $chats->filter(function ($chat) {
-            return $chat->messages->isNotEmpty();
+            return $chat->latestMessage !== null;
         })->values();
 
         // Wrap chats in resource and add last_message and other_person
@@ -63,7 +61,7 @@ class ChatController extends Controller
             $resource = new ChatResource($chat);
             $array = $resource->toArray(request());
 
-            $lastMessage = $chat->messages->first();
+            $lastMessage = $chat->latestMessage;
             $array['last_message'] = $lastMessage ? [
                 'id' => $lastMessage->id,
                 'message' => $lastMessage->message,
@@ -71,8 +69,8 @@ class ChatController extends Controller
                 'is_seen' => $lastMessage->is_seen,
             ] : null;
 
-            // Determine other person
-            if ($user->id === $chat->seller_id) {
+            // Determine other person (UUID / id types may differ — compare as string)
+            if ((string) $user->id === (string) $chat->seller_id) {
                 $otherUser = $chat->buyer;
             } else {
                 $otherUser = $chat->seller;
@@ -110,7 +108,7 @@ class ChatController extends Controller
     public function store(StorechatRequest $request)
     {
         $user = auth()->user();
-        $chat = Chat::updateOrCreate([
+        $chat = chat::updateOrCreate([
             'post_id' => $request->post_id,
             'seller_id' => $request->sender_id,
             'buyer_id' => $request->receiver_id,
@@ -136,7 +134,7 @@ class ChatController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, Chat $chat)
+    public function show(Request $request, chat $chat)
     {
         $authUser = auth()->user();
 
@@ -180,7 +178,7 @@ class ChatController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Chat $chat)
+    public function edit(chat $chat)
     {
         //
     }
@@ -188,7 +186,7 @@ class ChatController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatechatRequest $request, Chat $chat)
+    public function update(UpdatechatRequest $request, chat $chat)
     {
         //
     }
@@ -202,7 +200,7 @@ class ChatController extends Controller
         $authUser = auth()->user();
 
         // Check if chat already exists
-        $chat = Chat::with(['buyer:id,name,status,last_activity', 'seller:id,name,status,last_activity'])
+        $chat = chat::with(['buyer:id,name,status,last_activity', 'seller:id,name,status,last_activity'])
             ->where('buyer_id', $buyerId)
             ->where('seller_id', $sellerId)
             ->where('post_id', $postId)
@@ -227,7 +225,7 @@ class ChatController extends Controller
             ]);
         }
 
-        $chat = Chat::create([
+        $chat = chat::create([
             'buyer_id' => $buyerId,
             'seller_id' => $sellerId,
             'post_id' => $postId,
@@ -271,7 +269,7 @@ class ChatController extends Controller
         $validated = $request->validate($rules);
 
         if ($hasChatId) {
-            $chat = Chat::select('id', 'buyer_id', 'seller_id', 'post_id', 'buyer_deleted_at', 'seller_deleted_at')
+            $chat = chat::select('id', 'buyer_id', 'seller_id', 'post_id', 'buyer_deleted_at', 'seller_deleted_at')
                 ->findOrFail($request->chat_id);
 
             if ((string) $chat->buyer_id === (string) $user->id && $chat->buyer_deleted_at) {
@@ -293,7 +291,7 @@ class ChatController extends Controller
                 ? $request->receiver_id
                 : $user->id;
 
-            $chat = Chat::firstOrCreate(
+            $chat = chat::firstOrCreate(
                 [
                     'buyer_id' => $buyerId,
                     'seller_id' => $sellerId,
@@ -395,7 +393,7 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        $chat = Chat::where('id', $chatId)
+        $chat = chat::where('id', $chatId)
             ->where(function ($query) use ($user) {
                 $query->where('buyer_id', $user->id)
                     ->orWhere('seller_id', $user->id);

@@ -111,7 +111,7 @@ class Post extends Model
 
     public function chats()
     {
-        return $this->hasMany(Chat::class, 'post_id', 'id');
+        return $this->hasMany(chat::class, 'post_id', 'id');
     }
 
     public function mobile()

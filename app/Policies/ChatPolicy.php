@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Chat;
+use App\Models\chat;
 use Illuminate\Auth\Access\Response;
 
 class ChatPolicy
@@ -19,7 +19,7 @@ class ChatPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Chat $chat): bool
+    public function view(User $user, chat $chat): bool
     {
         //
     }
@@ -35,7 +35,7 @@ class ChatPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Chat $chat): bool
+    public function update(User $user, chat $chat): bool
     {
         //
     }
@@ -51,7 +51,7 @@ class ChatPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Chat $chat): bool
+    public function restore(User $user, chat $chat): bool
     {
         //
     }
@@ -59,7 +59,7 @@ class ChatPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Chat $chat): bool
+    public function forceDelete(User $user, chat $chat): bool
     {
         //
     }

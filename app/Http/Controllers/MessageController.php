@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\MessageSent;
-use App\Models\Chat;
+use App\Models\chat;
 use App\Models\Message;
 use Illuminate\Http\Request;
 
@@ -11,7 +11,7 @@ class MessageController extends Controller
 {
     public function sendMessage(Request $request)
     {
-        $chat = Chat::create([
+        $chat = chat::create([
             'post_id' => $request->post_id,
             'seller_id' => $request->sender_id,
             'buyer_id' => $request->receiver_id,
