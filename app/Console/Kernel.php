@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('posts:purge-soft-deleted')->dailyAt('5:00 am');
+        $schedule->command('chats:purge-archived')->dailyAt('5:30 am');
         $schedule->command('users:set-offline')->everyFiveMinutes();
     }
 

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\MessageSeen;
 use App\Http\Requests\StorechatRequest;
 use App\Http\Requests\UpdatechatRequest;
-use App\Models\chat;
+use App\Models\Chat;
 use App\Models\Post;
 use App\Events\MessageSent;
 use App\Http\Resources\ChatResource;
@@ -36,12 +36,20 @@ class ChatController extends Controller
                     ->limit(1);
             }
         ])
-            ->select('id', 'post_id', 'buyer_id', 'seller_id', 'updated_at', 'created_at')
+            ->select(
+                'id',
+                'post_id',
+                'buyer_id',
+                'seller_id',
+                'buyer_deleted_at',
+                'seller_deleted_at',
+                'updated_at',
+                'created_at'
+            )
             ->where(function ($query) use ($user) {
                 $query->where('seller_id', $user->id)
                     ->orWhere('buyer_id', $user->id);
             })
-            ->where('deleted_at', null)
             ->orderBy('updated_at', 'DESC')
             ->get();
 
@@ -75,6 +83,9 @@ class ChatController extends Controller
                 'status' => $otherUser->status ?? null,
                 'last_activity' => $otherUser->last_activity ?? null,
             ];
+            $array['buyer_id'] = $chat->buyer_id;
+            $array['seller_id'] = $chat->seller_id;
+            $array['deleted_for_me'] = $chat->isDeletedForUser((string) $user->id);
 
             return $array;
         });
@@ -129,8 +140,15 @@ class ChatController extends Controller
     {
         $authUser = auth()->user();
 
+        if ((string) $chat->buyer_id !== (string) $authUser->id
+            && (string) $chat->seller_id !== (string) $authUser->id) {
+            abort(403, 'Not a participant in this chat.');
+        }
+
+        $chat->loadMissing(['buyer:id,name,status,last_activity', 'seller:id,name,status,last_activity']);
+
         // Determine the other person's ID
-        if ($authUser->id === $chat->seller_id) {
+        if ((string) $authUser->id === (string) $chat->seller_id) {
             $otherUser = $chat->buyer;
         } else {
             $otherUser = $chat->seller;
@@ -142,10 +160,14 @@ class ChatController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
+        $deletedForMe = $chat->isDeletedForUser((string) $authUser->id);
+
         return response()->json([
             'message' => 'Chat messages fetched successfully',
             'chats' => $messages,
             'post_id' => $chat->post_id,
+            'deleted_for_me' => $deletedForMe,
+            'can_send_message' => ! $deletedForMe,
             'other_person' => [
                 'id' => $otherUser->id,
                 'name' => $otherUser->name,
@@ -158,7 +180,7 @@ class ChatController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(chat $chat)
+    public function edit(Chat $chat)
     {
         //
     }
@@ -166,7 +188,7 @@ class ChatController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatechatRequest $request, chat $chat)
+    public function update(UpdatechatRequest $request, Chat $chat)
     {
         //
     }
@@ -177,26 +199,54 @@ class ChatController extends Controller
         $buyerId = $request->input('buyer_id');
         $sellerId = $request->input('seller_id');
         $postId = $request->input('post_id');
+        $authUser = auth()->user();
 
         // Check if chat already exists
-        $chat = Chat::where('buyer_id', $buyerId)
+        $chat = Chat::with(['buyer:id,name,status,last_activity', 'seller:id,name,status,last_activity'])
+            ->where('buyer_id', $buyerId)
             ->where('seller_id', $sellerId)
             ->where('post_id', $postId)
             ->first();
 
         if ($chat) {
-            // Return existing chat and messages
             $messages = Message::where('chat_id', $chat->id)->get();
-            return response()->json(['chat' => $chat, 'messages' => $messages]);
-        } else {
-            // Create new chat if it doesn't exist
-            $chat = Chat::create([
-                'buyer_id' => $buyerId,
-                'seller_id' => $sellerId,
-                'post_id' => $postId,
+            $otherUser = (string) $authUser->id === (string) $chat->seller_id ? $chat->buyer : $chat->seller;
+            $deletedForMe = $chat->isDeletedForUser((string) $authUser->id);
+
+            return response()->json([
+                'chat' => $chat,
+                'messages' => $messages,
+                'deleted_for_me' => $deletedForMe,
+                'can_send_message' => ! $deletedForMe,
+                'other_person' => [
+                    'id' => $otherUser->id,
+                    'name' => $otherUser->name,
+                    'status' => $otherUser->status,
+                    'last_activity' => $otherUser->last_activity,
+                ],
             ]);
-            return response()->json(['chat' => $chat, 'messages' => []]);
         }
+
+        $chat = Chat::create([
+            'buyer_id' => $buyerId,
+            'seller_id' => $sellerId,
+            'post_id' => $postId,
+        ]);
+        $chat->load(['buyer:id,name,status,last_activity', 'seller:id,name,status,last_activity']);
+        $otherUser = (string) $authUser->id === (string) $chat->seller_id ? $chat->buyer : $chat->seller;
+
+        return response()->json([
+            'chat' => $chat,
+            'messages' => [],
+            'deleted_for_me' => false,
+            'can_send_message' => true,
+            'other_person' => [
+                'id' => $otherUser->id,
+                'name' => $otherUser->name,
+                'status' => $otherUser->status,
+                'last_activity' => $otherUser->last_activity,
+            ],
+        ]);
     }
 
     public function sendMessage(Request $request)
@@ -221,8 +271,19 @@ class ChatController extends Controller
         $validated = $request->validate($rules);
 
         if ($hasChatId) {
-            $chat = Chat::select('id', 'buyer_id', 'seller_id', 'post_id')
+            $chat = Chat::select('id', 'buyer_id', 'seller_id', 'post_id', 'buyer_deleted_at', 'seller_deleted_at')
                 ->findOrFail($request->chat_id);
+
+            if ((string) $chat->buyer_id === (string) $user->id && $chat->buyer_deleted_at) {
+                return response()->json([
+                    'message' => 'You deleted this chat. You cannot send new messages.',
+                ], 403);
+            }
+            if ((string) $chat->seller_id === (string) $user->id && $chat->seller_deleted_at) {
+                return response()->json([
+                    'message' => 'You deleted this chat. You cannot send new messages.',
+                ], 403);
+            }
         } else {
             $post = Post::select('user_id')->findOrFail($request->post_id);
             $postSellerId = $post->user_id;
@@ -334,7 +395,6 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        // Validate chat exists
         $chat = Chat::where('id', $chatId)
             ->where(function ($query) use ($user) {
                 $query->where('buyer_id', $user->id)
@@ -342,14 +402,17 @@ class ChatController extends Controller
             })
             ->firstOrFail();
 
-        // Update deleted_at
-        $chat->update(['deleted_at' => now()]);
+        if ((string) $user->id === (string) $chat->buyer_id) {
+            $chat->update(['buyer_deleted_at' => now()]);
+        } elseif ((string) $user->id === (string) $chat->seller_id) {
+            $chat->update(['seller_deleted_at' => now()]);
+        }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Chat marked as deleted successfully.',
+            'message' => 'Chat removed from your inbox. The other person can still see the history.',
             'chat_id' => $chat->id,
-            'deleted_at' => $chat->deleted_at,
+            'deleted_for_me' => true,
         ]);
     }
 }

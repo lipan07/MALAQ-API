@@ -15,8 +15,32 @@ class Chat extends Model
         'post_id',
         'buyer_id',
         'seller_id',
-        'deleted_at'
+        'buyer_deleted_at',
+        'seller_deleted_at',
     ];
+
+    protected $casts = [
+        'buyer_deleted_at' => 'datetime',
+        'seller_deleted_at' => 'datetime',
+    ];
+
+    /**
+     * Whether the given user has archived/deleted this chat on their side only.
+     */
+    public function isDeletedForUser(?string $userId): bool
+    {
+        if ($userId === null) {
+            return false;
+        }
+        if ((string) $this->buyer_id === (string) $userId) {
+            return $this->buyer_deleted_at !== null;
+        }
+        if ((string) $this->seller_id === (string) $userId) {
+            return $this->seller_deleted_at !== null;
+        }
+
+        return false;
+    }
 
     public function messages()
     {
