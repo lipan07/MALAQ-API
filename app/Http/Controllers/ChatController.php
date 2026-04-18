@@ -31,7 +31,16 @@ class ChatController extends Controller
             'buyer:id,name,status,last_activity',
             'seller:id,name,status,last_activity',
             'latestMessage' => function ($query) {
-                $query->select('id', 'chat_id', 'user_id', 'message', 'created_at', 'is_seen');
+                // Must qualify columns: latestOfMany() uses joins; bare `chat_id` is ambiguous in MySQL.
+                $t = $query->getModel()->getTable();
+                $query->select([
+                    "{$t}.id",
+                    "{$t}.chat_id",
+                    "{$t}.user_id",
+                    "{$t}.message",
+                    "{$t}.created_at",
+                    "{$t}.is_seen",
+                ]);
             },
         ])
             ->select(
