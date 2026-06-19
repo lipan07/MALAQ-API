@@ -202,7 +202,7 @@ class ShareController extends Controller
         // Try to open app, fallback to store if not installed
         function openApp() {
             var deepLink = '{$deepLink}';
-            var fallbackUrl = 'https://play.google.com/store/apps/details?id=com.reuse'; // Update with your app store URL
+            var fallbackUrl = 'https://play.google.com/store/apps/details?id=com.malaq.notify'; // Update with your app store URL
             
             // Try to open the app
             window.location.href = deepLink;
